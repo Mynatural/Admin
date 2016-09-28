@@ -1,0 +1,19 @@
+<ion-header>
+    <ion-navbar>
+        <button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+    </ion-navbar>
+</ion-header>
+
+<ion-content padding class="home">
+    <div class="top-message">
+        <p *ngFor="let msg of topMessages; let i = index" class="m{{i}}">{{msg}}</p>
+    </div>
+    <div class="main">
+        <ion-spinner *ngIf="!isReady"></ion-spinner>
+    </div>
+</ion-content>
