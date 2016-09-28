@@ -16,6 +16,7 @@
     "bourbon": "^4.2.7",
     "cordova": "^6.3.1",
     "del": "2.2.0",
+    "express": "^4.14.0",
     "gulp": "^3.9.1",
     "gulp-typings": "^2.0.3",
     "gulp-util": "^3.0.7",
