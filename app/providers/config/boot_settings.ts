@@ -21,6 +21,10 @@ export class BootSettings {
         return BootSettings.src[key];
     }
 
+    get facebookAppId(): Promise<string> {
+        return this.get("facebookAppId");
+    }
+
     get awsRegion(): Promise<string> {
         return this.get("awsRegion");
     }

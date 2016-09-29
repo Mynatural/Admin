@@ -2,6 +2,7 @@ import {Injectable} from "@angular/core";
 import {Http} from "@angular/http";
 
 import {FBConnectPlugin, FBConnectToken} from "./fb.d";
+import {BootSettings} from "../config/boot_settings";
 import {toPromise} from "../../util/promising";
 import {Logger} from "../../util/logging";
 
@@ -9,13 +10,13 @@ const logger = new Logger("FBJSSDK");
 
 @Injectable()
 export class FBJSSDK implements FBConnectPlugin {
-    constructor(private http: Http) { }
+    constructor(private http: Http, private settings: BootSettings) { }
 
     private async initialize(): Promise<void> {
         const scriptId = "facebook-jssdk";
         if (!_.isNil(document.getElementById(scriptId))) return;
 
-        const appId = (await toPromise(this.http.get("facebook_app_id"))).text().trim();
+        const appId = await this.settings.facebookAppId;
         logger.debug(() => `Setting browser facebook app id: ${appId}`);
 
         const script = document.createElement("script") as HTMLScriptElement;
