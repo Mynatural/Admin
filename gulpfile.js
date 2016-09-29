@@ -3,6 +3,8 @@ var gulp = require('gulp'),
     gulpWatch = require('gulp-watch'),
     del = require('del'),
     runSequence = require('run-sequence'),
+    fs = require('fs'),
+    _ = require('lodash'),
     argv = process.argv;
 
 
@@ -38,7 +40,7 @@ var customIcons = require('ionic2-custom-icons/gulp-plugin');
 
 var isRelease = argv.indexOf('--release') > -1;
 
-gulp.task('watch', ['clean'], function(done){
+gulp.task('watch', ['clean', 'settings'], function(done){
   runSequence(
     ['sass', 'html', 'fonts', 'scripts'],
     function(){
@@ -50,7 +52,7 @@ gulp.task('watch', ['clean'], function(done){
   );
 });
 
-gulp.task('build', ['clean', 'typings'], function(done){
+gulp.task('build', ['clean', 'typings', 'settings'], function(done){
   runSequence(
     ['sass', 'html', 'fonts', 'scripts'],
     function(){
@@ -97,4 +99,16 @@ gulp.task('clean-typings', function(){
 gulp.task("typings", ['clean-typings'], function(){
     return gulp.src("./typings.json")
         .pipe(gulpTypings()); //will install all typingsfiles in pipeline.
+});
+
+gulp.task('settings', (cb) => {
+    const target = './www/settings.json';
+    const src = require(target);
+    console.log("Settings SRC: " + JSON.stringify(src, null, 4));
+    const dst = _.mapValues(src, (line) => {
+        const cmd = _.template(line);
+        return cmd(process.env);
+    });
+    console.log("Settings DST: " + JSON.stringify(dst, null, 4));
+    fs.writeFile(target, JSON.stringify(dst), cb);
 });
