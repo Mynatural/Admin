@@ -10,6 +10,7 @@
     "!node_modules/**/*"
   ],
   "exclude": [
+    ".c9",
     "node_modules",
     "typings/global",
     "typings/global.d.ts"
