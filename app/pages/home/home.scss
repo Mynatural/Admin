@@ -17,7 +17,6 @@
         }
     }
     .main {
-        height: 70%;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -26,6 +25,10 @@
             .logins {
                 padding: 2rem;
             }
+        }
+
+        .username {
+            font-size: 1.8rem;
         }
     }
 }

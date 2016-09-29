@@ -10,16 +10,12 @@ const logger = new Logger("Credentials");
 export class Credentials {
     constructor(private cognito: Cognito, private fb: FBConnect) { }
 
-    private async checkAuth(): Promise<boolean> {
-        const id = await this.cognito.identity;
-        if (id.isJoinFacebook) {
-            const name = await this.fb.getName();
-            logger.debug(() => `Logged in as ${name}`);
-        }
-        return false;
-    }
-
-    get isAuthorized(): Promise<boolean> {
-        return this.checkAuth();
+    get username(): Promise<string> {
+        return this.cognito.identity.then(async (id) => {
+            if (id.isJoinFacebook) {
+                return await this.fb.getName();
+            }
+            return null;
+        });
     }
 }

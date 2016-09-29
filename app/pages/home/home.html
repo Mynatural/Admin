@@ -16,11 +16,15 @@
     <div class="main">
         <ion-spinner *ngIf="!isReady"></ion-spinner>
         <div *ngIf="isReady">
-            <div class="login" *ngIf="!isJoined">
+            <div class="login" *ngIf="!username">
                 <ion-title>Login</ion-title>
                 <div class="logins">
                     <button (click)="loginFacebook()">Facebook</button>
                 </div>
+            </div>
+            <div class="logged" *ngIf="username">
+                <p>User</p>
+                <p class="username">{{username}}</p>
             </div>
         </div>
     </div>

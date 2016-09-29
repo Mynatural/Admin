@@ -17,7 +17,7 @@ export class HomePage {
     static icon = "home";
     title = HomePage.title;
     items: Lineup.Item[];
-    isJoined = false;
+    username: string;
 
     topMessages = [
         "Mynatural",
@@ -30,7 +30,7 @@ export class HomePage {
     }
 
     async checkAuth() {
-        this.isJoined = await this.cred.isAuthorized
+        this.username = await this.cred.username
     }
 
     get isReady(): boolean {
