@@ -50,5 +50,6 @@
     "start": "node server.js"
   },
   "name": "mynatural",
+  "version": "0.0.2",
   "description": "Mynatural: An Ionic project"
 }
