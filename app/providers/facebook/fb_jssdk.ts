@@ -65,7 +65,12 @@ export class FBJSSDK implements FBConnectPlugin {
     }
 
     getName(): Promise<string> {
-        throw "Unsupported oparation: getName";
+        return this.invoke<string>((fb, callback) => {
+            fb.api("/me", "get", (res) => {
+                logger.debug(() => `UserInfo: ${JSON.stringify(res, null, 4)}`);
+                callback(res["name"]);
+            });
+        });
     }
 
     getToken(): Promise<FBConnectToken> {
@@ -90,6 +95,7 @@ interface FBJSSDKPlugin {
     login(callback: FBJSCallback<LoginResponse>, param): void;
     logout(callback: FBJSCallback<void>): void;
     getLoginStatus(callback: FBJSCallback<LoginResponse>): void;
+    api(path: string, method: "get" | "post" | "delete", callback: FBJSCallback<LoginResponse>): void;
 }
 
 interface LoginResponse {
