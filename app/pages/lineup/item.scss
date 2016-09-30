@@ -1,12 +1,10 @@
 #item-page {
     ion-list {
         ion-item {
-            div[item-left] {
-                display: flex;
-                align-items: center;
-
-                button {
-                    margin-right: 3rem;
+            ion-label {
+                span {
+                    padding: 1rem;
+                    background-color: lightgray;
                 }
             }
         }

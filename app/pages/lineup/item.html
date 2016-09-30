@@ -18,10 +18,8 @@
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <ion-list *ngIf="isReady">
         <ion-item *ngFor="let spec of item.specs">
-            <ion-label (dblclick)="editName(spec)">{{spec.info.name}}</ion-label>
-
-            <ion-label (dblclick)="editKey(spec)">{{spec.info.key}}</ion-label>
-
+            <ion-label (dblclick)="editName(spec)"><span>{{spec.info.name}}</span></ion-label>
+            <ion-label (dblclick)="editKey(spec)"><span>{{spec.info.key}}</span></ion-label>
             <div item-right>
                 <button (click)="open(spec)" clear>
                     <ion-icon name="arrow-forward"></ion-icon>
