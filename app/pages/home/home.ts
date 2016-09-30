@@ -2,7 +2,6 @@ import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 import {NavController} from "ionic-angular";
 
-import {Cognito} from "../../providers/aws/cognito";
 import {Credentials} from "../../providers/config/credentials";
 import * as Lineup from "../../providers/model/lineup";
 import {Logger} from "../../util/logging";
@@ -17,20 +16,18 @@ export class HomePage {
     static icon = "home";
     title = HomePage.title;
     items: Lineup.Item[];
-    username: string;
 
     topMessages = [
         "Mynatural",
         "管理アプリ"
     ];
 
-    constructor(private nav: NavController, private cognito: Cognito, private cred: Credentials) {
+    constructor(private nav: NavController, private cred: Credentials) {
         logger.debug(() => `Checking facebook joined...`);
-        this.checkAuth();
     }
 
-    async checkAuth() {
-        this.username = await this.cred.username
+    get username(): string {
+        return this.cred.username;
     }
 
     get isReady(): boolean {
@@ -39,7 +36,6 @@ export class HomePage {
 
     async loginFacebook() {
         logger.debug(() => `Login by Facebook.`);
-        await this.cognito.joinFacebook();
-        this.checkAuth();
+        await this.cred.join();
     }
 }

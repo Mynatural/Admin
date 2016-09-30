@@ -1,0 +1,14 @@
+#lineup-page {
+    .list {
+        display: flex;
+        &>ion-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            &:first-child {
+                margin-top: 0;
+            }
+        }
+    }
+}
