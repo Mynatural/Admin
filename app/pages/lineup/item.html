@@ -16,6 +16,17 @@
 
 <ion-content padding id="item-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
-    <div class="list" *ngIf="isReady">
-    </div>
+    <ion-list *ngIf="isReady">
+        <ion-item *ngFor="let spec of item.specs">
+            <ion-label (dblclick)="editName(spec)">{{spec.info.name}}</ion-label>
+
+            <ion-label (dblclick)="editKey(spec)">{{spec.info.key}}</ion-label>
+
+            <div item-right>
+                <button (click)="open(spec)" clear>
+                    <ion-icon name="arrow-forward"></ion-icon>
+                </button>
+            </div>
+        </ion-item>
+    </ion-list>
 </ion-content>
