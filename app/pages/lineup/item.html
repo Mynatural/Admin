@@ -1,0 +1,21 @@
+<ion-header>
+    <ion-navbar>
+        <button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+        <ion-buttons end>
+            <button (click)="submit()">
+                <ion-icon name="checkmark"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+</ion-header>
+
+<ion-content padding id="item-page">
+    <ion-spinner *ngIf="!isReady"></ion-spinner>
+    <div class="list" *ngIf="isReady">
+    </div>
+</ion-content>
