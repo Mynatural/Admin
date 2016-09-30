@@ -8,6 +8,9 @@ import {Logger} from "../../util/logging";
 
 const logger = new Logger("FBJSSDK");
 
+const invokeInterval = 1000; // 1 second;
+var lastInvoked: Promise<void>;
+
 @Injectable()
 export class FBJSSDK implements FBConnectPlugin {
     constructor(private http: Http, private settings: BootSettings) { }
@@ -42,6 +45,16 @@ export class FBJSSDK implements FBConnectPlugin {
     }
 
     private async invoke<T>(proc: (fb: FBJSSDKPlugin, callback: (result: T) => void) => void) {
+        if (!_.isNil(lastInvoked)) {
+            logger.debug(() => `Waiting previous invoke...`);
+            await lastInvoked;
+            logger.debug(() => `Release from previous invoke.`);
+        }
+        lastInvoked = new Promise<void>((resolve, reject) => {
+            setTimeout(resolve, invokeInterval);
+            logger.debug(() => `Release this invoke`);
+        });
+
         await this.initialize();
         return new Promise<T>((resolve, reject) => {
             proc((window as any).FB, resolve);
