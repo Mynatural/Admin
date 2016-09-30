@@ -150,22 +150,22 @@ export class ItemSpec {
 }
 
 export class ItemSpecValue {
-    options: ItemSpecOption[];
+    derives: ItemSpecDeriv[];
     private _image: CachedImage;
     private _dir: string;
 
     constructor(private cim: CachedImageMaker, public spec: ItemSpec, public info: Info.SpecValue) {
-        this.options = _.map(info.options, (o) => new ItemSpecOption(cim, this, o));
+        this.derives = _.map(info.derives, (o) => new ItemSpecDeriv(cim, this, o));
     }
 
-    onChangeOption() {
+    onChangeDeriv() {
         this._dir = null;
         this.spec.item.onChangeSpecValue();
     }
 
     get dir(): string {
         if (_.isNil(this._dir)) {
-            const keys = _.map(this.options, (v) => v.current.info.key);
+            const keys = _.map(this.derives, (v) => v.current.info.key);
             logger.debug(() => `Building dir from keys: ${keys}`);
             this._dir = `${this.info.key}/${_.join(keys, "/")}`
         }
@@ -182,36 +182,36 @@ export class ItemSpecValue {
     }
 }
 
-export class ItemSpecOption {
-    availables: ItemSpecOptionValue[];
-    private _current: ItemSpecOptionValue;
+export class ItemSpecDeriv {
+    availables: ItemSpecDerivValue[];
+    private _current: ItemSpecDerivValue;
 
-    constructor(private cim: CachedImageMaker, public specValue: ItemSpecValue, public info: Info.SpecOption) {
+    constructor(private cim: CachedImageMaker, public specValue: ItemSpecValue, public info: Info.SpecDeriv) {
         this.availables = _.map(info.value.availables, (a) => {
-            return new ItemSpecOptionValue(cim, this, a);
+            return new ItemSpecDerivValue(cim, this, a);
         });
         this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
     }
 
-    get current(): ItemSpecOptionValue {
+    get current(): ItemSpecDerivValue {
         return this._current;
     }
 
-    set current(v: ItemSpecOptionValue) {
-        this.specValue.onChangeOption();
+    set current(v: ItemSpecDerivValue) {
+        this.specValue.onChangeDeriv();
         this._current = v;
     }
 }
 
-export class ItemSpecOptionValue {
+export class ItemSpecDerivValue {
     private _image: CachedImage;
 
-    constructor(private cim: CachedImageMaker, public parent: ItemSpecOption, public info: Info.SpecOptionValue) {
+    constructor(private cim: CachedImageMaker, public parent: ItemSpecDeriv, public info: Info.SpecDerivValue) {
     }
 
     get image(): SafeUrl {
         const list = _.flatMap([ROOT, this.parent.specValue.spec.item.dir], (base) =>
-            _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${this.parent.specValue.spec.info.key}/options/${this.parent.specValue.info.key}/${this.info.key}/illustration.${sux}`));
+            _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${this.parent.specValue.spec.info.key}/derives/${this.parent.specValue.info.key}/${this.info.key}/illustration.${sux}`));
         if (_.isNil(this._image) || !this._image.isSamePath(list)) {
             this._image = this.cim.create(list);
         }

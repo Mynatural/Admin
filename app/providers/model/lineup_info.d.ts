@@ -24,20 +24,20 @@ export type SpecValue = {
     name: string,
     key: string,
     description: string,
-    options: SpecOption[],
+    derives: SpecDeriv[],
     price: number
 }
 
-export type SpecOption = {
+export type SpecDeriv = {
     name: string,
     key: string,
     value: {
         initial: string,
-        availables: SpecOptionValue[]
+        availables: SpecDerivValue[]
     }
 }
 
-export type SpecOptionValue = {
+export type SpecDerivValue = {
     name: string,
     key: string,
     description?: string
