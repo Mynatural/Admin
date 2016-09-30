@@ -10,12 +10,25 @@ const logger = new Logger("Credentials");
 export class Credentials {
     constructor(private cognito: Cognito, private fb: FBConnect) { }
 
-    get username(): Promise<string> {
-        return this.cognito.identity.then(async (id) => {
-            if (id.isJoinFacebook) {
-                return await this.fb.getName();
-            }
-            return null;
-        });
+    private _username: string;
+
+    async join(): Promise<void> {
+        await this.cognito.joinFacebook();
+        this.update();
+    }
+
+    private async update(): Promise<void> {
+        const id = await this.cognito.identity;
+        if (id.isJoinFacebook) {
+            this._username = await this.fb.getName();
+        }
+    }
+
+    get username(): string {
+        if (_.isNil(this._username)) {
+            this._username = "";
+            this.update();
+        }
+        return this._username;
     }
 }

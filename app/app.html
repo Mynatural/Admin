@@ -5,6 +5,12 @@
     </ion-toolbar>
 
     <ion-content>
+        <div padding class="username">
+            <ion-item>
+                <ion-icon name="person" item-left></ion-icon>
+                <p>{{username}}</p>
+            </ion-item>
+        </div>
         <ion-list>
             <ion-item *ngFor="let p of pages" menuClose (click)="openPage(p)">
                 <ion-icon name="{{p.icon}}" item-left></ion-icon>
