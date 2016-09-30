@@ -2,43 +2,40 @@ import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 import {AlertController, NavController, NavParams} from "ionic-angular";
 
-import {SpecPage} from "./spec";
 import * as Lineup from "../../providers/model/lineup";
 import {Logger} from "../../util/logging";
 
 const logger = new Logger("ItemPage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/item.html'
+    templateUrl: 'build/pages/lineup/spec.html'
 })
-export class ItemPage {
+export class SpecPage {
     title: string;
-    item: Lineup.Item;
+    spec: Lineup.ItemSpec;
 
     constructor(private alertCtrl: AlertController, private nav: NavController, params: NavParams, private lineup: Lineup.Lineup) {
-        this.item = params.get("item");
-        this.title = this.item.name;
+        this.spec = params.get("spec");
+        this.title = this.spec.info.name;
     }
 
     get isReady(): boolean {
         return true;
     }
 
-    open(spec: Lineup.ItemSpec) {
-        this.nav.push(SpecPage, {
-            spec: spec
+    open(v: Lineup.ItemSpecValue) {
+
+    }
+
+    editName(sv: Lineup.ItemSpecValue) {
+        this.promptEdit("仕様名の変更", "日本語で入力してください。", sv.info.name, (v) => {
+            sv.info.name = v;
         });
     }
 
-    editName(spec: Lineup.ItemSpec) {
-        this.promptEdit("仕様名の変更", "日本語で入力してください。", spec.info.name, (v) => {
-            spec.info.name = v;
-        });
-    }
-
-    editKey(spec: Lineup.ItemSpec) {
-        this.promptEdit("仕様名の変更", "英数字で入力してください。", spec.info.key, (v) => {
-            spec.info.key = v;
+    editKey(sv: Lineup.ItemSpecValue) {
+        this.promptEdit("仕様名の変更", "英数字で入力してください。", sv.info.key, (v) => {
+            sv.info.key = v;
         });
     }
 

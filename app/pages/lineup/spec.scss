@@ -1,0 +1,15 @@
+#spec-page {
+    .initial {
+        margin-bottom: 3rem;
+    }
+    .values {
+        ion-item {
+            ion-label {
+                span {
+                    padding: 1rem;
+                    background-color: lightgray;
+                }
+            }
+        }
+    }
+}

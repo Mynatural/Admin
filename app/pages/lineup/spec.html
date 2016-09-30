@@ -1,0 +1,40 @@
+<ion-header>
+    <ion-navbar>
+        <button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+        <ion-buttons end>
+            <button (click)="submit()">
+                <ion-icon name="checkmark"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+</ion-header>
+
+<ion-content padding id="spec-page">
+    <ion-spinner *ngIf="!isReady"></ion-spinner>
+    <div class="main" *ngIf="isReady">
+        <ion-item class="initial">
+            <ion-label>Initial Value</ion-label>
+            <ion-select [(ngModel)]="spec.current" [selectedText]="spec.current.info.name">
+                <ion-option *ngFor="let sv of spec.availables" [value]="sv" [selected]="sv.info.key === spec.current.info.key">
+                    {{sv.info.name}}
+                </ion-option>
+            </ion-select>
+            <p>{{spec.info.initial}}</p>
+        </ion-item>
+
+        <div class="values">
+            <p>Availables</p>
+            <ion-list>
+                <ion-item *ngFor="let sv of spec.availables">
+                    <ion-label><span (dblclick)="editName(sv)">{{sv.info.name}}</span></ion-label>
+                    <ion-label><span (dblclick)="editKey(sv)">{{sv.info.key}}</span></ion-label>
+                </ion-item>
+            </ion-list>
+        </div>
+    </div>
+</ion-content>
