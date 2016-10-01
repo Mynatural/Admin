@@ -2,31 +2,25 @@ import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
-import {SpecPage} from "./spec";
+import * as Prompt from "./util_prompt";
 import * as Lineup from "../../providers/model/lineup";
 import {Logger} from "../../util/logging";
 
-const logger = new Logger("ItemPage");
+const logger = new Logger("DerivValuePage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/item.html'
+    templateUrl: 'build/pages/lineup/deriv_value.html'
 })
-export class ItemPage {
+export class DerivValuePage {
     title: string;
-    item: Lineup.Item;
+    derivValue: Lineup.ItemSpecDerivValue;
 
     constructor(private nav: NavController, params: NavParams) {
-        this.item = params.get("item");
-        this.title = this.item.name;
+        this.derivValue = params.get("derivValue");
+        this.title = this.derivValue.info.name;
     }
 
     get isReady(): boolean {
         return !_.isNil(this.title);
-    }
-
-    open(spec: Lineup.ItemSpec) {
-        this.nav.push(SpecPage, {
-            spec: spec
-        });
     }
 }

@@ -25,3 +25,15 @@ export function edit(alertCtrl: AlertController, title: string, msg: string, val
         ]
     }).present();
 }
+
+export function editName(a) {
+    edit(this.alertCtrl, "仕様名の変更", "日本語で入力してください。", a.info.name, (v) => {
+        a.info.name = v;
+    });
+}
+
+export function editKey(a) {
+    edit(this.alertCtrl, "仕様名の変更", "英数字で入力してください。", a.info.key, (v) => {
+        a.info.key = v;
+    });
+}

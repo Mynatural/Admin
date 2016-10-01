@@ -2,31 +2,31 @@ import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
-import {SpecPage} from "./spec";
+import {DerivPage} from "./deriv";
 import * as Lineup from "../../providers/model/lineup";
 import {Logger} from "../../util/logging";
 
-const logger = new Logger("ItemPage");
+const logger = new Logger("SpecValuePage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/item.html'
+    templateUrl: 'build/pages/lineup/spec_value.html'
 })
-export class ItemPage {
+export class SpecValuePage {
     title: string;
-    item: Lineup.Item;
+    specValue: Lineup.ItemSpecValue;
 
     constructor(private nav: NavController, params: NavParams) {
-        this.item = params.get("item");
-        this.title = this.item.name;
+        this.specValue = params.get("specValue");
+        this.title = this.specValue.info.name;
     }
 
     get isReady(): boolean {
         return !_.isNil(this.title);
     }
 
-    open(spec: Lineup.ItemSpec) {
-        this.nav.push(SpecPage, {
-            spec: spec
+    open(v: Lineup.ItemSpecDeriv) {
+        this.nav.push(DerivPage, {
+            deriv: v
         });
     }
 }

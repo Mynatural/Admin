@@ -1,5 +1,5 @@
-#lineup-page {
-    .list {
+.lineup-pages {
+    .lineup-list {
         display: flex;
         &>ion-card {
             display: flex;
@@ -10,5 +10,14 @@
                 margin-top: 0;
             }
         }
+    }
+
+    .name_key {
+        display: flex;
+        margin-bottom: 3rem;
+    }
+
+    .initial-value {
+        margin-bottom: 3rem;
     }
 }
