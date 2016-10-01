@@ -14,6 +14,7 @@ const logger = new Logger("DerivPage");
 export class SpecPage {
     title: string;
     spec: Lineup.ItemSpec;
+    sides = ["FRONT", "BACK"];
 
     constructor(private nav: NavController, params: NavParams) {
         this.spec = params.get("spec");

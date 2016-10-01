@@ -2,6 +2,7 @@
 export type Lineup = {
     name: string,
     price: number,
+    description: string,
     specs: Spec[],
     specValues: SpecValue[],
     measurements: Measurement[]
@@ -10,7 +11,7 @@ export type Lineup = {
 export type Spec = {
     name: string,
     key: string,
-    sides: SpecSide,
+    side: SpecSide,
     canSame?: string, // key of other Spec
     value: {
         initial: string,

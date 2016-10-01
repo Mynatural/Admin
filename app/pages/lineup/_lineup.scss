@@ -14,10 +14,20 @@
 
     .name_key {
         display: flex;
-        margin-bottom: 3rem;
     }
 
-    .initial-value {
-        margin-bottom: 3rem;
+    .side {
+        margin: 2rem 0 2rem 0;
+
+        &>ion-item {
+            background-color: #f8f8f8;
+        }
+        &>ion-list {
+            border: 2px solid lightgray;
+        }
+    }
+
+    .children, .values {
+        margin-top: 2rem;
     }
 }

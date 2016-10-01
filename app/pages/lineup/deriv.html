@@ -20,21 +20,24 @@
         <div class="name_key">
             <div class="name">
                 <ion-item>
-                    <ion-label>Name</ion-label>
+                    <ion-label floating>Name</ion-label>
                     <ion-input [(ngModel)]="deriv.info.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
                 <ion-item>
-                    <ion-label>Key</ion-label>
+                    <ion-label floating>Key</ion-label>
                     <ion-input [(ngModel)]="deriv.info.key"></ion-input>
                 </ion-item>
             </div>
         </div>
 
-        <ion-list>
-            <ion-item *ngFor="let a of deriv.availables" (click)="open(a)">
-                <ion-label>{{a.info.name}} ({{a.info.key}})</ion-label>
+        <ion-list class="values">
+            <ion-item *ngFor="let a of deriv.availables">
+                <ion-label (click)="open(a)">{{a.info.name}} ({{a.info.key}})</ion-label>
+                <button item-right clear (click)="deriv.info.value.initial = a.info.key">
+                    <ion-icon [name]="a.info.key === deriv.info.value.initial ? 'checkbox-outline' : 'square-outline'"></ion-icon>
+                </button>
             </ion-item>
         </ion-list>
     </div>
