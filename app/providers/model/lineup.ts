@@ -116,7 +116,7 @@ export class LineupValue {
 
     async changeKey(v: string): Promise<void> {
         if (_.isEmpty(v)) return;
-        this._changeKey.update(v, async (v) => {
+        await this._changeKey.update(v, async (v) => {
             logger.debug(() => `Changing lineup key: ${this._key} -> ${v}`);
             const src = this.dir;
             this._key = v;
