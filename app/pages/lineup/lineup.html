@@ -6,9 +6,12 @@
         <ion-title>
             {{title}}
         </ion-title>
-        <ion-buttons end>
+        <ion-buttons end *ngIf="isReady">
             <button (click)="addNew()">
                 <ion-icon name="add"></ion-icon>
+            </button>
+            <button (click)="write()">
+                <ion-icon name="cloud-upload"></ion-icon>
             </button>
         </ion-buttons>
     </ion-navbar>
@@ -18,7 +21,7 @@
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="lineup-list" *ngIf="isReady">
         <ion-card *ngFor="let item of lineup.availables" (click)="open(item)">
-            <p>{{item.name}}</p>
+            <p>{{item.info.name}}</p>
             <img [src]="item.titleImage">
         </ion-card>
     </div>

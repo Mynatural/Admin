@@ -35,9 +35,6 @@ export class SpecPage {
         }
     }
 
-    async submit(): Promise<void> {
-    }
-
     open(sv: Lineup.ItemSpecValue) {
         this.nav.push(SpecValuePage, {
             specValue: sv

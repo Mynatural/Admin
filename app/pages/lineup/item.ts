@@ -35,10 +35,6 @@ export class ItemPage {
         }
     }
 
-    async submit(): Promise<void> {
-        await this.item.writeInfo();
-    }
-
     open(spec: Lineup.ItemSpec) {
         this.nav.push(SpecPage, {
             spec: spec

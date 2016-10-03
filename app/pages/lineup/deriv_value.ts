@@ -32,7 +32,4 @@ export class DerivValuePage {
             this.nav.pop();
         }
     }
-
-    async submit(): Promise<void> {
-    }
 }

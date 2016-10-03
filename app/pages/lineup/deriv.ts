@@ -34,9 +34,6 @@ export class DerivPage {
         }
     }
 
-    async submit(): Promise<void> {
-    }
-
     open(v: Lineup.ItemSpecDerivValue) {
         this.nav.push(DerivValuePage, {
             derivValue: v

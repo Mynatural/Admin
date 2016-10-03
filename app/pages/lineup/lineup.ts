@@ -3,7 +3,6 @@ import {SafeUrl} from '@angular/platform-browser';
 import {NavController} from "ionic-angular";
 
 import {ItemPage} from "./item";
-import * as Prompt from "./util_prompt";
 import * as Lineup from "../../providers/model/lineup";
 import {Logger} from "../../util/logging";
 
@@ -26,6 +25,10 @@ export class LineupPage {
 
     get isReady(): boolean {
         return !_.isNil(this.lineup);
+    }
+
+    async write(): Promise<void> {
+        await Promise.all(this.lineup.availables.map((a) => a.writeInfo()));
     }
 
     open(item: Lineup.LineupValue) {
