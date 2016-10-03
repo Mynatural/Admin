@@ -11,6 +11,7 @@ const logger = new Logger("Lineup");
 const ROOT = "unauthorized";
 const LINEUP = "lineup";
 const SPEC_VALUE = "spec-value";
+const INFO_JSON = "info.json.encoded";
 
 function createNewKey(prefix: string, find: (v: string) => any): string {
     var index = 0;
@@ -36,16 +37,15 @@ export class LineupController {
     private async getAll(): Promise<LineupValue[]> {
         const rootDir = `${ROOT}/${LINEUP}/`
         const finds = await this.s3.list(rootDir);
+        logger.debug(() => `Finds: ${JSON.stringify(finds, null, 4)}`);
         const keys = _.filter(finds.map((path) => {
-            if (path.endsWith("/")) {
-                const name = path.substring(rootDir.length, path.length - 1);
-                const l = _.split(name, "/");
-                if (l.length === 1) {
-                    return l[0];
-                }
+            if (path.endsWith(`/${INFO_JSON}`)) {
+                const l = _.split(path, "/");
+                return l[l.length - 2];
             }
             return null;
         }));
+        logger.debug(() => `Keys: ${JSON.stringify(keys, null, 4)}`);
         const list = keys.map(async (key) => {
             try {
                 return await this.load(key);
@@ -58,7 +58,7 @@ export class LineupController {
     }
 
     private async load(key: string): Promise<LineupValue> {
-        const text = await this.s3.read(`${ROOT}/${LINEUP}/${key}/info.json.encoded`);
+        const text = await this.s3.read(`${ROOT}/${LINEUP}/${key}/${INFO_JSON}`);
         const info = Base64.decodeJson(text) as Info.LineupValue;
         return new LineupValue(this.s3, this.cim, key, info);
     }
@@ -73,7 +73,7 @@ export class Lineup {
 
     async remove(o: LineupValue): Promise<void> {
         _.remove(this.availables, (a) => _.isEqual(a.key, o.key));
-        await this.s3.remove(o.dir);
+        await this.s3.removeDir(o.dir);
     }
 
     createNew(): LineupValue {
@@ -148,7 +148,7 @@ export class LineupValue {
     }
 
     async writeInfo(): Promise<void> {
-        const path = `${this.dir}/info.json.encoded`;
+        const path = `${this.dir}/${INFO_JSON}`;
         await this.s3.write(path, Base64.encodeJson(this.info));
     }
 
