@@ -43,6 +43,16 @@ export class S3File {
         return String.fromCharCode.apply(null, res.Body);
     }
 
+    async write(path: string, text: string): Promise<void> {
+        const bucketName = await this.settings.s3Bucket;
+        logger.debug(() => `Write file: ${bucketName}:${path}`);
+        await this.invoke((s3) => s3.putObject({
+            Bucket: bucketName,
+            Key: path,
+            Body: text
+        }));
+    }
+
     async upload(path: string, blob: Blob): Promise<void> {
         const bucketName = await this.settings.s3Bucket;
         logger.debug(() => `Uploading file: ${bucketName}:${path}`);
@@ -61,6 +71,32 @@ export class S3File {
             Bucket: bucketName,
             Key: path
         }));
+    }
+
+    async removeFiles(pathList: string[]): Promise<void> {
+        const bucketName = await this.settings.s3Bucket;
+        logger.debug(() => `Removing files in bucket[${bucketName}]: ${JSON.stringify(pathList, null, 4)}`);
+        const lists = _.chunk(pathList, 1000);
+        await Promise.all(_.map(lists, (list) =>
+            this.invoke((s3) => s3.deleteObjects({
+                Bucket: bucketName,
+                Delete: {
+                    Objects: _.map(list, (path) => {
+                        return {
+                            Key: path
+                        }
+                    })
+                }
+            }))
+        ));
+    }
+
+    async removeDir(path: string): Promise<void> {
+        const bucketName = await this.settings.s3Bucket;
+        logger.debug(() => `Removing dir: ${bucketName}:${path}`);
+        const dir = `${path}/`;
+        const list = await this.list(dir);
+        this.removeFiles(list);
     }
 
     async copy(src: string, dst: string): Promise<void> {

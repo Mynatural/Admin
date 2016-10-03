@@ -1,7 +1,8 @@
 
-export type Lineup = {
+export type LineupValue = {
     name: string,
     price: number,
+    description: string,
     specs: Spec[],
     specValues: SpecValue[],
     measurements: Measurement[]
@@ -10,7 +11,7 @@ export type Lineup = {
 export type Spec = {
     name: string,
     key: string,
-    sides: SpecSide,
+    side: SpecSide,
     canSame?: string, // key of other Spec
     value: {
         initial: string,
@@ -24,23 +25,23 @@ export type SpecValue = {
     name: string,
     key: string,
     description: string,
-    options: SpecOption[],
+    derives: SpecDeriv[],
     price: number
 }
 
-export type SpecOption = {
+export type SpecDeriv = {
     name: string,
     key: string,
     value: {
         initial: string,
-        availables: SpecOptionValue[]
+        availables: SpecDerivValue[]
     }
 }
 
-export type SpecOptionValue = {
+export type SpecDerivValue = {
     name: string,
     key: string,
-    description?: string
+    description: string
 }
 
 export type Measurement = {

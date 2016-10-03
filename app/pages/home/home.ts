@@ -3,7 +3,6 @@ import {SafeUrl} from '@angular/platform-browser';
 import {NavController} from "ionic-angular";
 
 import {Credentials} from "../../providers/config/credentials";
-import * as Lineup from "../../providers/model/lineup";
 import {Logger} from "../../util/logging";
 
 const logger = new Logger("HomePage");
@@ -15,7 +14,6 @@ export class HomePage {
     static title = "ホーム";
     static icon = "home";
     title = HomePage.title;
-    items: Lineup.Item[];
 
     topMessages = [
         "Mynatural",

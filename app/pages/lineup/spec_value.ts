@@ -2,25 +2,25 @@ import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
-import {SpecPage} from "./spec";
+import {DerivPage} from "./deriv";
 import {Prompt} from "../../providers/util_prompt";
 import * as Lineup from "../../providers/model/lineup";
 import {Logger} from "../../util/logging";
 
-const logger = new Logger("ItemPage");
+const logger = new Logger("SpecValuePage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/item.html'
+    templateUrl: 'build/pages/lineup/spec_value.html'
 })
-export class ItemPage {
-    item: Lineup.LineupValue;
+export class SpecValuePage {
+    specValue: Lineup.ItemSpecValue;
 
-    constructor(private nav: NavController, private prompt: Prompt, params: NavParams, private lineupCtrl: Lineup.LineupController) {
-        this.item = params.get("item");
+    constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
+        this.specValue = params.get("specValue");
     }
 
     get title(): string {
-        return this.item.info.name;
+        return this.specValue.info.name;
     }
 
     get isReady(): boolean {
@@ -29,19 +29,18 @@ export class ItemPage {
 
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-            const lineup = await this.lineupCtrl.lineup;
-            await lineup.remove(this.item);
+            await this.specValue.spec.remove(this.specValue);
             this.nav.pop();
         }
     }
 
-    open(spec: Lineup.ItemSpec) {
-        this.nav.push(SpecPage, {
-            spec: spec
+    open(v: Lineup.ItemSpecDeriv) {
+        this.nav.push(DerivPage, {
+            deriv: v
         });
     }
 
     addNew() {
-        this.open(this.item.createSpec());
+        this.open(this.specValue.createDeriv());
     }
 }

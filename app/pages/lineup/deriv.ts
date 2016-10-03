@@ -2,25 +2,25 @@ import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
-import {SpecPage} from "./spec";
+import {DerivValuePage} from "./deriv_value";
 import {Prompt} from "../../providers/util_prompt";
 import * as Lineup from "../../providers/model/lineup";
 import {Logger} from "../../util/logging";
 
-const logger = new Logger("ItemPage");
+const logger = new Logger("DerivPage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/item.html'
+    templateUrl: 'build/pages/lineup/deriv.html'
 })
-export class ItemPage {
-    item: Lineup.LineupValue;
+export class DerivPage {
+    deriv: Lineup.ItemSpecDeriv;
 
-    constructor(private nav: NavController, private prompt: Prompt, params: NavParams, private lineupCtrl: Lineup.LineupController) {
-        this.item = params.get("item");
+    constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
+        this.deriv = params.get("deriv");
     }
 
     get title(): string {
-        return this.item.info.name;
+        return this.deriv.info.name;
     }
 
     get isReady(): boolean {
@@ -29,19 +29,18 @@ export class ItemPage {
 
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-            const lineup = await this.lineupCtrl.lineup;
-            await lineup.remove(this.item);
+            await this.deriv.specValue.removeDeriv(this.deriv);
             this.nav.pop();
         }
     }
 
-    open(spec: Lineup.ItemSpec) {
-        this.nav.push(SpecPage, {
-            spec: spec
+    open(v: Lineup.ItemSpecDerivValue) {
+        this.nav.push(DerivValuePage, {
+            derivValue: v
         });
     }
 
     addNew() {
-        this.open(this.item.createSpec());
+        this.open(this.deriv.createNew());
     }
 }

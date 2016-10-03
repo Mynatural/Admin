@@ -15,26 +15,30 @@ export class LineupPage {
     static title = "ラインナップ";
     static icon = "filing";
     title = LineupPage.title;
-    items: Lineup.Item[];
+    lineup: Lineup.Lineup;
 
-    constructor(private nav: NavController, private lineup: Lineup.Lineup) {
-        lineup.all.then((list) => {
-            this.items = list;
+    constructor(private nav: NavController, lineupCtrl: Lineup.LineupController) {
+        lineupCtrl.lineup.then((v) => {
+            this.lineup = v;
         });
     }
 
     get isReady(): boolean {
-        return true;
+        return !_.isNil(this.lineup);
     }
 
-    open(item: Lineup.Item) {
-        logger.debug(() => `Opening lineup: ${item.name}`);
+    async write(): Promise<void> {
+        await Promise.all(this.lineup.availables.map((a) => a.writeInfo()));
+    }
+
+    open(item: Lineup.LineupValue) {
+        logger.debug(() => `Opening lineup: ${item.info.name}`);
         this.nav.push(ItemPage, {
             item: item
         });
     }
 
     addNew() {
-        logger.debug(() => `Adding new...`);
+        this.open(this.lineup.createNew());
     }
 }

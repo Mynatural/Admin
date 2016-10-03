@@ -14,48 +14,37 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content padding class="lineup-pages" id="item-page">
+<ion-content padding class="lineup-pages" id="deriv-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
-    <div *ngIf="isReady">
+    <div class="main" *ngIf="isReady">
         <div class="name_key">
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="item.info.name"></ion-input>
+                    <ion-input [(ngModel)]="deriv.info.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
                 <ion-item>
                     <ion-label floating>Key</ion-label>
-                    <ion-input [(ngModel)]="item.key"></ion-input>
+                    <ion-input [(ngModel)]="deriv.info.key"></ion-input>
                 </ion-item>
             </div>
         </div>
 
-        <div class="description">
-            <ion-item>
-                <ion-label floating>Description</ion-label>
-                <ion-input [(ngModel)]="item.info.description"></ion-input>
-            </ion-item>
-        </div>
-
-        <div class="price">
-            <ion-item>
-                <ion-label floating>Price</ion-label>
-                <ion-input [(ngModel)]="item.info.price" type="number"></ion-input>
-            </ion-item>
-        </div>
-
-        <ion-list class="children">
+        <ion-list class="values">
             <ion-item-divider>
-                <ion-label>Specs</ion-label>
+                <ion-label>Values</ion-label>
                 <button item-right (click)="addNew()">
                     <ion-icon name="add"></ion-icon>
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let a of item.specs" (click)="open(a)">
-                <ion-label>{{a.info.name}} ({{a.info.key}})</ion-label>
+            <ion-item *ngFor="let a of deriv.availables">
+                <ion-label (click)="open(a)">{{a.info.name}} ({{a.info.key}})</ion-label>
+                <button item-right clear (click)="deriv.info.value.initial = a.info.key">
+                    <ion-icon [name]="a.info.key === deriv.info.value.initial ? 'checkbox-outline' : 'square-outline'"></ion-icon>
+                </button>
             </ion-item>
         </ion-list>
     </div>

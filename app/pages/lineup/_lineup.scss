@@ -1,0 +1,33 @@
+.lineup-pages {
+    .lineup-list {
+        display: flex;
+        &>ion-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            &:first-child {
+                margin-top: 0;
+            }
+        }
+    }
+
+    .name_key {
+        display: flex;
+    }
+
+    .side {
+        margin: 2rem 0 2rem 0;
+
+        &>ion-item {
+            background-color: #f8f8f8;
+        }
+        &>ion-list {
+            border: 2px solid lightgray;
+        }
+    }
+
+    .children, .values {
+        margin-top: 2rem;
+    }
+}
