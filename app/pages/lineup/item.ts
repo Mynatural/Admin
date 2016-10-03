@@ -27,14 +27,6 @@ export class ItemPage {
         return !_.isNil(this.title);
     }
 
-    get key(): string {
-        return this.item.key;
-    }
-
-    set key(v: string) {
-        this.item.changeKey(v);
-    }
-
     async uploadImage() {
         try {
             const file = await this.prompt.file("Title Image", "PNG file");
