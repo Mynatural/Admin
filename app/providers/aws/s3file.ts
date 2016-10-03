@@ -206,4 +206,48 @@ export class S3Image {
             http.send();
         });
     }
+
+    createCache(pathList: string[], refreshRate = 1000 * 60 * 10): CachedImage {
+        return new CachedImage(this, pathList, refreshRate);
+    }
+}
+
+export class CachedImage {
+    private _url: SafeUrl;
+
+    constructor(private s3image: S3Image, public pathList: string[], refreshRate: number) {
+        this.refresh(refreshRate);
+    }
+
+    private async load(path: string): Promise<SafeUrl> {
+        try {
+            return await this.s3image.getUrl(path);
+        } catch (ex) {
+            logger.warn(() => `Failed to load s3image: ${path}: ${ex}`);
+        }
+        return null;
+    }
+
+    private async refresh(limit: number) {
+        try {
+            var url;
+            var i = 0;
+            while (_.isNil(url) && i < this.pathList.length) {
+                url = await this.load(this.pathList[i++]);
+            }
+            this._url = url;
+        } finally {
+            setTimeout(() => {
+                this.refresh(limit);
+            }, limit);
+        }
+    }
+
+    isSamePath(pathList: string[]): boolean {
+        return _.isEmpty(_.difference(this.pathList, pathList));
+    }
+
+    get url(): SafeUrl {
+        return this._url;
+    }
 }

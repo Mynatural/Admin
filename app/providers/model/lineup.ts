@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./lineup_info.d";
-import {S3File, S3Image} from "../aws/s3file";
+import {S3File, S3Image, CachedImage} from "../aws/s3file";
 import {InputInterval} from "../../util/input_interval";
 import * as Base64 from "../../util/base64";
 import {Logger} from "../../util/logging";
@@ -25,13 +25,11 @@ function createNewKey(prefix: string, find: (v: string) => any): string {
 
 @Injectable()
 export class LineupController {
-    cim: CachedImageMaker;
     lineup: Promise<Lineup>;
 
-    constructor(private s3: S3File, s3image: S3Image) {
-        this.cim = new CachedImageMaker(s3image);
+    constructor(private s3: S3File, private s3image: S3Image) {
         this.lineup = this.getAll().then((list) => {
-            return new Lineup(s3, this.cim, list);
+            return new Lineup(s3, this.s3image, list);
         });
     }
 
@@ -61,12 +59,12 @@ export class LineupController {
     private async load(key: string): Promise<LineupValue> {
         const text = await this.s3.read(`${ROOT}/${LINEUP}/${key}/${INFO_JSON}`);
         const info = Base64.decodeJson(text) as Info.LineupValue;
-        return new LineupValue(this.s3, this.cim, key, info);
+        return new LineupValue(this.s3, this.s3image, key, info);
     }
 }
 
 export class Lineup {
-    constructor(private s3: S3File, private cim: CachedImageMaker, public availables: LineupValue[]) { }
+    constructor(private s3: S3File, private s3image: S3Image, public availables: LineupValue[]) { }
 
     get(key: string): LineupValue {
         return _.find(this.availables, {"key": key});
@@ -79,7 +77,7 @@ export class Lineup {
 
     createNew(): LineupValue {
         const key = createNewKey("new_created", (key) => _.find(this.availables, {"key": key}));
-        const one = new LineupValue(this.s3, this.cim, key, {
+        const one = new LineupValue(this.s3, this.s3image, key, {
             name: "新しいラインナップ",
             price: 500,
             description: "",
@@ -99,10 +97,10 @@ export class LineupValue {
     private _images: {[key: string]: CachedImage} = {};
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private s3: S3File, private cim: CachedImageMaker, private _key: string, public info: Info.LineupValue) {
+    constructor(private s3: S3File, private s3image: S3Image, private _key: string, public info: Info.LineupValue) {
         logger.info(() => `${_key}: ${JSON.stringify(info, null, 4)}`);
-        this.specs = _.map(info.specs, (spec) => new ItemSpec(cim, this, spec));
-        this.measurements = _.map(info.measurements, (m) => new ItemMeas(cim, this, m));
+        this.specs = _.map(info.specs, (spec) => new ItemSpec(s3image, this, spec));
+        this.measurements = _.map(info.measurements, (m) => new ItemMeas(s3image, this, m));
     }
 
     onChangeSpecValue() {
@@ -129,7 +127,7 @@ export class LineupValue {
 
     get titleImage(): SafeUrl {
         if (_.isNil(this._titleImage)) {
-            this._titleImage = this.cim.create([`${this.dir}/title.png`]);
+            this._titleImage = this.s3image.createCache([`${this.dir}/title.png`]);
         }
         return this._titleImage.url;
     }
@@ -148,7 +146,7 @@ export class LineupValue {
             const list = ["FRONT", "BACK"];
             _.forEach(list, (side) => {
                 const path = `${dir}/${side}.png`;
-                this._images[side] = this.cim.create([path]);
+                this._images[side] = this.s3image.createCache([path]);
             });
         }
         return this._images;
@@ -186,7 +184,7 @@ export class LineupValue {
 
     createSpec(): ItemSpec {
         const key = createNewKey("new_spec", (key) => this.getSpec(key));
-        const one = new ItemSpec(this.cim, this, {
+        const one = new ItemSpec(this.s3image, this, {
             name: "新しい仕様",
             key: key,
             side: "FRONT",
@@ -208,10 +206,10 @@ export class ItemSpec {
     private _current: ItemSpecValue;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private cim: CachedImageMaker, public item: LineupValue, public info: Info.Spec) {
+    constructor(private s3image: S3Image, public item: LineupValue, public info: Info.Spec) {
         this.availables = _.map(info.value.availables, (key) => {
             const v = _.find(item.info.specValues, {"key": key});
-            return new ItemSpecValue(cim, this, v);
+            return new ItemSpecValue(s3image, this, v);
         });
         this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
     }
@@ -253,7 +251,7 @@ export class ItemSpec {
 
     createNew() {
         const key = createNewKey("new_value", (key) => this.get(key));
-        const one = new ItemSpecValue(this.cim, this, {
+        const one = new ItemSpecValue(this.s3image, this, {
             name: "新しい仕様の値",
             key: key,
             description: "",
@@ -273,8 +271,8 @@ export class ItemSpecValue {
     private _dir: string;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private cim: CachedImageMaker, public spec: ItemSpec, public info: Info.SpecValue) {
-        this.derives = _.map(info.derives, (o) => new ItemSpecDeriv(cim, this, o));
+    constructor(private s3image: S3Image, public spec: ItemSpec, public info: Info.SpecValue) {
+        this.derives = _.map(info.derives, (o) => new ItemSpecDeriv(s3image, this, o));
     }
 
     get key(): string {
@@ -307,7 +305,7 @@ export class ItemSpecValue {
         const list = _.flatMap([ROOT, this.spec.item.dir], (base) =>
             _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${this.spec.info.key}/images/${this.dir}/illustration.${sux}`));
         if (_.isNil(this._image) || !this._image.isSamePath(list)) {
-            this._image = this.cim.create(list);
+            this._image = this.s3image.createCache(list);
         }
         return this._image.url;
     }
@@ -323,7 +321,7 @@ export class ItemSpecValue {
 
     createDeriv(): ItemSpecDeriv {
         const key = createNewKey("new_deriv", (key) => this.getDeriv(key));
-        const one = new ItemSpecDeriv(this.cim, this, {
+        const one = new ItemSpecDeriv(this.s3image, this, {
             name: "新しい派生",
             key: key,
             value: {
@@ -344,9 +342,9 @@ export class ItemSpecDeriv {
     private _current: ItemSpecDerivValue;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private cim: CachedImageMaker, public specValue: ItemSpecValue, public info: Info.SpecDeriv) {
+    constructor(private s3image: S3Image, public specValue: ItemSpecValue, public info: Info.SpecDeriv) {
         this.availables = _.map(info.value.availables, (a) => {
-            return new ItemSpecDerivValue(cim, this, a);
+            return new ItemSpecDerivValue(s3image, this, a);
         });
         this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
     }
@@ -388,7 +386,7 @@ export class ItemSpecDeriv {
 
     createNew(): ItemSpecDerivValue {
         const key = createNewKey("new_deriv_value", (key) => this.get(key));
-        const one = new ItemSpecDerivValue(this.cim, this, {
+        const one = new ItemSpecDerivValue(this.s3image, this, {
             name: "新しい派生の値",
             key: key,
             description: ""
@@ -403,7 +401,7 @@ export class ItemSpecDerivValue {
     private _image: CachedImage;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private cim: CachedImageMaker, public deriv: ItemSpecDeriv, public info: Info.SpecDerivValue) {
+    constructor(private s3image: S3Image, public deriv: ItemSpecDeriv, public info: Info.SpecDerivValue) {
     }
 
     get key(): string {
@@ -423,7 +421,7 @@ export class ItemSpecDerivValue {
         const list = _.flatMap([ROOT, sv.spec.item.dir], (base) =>
             _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${sv.spec.info.key}/derives/${sv.info.key}/${this.info.key}/illustration.${sux}`));
         if (_.isNil(this._image) || !this._image.isSamePath(list)) {
-            this._image = this.cim.create(list);
+            this._image = this.s3image.createCache(list);
         }
         return this._image.url;
     }
@@ -433,67 +431,19 @@ export class ItemMeas {
     private _image: CachedImage;
     current: number;
 
-    constructor(private cim: CachedImageMaker, public item: LineupValue, public info: Info.Measurement) {
+    constructor(private s3image: S3Image, public item: LineupValue, public info: Info.Measurement) {
         this.current = info.value.initial;
     }
 
     get image(): SafeUrl {
         if (_.isNil(this._image)) {
             const list = _.map(["svg", "png"], (sux) => `${this.item.dir}/measurements/${this.info.key}/illustration.${sux}`);
-            this._image = this.cim.create(list);
+            this._image = this.s3image.createCache(list);
         }
         return this._image.url;
     }
 
     get range(): number[] {
         return _.range(this.info.value.min, this.info.value.max + this.info.value.step, this.info.value.step);
-    }
-}
-
-class CachedImageMaker {
-    constructor(private s3image: S3Image) { }
-
-    create(pathList: string[]): CachedImage {
-        return new CachedImage(this.s3image, pathList);
-    }
-}
-
-class CachedImage {
-    private _url: SafeUrl;
-
-    constructor(private s3image: S3Image, public pathList: string[]) {
-        this.refresh(1000 * 60 * 10);
-    }
-
-    private async load(path: string): Promise<SafeUrl> {
-        try {
-            return await this.s3image.getUrl(path);
-        } catch (ex) {
-            logger.warn(() => `Failed to load s3image: ${path}: ${ex}`);
-        }
-        return null;
-    }
-
-    private async refresh(limit: number) {
-        try {
-            var url;
-            var i = 0;
-            while (_.isNil(url) && i < this.pathList.length) {
-                url = await this.load(this.pathList[i++]);
-            }
-            this._url = url;
-        } finally {
-            setTimeout(() => {
-                this.refresh(limit);
-            }, limit);
-        }
-    }
-
-    isSamePath(pathList: string[]): boolean {
-        return _.isEmpty(_.difference(this.pathList, pathList));
-    }
-
-    get url(): SafeUrl {
-        return this._url;
     }
 }
