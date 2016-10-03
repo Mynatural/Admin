@@ -206,8 +206,13 @@ export class ItemSpec {
     }
 
     remove(o: ItemSpecValue) {
-        _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
-        _.remove(this.info.value.availables, (a) => _.isEqual(a, o.info.key));
+        if (_.size(this.availables) > 1) {
+            _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
+            _.remove(this.info.value.availables, (a) => _.isEqual(a, o.info.key));
+            if (_.isEqual(this.info.value.initial, o.info.key)) {
+                this.info.value.initial = _.head(this.availables).info.key;
+            }
+        }
     }
 
     createNew() {
@@ -309,8 +314,13 @@ export class ItemSpecDeriv {
     }
 
     remove(o: ItemSpecDerivValue) {
-        _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
-        _.remove(this.info.value.availables, (a) => _.isEqual(a.key, o.info.key));
+        if (_.size(this.availables) > 1) {
+            _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
+            _.remove(this.info.value.availables, (a) => _.isEqual(a.key, o.info.key));
+            if (_.isEqual(this.info.value.initial, o.info.key)) {
+                this.info.value.initial = _.head(this.availables).info.key;
+            }
+        }
     }
 
     createNew(): ItemSpecDerivValue {

@@ -2,7 +2,7 @@ import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
-import * as Prompt from "./util_prompt";
+import {Prompt} from "../../providers/util_prompt";
 import * as Lineup from "../../providers/model/lineup";
 import {Logger} from "../../util/logging";
 
@@ -14,7 +14,7 @@ const logger = new Logger("DerivValuePage");
 export class DerivValuePage {
     derivValue: Lineup.ItemSpecDerivValue;
 
-    constructor(private nav: NavController, params: NavParams) {
+    constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.derivValue = params.get("derivValue");
     }
 
@@ -27,8 +27,10 @@ export class DerivValuePage {
     }
 
     async delete(): Promise<void> {
-        await this.derivValue.deriv.remove(this.derivValue);
-        this.nav.pop();
+        if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+            await this.derivValue.deriv.remove(this.derivValue);
+            this.nav.pop();
+        }
     }
 
     async submit(): Promise<void> {

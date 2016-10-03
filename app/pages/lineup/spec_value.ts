@@ -3,6 +3,7 @@ import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
 import {DerivPage} from "./deriv";
+import {Prompt} from "../../providers/util_prompt";
 import * as Lineup from "../../providers/model/lineup";
 import {Logger} from "../../util/logging";
 
@@ -14,7 +15,7 @@ const logger = new Logger("SpecValuePage");
 export class SpecValuePage {
     specValue: Lineup.ItemSpecValue;
 
-    constructor(private nav: NavController, params: NavParams) {
+    constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.specValue = params.get("specValue");
     }
 
@@ -27,8 +28,10 @@ export class SpecValuePage {
     }
 
     async delete(): Promise<void> {
-        await this.specValue.spec.remove(this.specValue);
-        this.nav.pop();
+        if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+            await this.specValue.spec.remove(this.specValue);
+            this.nav.pop();
+        }
     }
 
     async submit(): Promise<void> {

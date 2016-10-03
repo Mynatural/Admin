@@ -1,6 +1,6 @@
 import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
-import {AlertController, NavController} from "ionic-angular";
+import {NavController} from "ionic-angular";
 
 import {ItemPage} from "./item";
 import * as Prompt from "./util_prompt";
@@ -18,7 +18,7 @@ export class LineupPage {
     title = LineupPage.title;
     lineup: Lineup.Lineup;
 
-    constructor(private alertCtrl: AlertController, private nav: NavController, lineupCtrl: Lineup.LineupController) {
+    constructor(private nav: NavController, lineupCtrl: Lineup.LineupController) {
         lineupCtrl.lineup.then((v) => {
             this.lineup = v;
         });
