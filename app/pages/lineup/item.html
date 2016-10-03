@@ -46,6 +46,13 @@
             </ion-item>
         </div>
 
+        <ion-card class="image" (click)="uploadImage()">
+            <img *ngIf="item.titleImage" [src]="item.titleImage">
+            <div class="no-image" *ngIf="!item.titleImage">
+                NO IMAGE
+            </div>
+        </ion-card>
+
         <ion-list class="children">
             <ion-item-divider>
                 <ion-label>Specs</ion-label>

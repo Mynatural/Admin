@@ -1,10 +1,22 @@
+@mixin noImage($width) {
+    max-width: $width;
+    .no-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: $width / 10;
+        color: red;
+    }
+}
+
 .lineup-pages {
     .lineup-list {
         display: flex;
         &>ion-card {
-            $width: 300px;
+            @include noImage(300px);
 
-            width: $width;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -12,17 +24,11 @@
             &:first-child {
                 margin-top: 0;
             }
-
-            .no-image {
-                width: 100%;
-                height: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                font-size: $width / 10;
-                color: red;
-            }
         }
+    }
+
+    .image {
+        @include noImage(500px);
     }
 
     .name_key {

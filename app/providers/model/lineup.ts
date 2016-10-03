@@ -135,6 +135,13 @@ export class LineupValue {
         return this._titleImage.url;
     }
 
+    async changeImage(file: File): Promise<void> {
+        if (file) {
+            await this.s3.upload(`${this.dir}/title.png`, file);
+            this._titleImage = null;
+        }
+    }
+
     private refreshImages(): {[key: string]: CachedImage} {
         if (_.isEmpty(this._images)) {
             const names = _.map(this.specs, (spec) => spec.current.dir);

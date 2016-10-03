@@ -35,6 +35,17 @@ export class ItemPage {
         this.item.changeKey(v);
     }
 
+    async uploadImage() {
+        try {
+            const file = await this.prompt.file("Title Image", "PNG file");
+            if (!_.isNil(file)) {
+                await this.item.changeImage(file);
+            }
+        } catch (ex) {
+            logger.warn(() => `Failed to load image: ${ex}`);
+        }
+    }
+
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
             const lineup = await this.lineupCtrl.lineup;
