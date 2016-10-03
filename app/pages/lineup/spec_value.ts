@@ -4,7 +4,8 @@ import {NavController, NavParams} from "ionic-angular";
 
 import {DerivPage} from "./deriv";
 import {Prompt} from "../../providers/util_prompt";
-import * as Lineup from "../../providers/model/lineup";
+import {ItemSpecValue} from "../../providers/model/lineup/spec";
+import {ItemSpecDeriv} from "../../providers/model/lineup/deriv";
 import {Logger} from "../../util/logging";
 
 const logger = new Logger("SpecValuePage");
@@ -13,7 +14,7 @@ const logger = new Logger("SpecValuePage");
     templateUrl: 'build/pages/lineup/spec_value.html'
 })
 export class SpecValuePage {
-    specValue: Lineup.ItemSpecValue;
+    specValue: ItemSpecValue;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.specValue = params.get("specValue");
@@ -34,7 +35,7 @@ export class SpecValuePage {
         }
     }
 
-    open(v: Lineup.ItemSpecDeriv) {
+    open(v: ItemSpecDeriv) {
         this.nav.push(DerivPage, {
             deriv: v
         });

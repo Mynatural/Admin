@@ -3,7 +3,7 @@ import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
 import {Prompt} from "../../providers/util_prompt";
-import * as Lineup from "../../providers/model/lineup";
+import {ItemSpecDerivValue} from "../../providers/model/lineup/deriv";
 import {Logger} from "../../util/logging";
 
 const logger = new Logger("DerivValuePage");
@@ -12,7 +12,7 @@ const logger = new Logger("DerivValuePage");
     templateUrl: 'build/pages/lineup/deriv_value.html'
 })
 export class DerivValuePage {
-    derivValue: Lineup.ItemSpecDerivValue;
+    derivValue: ItemSpecDerivValue;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.derivValue = params.get("derivValue");

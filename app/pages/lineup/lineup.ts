@@ -3,7 +3,7 @@ import {SafeUrl} from '@angular/platform-browser';
 import {NavController} from "ionic-angular";
 
 import {ItemPage} from "./item";
-import * as Lineup from "../../providers/model/lineup";
+import * as Lineup from "../../providers/model/lineup/lineup";
 import {Logger} from "../../util/logging";
 
 const logger = new Logger("LineupPage");
