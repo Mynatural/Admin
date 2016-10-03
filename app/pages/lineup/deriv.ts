@@ -12,21 +12,35 @@ const logger = new Logger("DerivPage");
     templateUrl: 'build/pages/lineup/deriv.html'
 })
 export class DerivPage {
-    title: string;
     deriv: Lineup.ItemSpecDeriv;
 
     constructor(private nav: NavController, params: NavParams) {
         this.deriv = params.get("deriv");
-        this.title = this.deriv.info.name;
+    }
+
+    get title(): string {
+        return this.deriv.info.name;
     }
 
     get isReady(): boolean {
         return !_.isNil(this.title);
     }
 
+    async delete(): Promise<void> {
+        await this.deriv.specValue.removeDeriv(this.deriv);
+        this.nav.pop();
+    }
+
+    async submit(): Promise<void> {
+    }
+
     open(v: Lineup.ItemSpecDerivValue) {
         this.nav.push(DerivValuePage, {
             derivValue: v
         });
+    }
+
+    addNew() {
+        this.open(this.deriv.createNew());
     }
 }

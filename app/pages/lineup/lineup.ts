@@ -1,8 +1,9 @@
 import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
-import {NavController} from "ionic-angular";
+import {AlertController, NavController} from "ionic-angular";
 
 import {ItemPage} from "./item";
+import * as Prompt from "./util_prompt";
 import * as Lineup from "../../providers/model/lineup";
 import {Logger} from "../../util/logging";
 
@@ -15,26 +16,26 @@ export class LineupPage {
     static title = "ラインナップ";
     static icon = "filing";
     title = LineupPage.title;
-    items: Lineup.Item[];
+    lineup: Lineup.Lineup;
 
-    constructor(private nav: NavController, private lineup: Lineup.Lineup) {
-        lineup.all.then((list) => {
-            this.items = list;
+    constructor(private alertCtrl: AlertController, private nav: NavController, lineupCtrl: Lineup.LineupController) {
+        lineupCtrl.lineup.then((v) => {
+            this.lineup = v;
         });
     }
 
     get isReady(): boolean {
-        return true;
+        return !_.isNil(this.lineup);
     }
 
-    open(item: Lineup.Item) {
-        logger.debug(() => `Opening lineup: ${item.name}`);
+    open(item: Lineup.LineupValue) {
+        logger.debug(() => `Opening lineup: ${item.info.name}`);
         this.nav.push(ItemPage, {
             item: item
         });
     }
 
     addNew() {
-        logger.debug(() => `Adding new...`);
+        this.open(this.lineup.createNew());
     }
 }

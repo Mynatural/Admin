@@ -12,17 +12,28 @@ const ROOT = "unauthorized";
 const LINEUP = "lineup";
 const SPEC_VALUE = "spec-value";
 
-@Injectable()
-export class Lineup {
-    private cim: CachedImageMaker;
-    all: Promise<Item[]>;
+function createNewKey(prefix: string, find: (v: string) => any): string {
+    var index = 0;
+    var key;
+    while (_.isNil(key) || !_.isNil(find(key))) {
+        key = `${prefix}_${index++}`;
+    }
+    return key;
+}
 
-    constructor(private s3: S3File, private s3image: S3Image) {
-        this.all = this.getAll();
+@Injectable()
+export class LineupController {
+    cim: CachedImageMaker;
+    lineup: Promise<Lineup>;
+
+    constructor(private s3: S3File, s3image: S3Image) {
         this.cim = new CachedImageMaker(s3image);
+        this.lineup = this.getAll().then((list) => {
+            return new Lineup(s3, this.cim, list);
+        });
     }
 
-    private async getAll(): Promise<Item[]> {
+    private async getAll(): Promise<LineupValue[]> {
         const rootDir = `${ROOT}/${LINEUP}/`
         const finds = await this.s3.list(rootDir);
         const keys = _.filter(finds.map((path) => {
@@ -46,32 +57,50 @@ export class Lineup {
         return _.filter(await Promise.all(list));
     }
 
-    private async load(key: string): Promise<Item> {
+    private async load(key: string): Promise<LineupValue> {
         const text = await this.s3.read(`${ROOT}/${LINEUP}/${key}/info.json.encoded`);
-        const info = Base64.decodeJson(text) as Info.Lineup;
-        return new Item(this.s3, this.cim, key, info);
-    }
-
-    async get(key: string): Promise<Item> {
-        const lineup = _.find(await this.all, {"key": key});
-        return lineup.renew();
+        const info = Base64.decodeJson(text) as Info.LineupValue;
+        return new LineupValue(this.s3, this.cim, key, info);
     }
 }
 
-export class Item {
+export class Lineup {
+    constructor(private s3: S3File, private cim: CachedImageMaker, public availables: LineupValue[]) { }
+
+    get(key: string): LineupValue {
+        return _.find(this.availables, {"key": key});
+    }
+
+    async remove(o: LineupValue): Promise<void> {
+        _.remove(this.availables, (a) => _.isEqual(a.key, o.key));
+        await this.s3.remove(o.dir);
+    }
+
+    createNew(): LineupValue {
+        const key = createNewKey("new_created", (key) => _.find(this.availables, {"key": key}));
+        const one = new LineupValue(this.s3, this.cim, key, {
+            name: "新しいラインナップ",
+            price: 500,
+            description: "",
+            specs: [],
+            specValues: [],
+            measurements: []
+        });
+        this.availables.unshift(one);
+        return one;
+    }
+}
+
+export class LineupValue {
     specs: ItemSpec[];
     measurements: ItemMeas[];
     private _titleImage: CachedImage;
     private _images: {[key: string]: CachedImage} = {};
 
-    constructor(private s3: S3File, private cim: CachedImageMaker, public key: string, public info: Info.Lineup) {
+    constructor(private s3: S3File, private cim: CachedImageMaker, public key: string, public info: Info.LineupValue) {
         logger.info(() => `${key}: ${JSON.stringify(info, null, 4)}`);
         this.specs = _.map(info.specs, (spec) => new ItemSpec(cim, this, spec));
         this.measurements = _.map(info.measurements, (m) => new ItemMeas(cim, this, m));
-    }
-
-    renew(): Item {
-        return new Item(this.s3, this.cim, this.dir, this.info);
     }
 
     onChangeSpecValue() {
@@ -80,10 +109,6 @@ export class Item {
 
     get dir(): string {
         return `${ROOT}/${LINEUP}/${this.key}`
-    }
-
-    get name(): string {
-        return this.info.name;
     }
 
     get titleImage(): SafeUrl {
@@ -122,8 +147,36 @@ export class Item {
         return result;
     }
 
+    async writeInfo(): Promise<void> {
+        const path = `${this.dir}/info.json.encoded`;
+        await this.s3.write(path, Base64.encodeJson(this.info));
+    }
+
     getSpec(key: string): ItemSpec {
         return _.find(this.specs, (s) => _.isEqual(s.info.key, key));
+    }
+
+    removeSpec(o: ItemSpec) {
+        _.remove(this.specs, (a) => _.isEqual(a.info.key, o.info.key));
+        _.remove(this.info.specs, (a) => _.isEqual(a.key, o.info.key));
+    }
+
+    createSpec(): ItemSpec {
+        const key = createNewKey("new_spec", (key) => this.getSpec(key));
+        const one = new ItemSpec(this.cim, this, {
+            name: "新しい仕様",
+            key: key,
+            side: "FRONT",
+            value: {
+                initial: "",
+                availables: []
+            }
+        });
+        const initial = one.createNew();
+        one.info.value.initial = initial.info.key;
+        this.specs.unshift(one);
+        this.info.specs.unshift(one.info);
+        return one;
     }
 }
 
@@ -131,7 +184,7 @@ export class ItemSpec {
     availables: ItemSpecValue[];
     private _current: ItemSpecValue;
 
-    constructor(private cim: CachedImageMaker, public item: Item, public info: Info.Spec) {
+    constructor(private cim: CachedImageMaker, public item: LineupValue, public info: Info.Spec) {
         this.availables = _.map(info.value.availables, (key) => {
             const v = _.find(item.info.specValues, {"key": key});
             return new ItemSpecValue(cim, this, v);
@@ -146,6 +199,29 @@ export class ItemSpec {
     set current(v: ItemSpecValue) {
         this.item.onChangeSpecValue();
         this._current = v;
+    }
+
+    get(key: string) {
+        return  _.find(this.availables, (a) => _.isEqual(key, a.info.key));
+    }
+
+    remove(o: ItemSpecValue) {
+        _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
+        _.remove(this.info.value.availables, (a) => _.isEqual(a, o.info.key));
+    }
+
+    createNew() {
+        const key = createNewKey("new_value", (key) => this.get(key));
+        const one = new ItemSpecValue(this.cim, this, {
+            name: "新しい仕様の値",
+            key: key,
+            description: "",
+            derives: [],
+            price: 100
+        });
+        this.availables.unshift(one);
+        this.info.value.availables.unshift(one.info.key);
+        return one;
     }
 }
 
@@ -180,6 +256,32 @@ export class ItemSpecValue {
         }
         return this._image.url;
     }
+
+    getDeriv(key: string): ItemSpecDeriv {
+        return _.find(this.derives, (a) => _.isEqual(key, a.info.key));
+    }
+
+    removeDeriv(o: ItemSpecDeriv) {
+        _.remove(this.derives, (a) => _.isEqual(a.info.key, o.info.key));
+        _.remove(this.info.derives, (a) => _.isEqual(a.key, o.info.key));
+    }
+
+    createDeriv(): ItemSpecDeriv {
+        const key = createNewKey("new_deriv", (key) => this.getDeriv(key));
+        const one = new ItemSpecDeriv(this.cim, this, {
+            name: "新しい派生",
+            key: key,
+            value: {
+                initial: "",
+                availables: []
+            }
+        });
+        const initial = one.createNew();
+        one.info.value.initial = initial.info.key;
+        this.derives.unshift(one);
+        this.info.derives.unshift(one.info);
+        return one;
+    }
 }
 
 export class ItemSpecDeriv {
@@ -201,17 +303,39 @@ export class ItemSpecDeriv {
         this.specValue.onChangeDeriv();
         this._current = v;
     }
+
+    get(key: string): ItemSpecDerivValue {
+        return _.find(this.availables, (a) => _.isEqual(key, a.info.key));
+    }
+
+    remove(o: ItemSpecDerivValue) {
+        _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
+        _.remove(this.info.value.availables, (a) => _.isEqual(a.key, o.info.key));
+    }
+
+    createNew(): ItemSpecDerivValue {
+        const key = createNewKey("new_deriv_value", (key) => this.get(key));
+        const one = new ItemSpecDerivValue(this.cim, this, {
+            name: "新しい派生の値",
+            key: key,
+            description: ""
+        });
+        this.availables.unshift(one);
+        this.info.value.availables.unshift(one.info);
+        return one;
+    }
 }
 
 export class ItemSpecDerivValue {
     private _image: CachedImage;
 
-    constructor(private cim: CachedImageMaker, public parent: ItemSpecDeriv, public info: Info.SpecDerivValue) {
+    constructor(private cim: CachedImageMaker, public deriv: ItemSpecDeriv, public info: Info.SpecDerivValue) {
     }
 
     get image(): SafeUrl {
-        const list = _.flatMap([ROOT, this.parent.specValue.spec.item.dir], (base) =>
-            _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${this.parent.specValue.spec.info.key}/derives/${this.parent.specValue.info.key}/${this.info.key}/illustration.${sux}`));
+        const sv = this.deriv.specValue;
+        const list = _.flatMap([ROOT, sv.spec.item.dir], (base) =>
+            _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${sv.spec.info.key}/derives/${sv.info.key}/${this.info.key}/illustration.${sux}`));
         if (_.isNil(this._image) || !this._image.isSamePath(list)) {
             this._image = this.cim.create(list);
         }
@@ -223,7 +347,7 @@ export class ItemMeas {
     private _image: CachedImage;
     current: number;
 
-    constructor(private cim: CachedImageMaker, public item: Item, public info: Info.Measurement) {
+    constructor(private cim: CachedImageMaker, public item: LineupValue, public info: Info.Measurement) {
         this.current = info.value.initial;
     }
 

@@ -7,6 +7,9 @@
             {{title}}
         </ion-title>
         <ion-buttons end>
+            <button (click)="delete()">
+                <ion-icon name="trash"></ion-icon>
+            </button>
             <button (click)="submit()">
                 <ion-icon name="checkmark"></ion-icon>
             </button>
@@ -33,6 +36,13 @@
         </div>
 
         <ion-list class="values">
+            <ion-item-divider>
+                <ion-label>Values</ion-label>
+                <button item-right (click)="addNew()">
+                    <ion-icon name="add"></ion-icon>
+                    Add new
+                </button>
+            </ion-item-divider>
             <ion-item *ngFor="let a of deriv.availables">
                 <ion-label (click)="open(a)">{{a.info.name}} ({{a.info.key}})</ion-label>
                 <button item-right clear (click)="deriv.info.value.initial = a.info.key">

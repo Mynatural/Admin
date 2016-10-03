@@ -43,6 +43,16 @@ export class S3File {
         return String.fromCharCode.apply(null, res.Body);
     }
 
+    async write(path: string, text: string): Promise<void> {
+        const bucketName = await this.settings.s3Bucket;
+        logger.debug(() => `Write file: ${bucketName}:${path}`);
+        await this.invoke((s3) => s3.putObject({
+            Bucket: bucketName,
+            Key: path,
+            Body: text
+        }));
+    }
+
     async upload(path: string, blob: Blob): Promise<void> {
         const bucketName = await this.settings.s3Bucket;
         logger.debug(() => `Uploading file: ${bucketName}:${path}`);

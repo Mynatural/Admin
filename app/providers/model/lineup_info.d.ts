@@ -1,5 +1,5 @@
 
-export type Lineup = {
+export type LineupValue = {
     name: string,
     price: number,
     description: string,
@@ -41,7 +41,7 @@ export type SpecDeriv = {
 export type SpecDerivValue = {
     name: string,
     key: string,
-    description?: string
+    description: string
 }
 
 export type Measurement = {

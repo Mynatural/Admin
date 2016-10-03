@@ -12,22 +12,36 @@ const logger = new Logger("DerivPage");
     templateUrl: 'build/pages/lineup/spec.html'
 })
 export class SpecPage {
-    title: string;
     spec: Lineup.ItemSpec;
     sides = ["FRONT", "BACK"];
 
     constructor(private nav: NavController, params: NavParams) {
         this.spec = params.get("spec");
-        this.title = this.spec.info.name;
+    }
+
+    get title(): string {
+        return this.spec.info.name;
     }
 
     get isReady(): boolean {
         return !_.isNil(this.title);
     }
 
+    async delete(): Promise<void> {
+        await this.spec.item.removeSpec(this.spec);
+        this.nav.pop();
+    }
+
+    async submit(): Promise<void> {
+    }
+
     open(sv: Lineup.ItemSpecValue) {
         this.nav.push(SpecValuePage, {
             specValue: sv
         });
+    }
+
+    addNew() {
+        this.open(this.spec.createNew());
     }
 }

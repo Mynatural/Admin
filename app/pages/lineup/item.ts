@@ -12,21 +12,37 @@ const logger = new Logger("ItemPage");
     templateUrl: 'build/pages/lineup/item.html'
 })
 export class ItemPage {
-    title: string;
-    item: Lineup.Item;
+    item: Lineup.LineupValue;
 
-    constructor(private nav: NavController, params: NavParams) {
+    constructor(private nav: NavController, params: NavParams, private lineupCtrl: Lineup.LineupController) {
         this.item = params.get("item");
-        this.title = this.item.name;
+    }
+
+    get title(): string {
+        return this.item.info.name;
     }
 
     get isReady(): boolean {
         return !_.isNil(this.title);
     }
 
+    async delete(): Promise<void> {
+        const lineup = await this.lineupCtrl.lineup;
+        await lineup.remove(this.item);
+        this.nav.pop();
+    }
+
+    async submit(): Promise<void> {
+        await this.item.writeInfo();
+    }
+
     open(spec: Lineup.ItemSpec) {
         this.nav.push(SpecPage, {
             spec: spec
         });
+    }
+
+    addNew() {
+        this.open(this.item.createSpec());
     }
 }

@@ -12,21 +12,35 @@ const logger = new Logger("SpecValuePage");
     templateUrl: 'build/pages/lineup/spec_value.html'
 })
 export class SpecValuePage {
-    title: string;
     specValue: Lineup.ItemSpecValue;
 
     constructor(private nav: NavController, params: NavParams) {
         this.specValue = params.get("specValue");
-        this.title = this.specValue.info.name;
+    }
+
+    get title(): string {
+        return this.specValue.info.name;
     }
 
     get isReady(): boolean {
         return !_.isNil(this.title);
     }
 
+    async delete(): Promise<void> {
+        await this.specValue.spec.remove(this.specValue);
+        this.nav.pop();
+    }
+
+    async submit(): Promise<void> {
+    }
+
     open(v: Lineup.ItemSpecDeriv) {
         this.nav.push(DerivPage, {
             deriv: v
         });
+    }
+
+    addNew() {
+        this.open(this.specValue.createDeriv());
     }
 }
