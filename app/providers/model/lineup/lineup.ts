@@ -2,6 +2,7 @@ import {Injectable} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
+import * as Util from "./_util";
 import {ItemSpec, ItemSpecValue} from "./spec";
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
 import {InputInterval} from "../../../util/input_interval";
@@ -9,20 +10,6 @@ import * as Base64 from "../../../util/base64";
 import {Logger} from "../../../util/logging";
 
 const logger = new Logger("Lineup");
-
-const ROOT = "unauthorized";
-const LINEUP = "lineup";
-const SPEC_VALUE = "spec-value";
-const INFO_JSON = "info.json.encoded";
-
-function createNewKey(prefix: string, find: (v: string) => any): string {
-    var index = 0;
-    var key;
-    while (_.isNil(key) || !_.isNil(find(key))) {
-        key = `${prefix}_${index++}`;
-    }
-    return key;
-}
 
 @Injectable()
 export class LineupController {
@@ -35,11 +22,11 @@ export class LineupController {
     }
 
     private async getAll(): Promise<LineupValue[]> {
-        const rootDir = `${ROOT}/${LINEUP}/`
+        const rootDir = `${Util.ROOT}/$Util.{LINEUP}/`
         const finds = await this.s3.list(rootDir);
         logger.debug(() => `Finds: ${JSON.stringify(finds, null, 4)}`);
         const keys = _.filter(finds.map((path) => {
-            if (path.endsWith(`/${INFO_JSON}`)) {
+            if (path.endsWith(`/${Util.INFO_JSON}`)) {
                 const l = _.split(path, "/");
                 return l[l.length - 2];
             }
@@ -58,7 +45,7 @@ export class LineupController {
     }
 
     private async load(key: string): Promise<LineupValue> {
-        const text = await this.s3.read(`${ROOT}/${LINEUP}/${key}/${INFO_JSON}`);
+        const text = await this.s3.read(`${Util.ROOT}/${Util.LINEUP}/${key}/${Util.INFO_JSON}`);
         const info = Base64.decodeJson(text) as Info.LineupValue;
         return new LineupValue(this.s3, this.s3image, key, info);
     }
@@ -77,7 +64,7 @@ export class Lineup {
     }
 
     createNew(): LineupValue {
-        const key = createNewKey("new_created", (key) => _.find(this.availables, {"key": key}));
+        const key = Util.createNewKey("new_created", (key) => _.find(this.availables, {"key": key}));
         const one = new LineupValue(this.s3, this.s3image, key, {
             name: "新しいラインナップ",
             price: 500,
@@ -127,7 +114,7 @@ export class LineupValue {
     }
 
     get dir(): string {
-        return `${ROOT}/${LINEUP}/${this.key}`
+        return `${Util.ROOT}/${Util.LINEUP}/${this.key}`
     }
 
     get titleImage(): SafeUrl {
@@ -174,7 +161,7 @@ export class LineupValue {
     }
 
     async writeInfo(): Promise<void> {
-        const path = `${this.dir}/${INFO_JSON}`;
+        const path = `${this.dir}/${Util.INFO_JSON}`;
         await this.s3.write(path, Base64.encodeJson(this.info));
     }
 
@@ -188,7 +175,7 @@ export class LineupValue {
     }
 
     createSpec(): ItemSpec {
-        const key = createNewKey("new_spec", (key) => this.getSpec(key));
+        const key = Util.createNewKey("new_spec", (key) => this.getSpec(key));
         const one = new ItemSpec(this.s3image, this, {
             name: "新しい仕様",
             key: key,
