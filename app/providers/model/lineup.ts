@@ -3,6 +3,7 @@ import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./lineup_info.d";
 import {S3File, S3Image} from "../aws/s3file";
+import {InputInterval} from "../../util/input_interval";
 import * as Base64 from "../../util/base64";
 import {Logger} from "../../util/logging";
 
@@ -96,13 +97,13 @@ export class LineupValue {
     measurements: ItemMeas[];
     private _titleImage: CachedImage;
     private _images: {[key: string]: CachedImage} = {};
-    private _changingKey: Promise<string>;
-    private _lastChangingKey: string;
+    private _changeKey: InputInterval<string>;
 
     constructor(private s3: S3File, private cim: CachedImageMaker, private _key: string, public info: Info.LineupValue) {
         logger.info(() => `${_key}: ${JSON.stringify(info, null, 4)}`);
         this.specs = _.map(info.specs, (spec) => new ItemSpec(cim, this, spec));
         this.measurements = _.map(info.measurements, (m) => new ItemMeas(cim, this, m));
+        this._changeKey = new InputInterval<string>(1000);
     }
 
     onChangeSpecValue() {
@@ -113,28 +114,14 @@ export class LineupValue {
         return this._key;
     }
 
-    private async _changeKey(v: string): Promise<string> {
-        logger.debug(() => `Changing lineup key: ${this._key} -> ${v}`);
-        const src = this.dir;
-        this._key = v;
-        await this.s3.moveDir(src, this.dir);
-        return v;
-    }
-
     async changeKey(v: string): Promise<void> {
         if (_.isEmpty(v)) return;
-        this._lastChangingKey = v;
-        if (this._changingKey) {
-            const pre = await this._changingKey;
-            logger.debug(() => `Previous changing key is finished: ${pre}`);
-        }
-        await new Promise((resolve, reject) => {
-            setTimeout(resolve, 1000);
+        this._changeKey.update(v, async (v) => {
+            logger.debug(() => `Changing lineup key: ${this._key} -> ${v}`);
+            const src = this.dir;
+            this._key = v;
+            await this.s3.moveDir(src, this.dir);
         });
-        if (_.isEqual(this._lastChangingKey, v)) {
-            this._changingKey = this._changeKey(v);
-            await this._changingKey;
-        }
     }
 
     get dir(): string {
