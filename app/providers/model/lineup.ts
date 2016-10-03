@@ -97,13 +97,12 @@ export class LineupValue {
     measurements: ItemMeas[];
     private _titleImage: CachedImage;
     private _images: {[key: string]: CachedImage} = {};
-    private _changeKey: InputInterval<string>;
+    private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
     constructor(private s3: S3File, private cim: CachedImageMaker, private _key: string, public info: Info.LineupValue) {
         logger.info(() => `${_key}: ${JSON.stringify(info, null, 4)}`);
         this.specs = _.map(info.specs, (spec) => new ItemSpec(cim, this, spec));
         this.measurements = _.map(info.measurements, (m) => new ItemMeas(cim, this, m));
-        this._changeKey = new InputInterval<string>(1000);
     }
 
     onChangeSpecValue() {
@@ -207,6 +206,7 @@ export class LineupValue {
 export class ItemSpec {
     availables: ItemSpecValue[];
     private _current: ItemSpecValue;
+    private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
     constructor(private cim: CachedImageMaker, public item: LineupValue, public info: Info.Spec) {
         this.availables = _.map(info.value.availables, (key) => {
@@ -214,6 +214,18 @@ export class ItemSpec {
             return new ItemSpecValue(cim, this, v);
         });
         this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
+    }
+
+    get key(): string {
+        return this.info.key;
+    }
+
+    set key(v: string) {
+        if (_.isEmpty(v)) return;
+        this._changeKey.update(v, async (v) => {
+            logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
+            this.info.key = v;
+        });
     }
 
     get current(): ItemSpecValue {
@@ -259,9 +271,22 @@ export class ItemSpecValue {
     derives: ItemSpecDeriv[];
     private _image: CachedImage;
     private _dir: string;
+    private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
     constructor(private cim: CachedImageMaker, public spec: ItemSpec, public info: Info.SpecValue) {
         this.derives = _.map(info.derives, (o) => new ItemSpecDeriv(cim, this, o));
+    }
+
+    get key(): string {
+        return this.info.key;
+    }
+
+    set key(v: string) {
+        if (_.isEmpty(v)) return;
+        this._changeKey.update(v, async (v) => {
+            logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
+            this.info.key = v;
+        });
     }
 
     onChangeDeriv() {
@@ -317,12 +342,25 @@ export class ItemSpecValue {
 export class ItemSpecDeriv {
     availables: ItemSpecDerivValue[];
     private _current: ItemSpecDerivValue;
+    private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
     constructor(private cim: CachedImageMaker, public specValue: ItemSpecValue, public info: Info.SpecDeriv) {
         this.availables = _.map(info.value.availables, (a) => {
             return new ItemSpecDerivValue(cim, this, a);
         });
         this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
+    }
+
+    get key(): string {
+        return this.info.key;
+    }
+
+    set key(v: string) {
+        if (_.isEmpty(v)) return;
+        this._changeKey.update(v, async (v) => {
+            logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
+            this.info.key = v;
+        });
     }
 
     get current(): ItemSpecDerivValue {
@@ -363,8 +401,21 @@ export class ItemSpecDeriv {
 
 export class ItemSpecDerivValue {
     private _image: CachedImage;
+    private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
     constructor(private cim: CachedImageMaker, public deriv: ItemSpecDeriv, public info: Info.SpecDerivValue) {
+    }
+
+    get key(): string {
+        return this.info.key;
+    }
+
+    set key(v: string) {
+        if (_.isEmpty(v)) return;
+        this._changeKey.update(v, async (v) => {
+            logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
+            this.info.key = v;
+        });
     }
 
     get image(): SafeUrl {
