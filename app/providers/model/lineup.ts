@@ -225,6 +225,7 @@ export class ItemSpec {
             price: 100
         });
         this.availables.unshift(one);
+        this.item.info.specValues.unshift(one.info);
         this.info.value.availables.unshift(one.info.key);
         return one;
     }
