@@ -4,6 +4,7 @@ import {SafeUrl} from '@angular/platform-browser';
 import * as Info from "./_info.d";
 import * as Util from "./_util";
 import {ItemSpec, ItemSpecValue} from "./spec";
+import {ItemMeasure} from "./measure";
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
 import {InputInterval} from "../../../util/input_interval";
 import * as Base64 from "../../../util/base64";
@@ -80,7 +81,7 @@ export class Lineup {
 
 export class LineupValue {
     specs: ItemSpec[];
-    measurements: ItemMeas[];
+    measurements: ItemMeasure[];
     private _titleImage: CachedImage;
     private _images: {[key: string]: CachedImage} = {};
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
@@ -88,7 +89,7 @@ export class LineupValue {
     constructor(private s3: S3File, private s3image: S3Image, private _key: string, public info: Info.LineupValue) {
         logger.info(() => `${_key}: ${JSON.stringify(info, null, 4)}`);
         this.specs = _.map(info.specs, (spec) => new ItemSpec(s3image, this, spec));
-        this.measurements = _.map(info.measurements, (m) => new ItemMeas(s3image, this, m));
+        this.measurements = _.map(info.measurements, (m) => new ItemMeasure(s3image, this, m));
     }
 
     onChangingKey(permit: (v: boolean) => Promise<void>) {
@@ -190,26 +191,5 @@ export class LineupValue {
         this.specs.unshift(one);
         this.info.specs.unshift(one.info);
         return one;
-    }
-}
-
-export class ItemMeas {
-    private _image: CachedImage;
-    current: number;
-
-    constructor(private s3image: S3Image, public item: LineupValue, public info: Info.Measurement) {
-        this.current = info.value.initial;
-    }
-
-    get image(): SafeUrl {
-        if (_.isNil(this._image)) {
-            const list = _.map(["svg", "png"], (sux) => `${this.item.dir}/measurements/${this.info.key}/illustration.${sux}`);
-            this._image = this.s3image.createCache(list);
-        }
-        return this._image.url;
-    }
-
-    get range(): number[] {
-        return _.range(this.info.value.min, this.info.value.max + this.info.value.step, this.info.value.step);
     }
 }
