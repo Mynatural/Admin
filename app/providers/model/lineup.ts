@@ -96,15 +96,45 @@ export class LineupValue {
     measurements: ItemMeas[];
     private _titleImage: CachedImage;
     private _images: {[key: string]: CachedImage} = {};
+    private _changingKey: Promise<string>;
+    private _lastChangingKey: string;
 
-    constructor(private s3: S3File, private cim: CachedImageMaker, public key: string, public info: Info.LineupValue) {
-        logger.info(() => `${key}: ${JSON.stringify(info, null, 4)}`);
+    constructor(private s3: S3File, private cim: CachedImageMaker, private _key: string, public info: Info.LineupValue) {
+        logger.info(() => `${_key}: ${JSON.stringify(info, null, 4)}`);
         this.specs = _.map(info.specs, (spec) => new ItemSpec(cim, this, spec));
         this.measurements = _.map(info.measurements, (m) => new ItemMeas(cim, this, m));
     }
 
     onChangeSpecValue() {
         this._images = {};
+    }
+
+    get key(): string {
+        return this._key;
+    }
+
+    private async _changeKey(v: string): Promise<string> {
+        logger.debug(() => `Changing lineup key: ${this._key} -> ${v}`);
+        const src = this.dir;
+        this._key = v;
+        await this.s3.moveDir(src, this.dir);
+        return v;
+    }
+
+    async changeKey(v: string): Promise<void> {
+        if (_.isEmpty(v)) return;
+        this._lastChangingKey = v;
+        if (this._changingKey) {
+            const pre = await this._changingKey;
+            logger.debug(() => `Previous changing key is finished: ${pre}`);
+        }
+        await new Promise((resolve, reject) => {
+            setTimeout(resolve, 1000);
+        });
+        if (_.isEqual(this._lastChangingKey, v)) {
+            this._changingKey = this._changeKey(v);
+            await this._changingKey;
+        }
     }
 
     get dir(): string {

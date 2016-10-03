@@ -27,6 +27,14 @@ export class ItemPage {
         return !_.isNil(this.title);
     }
 
+    get key(): string {
+        return this.item.key;
+    }
+
+    set key(v: string) {
+        this.item.changeKey(v);
+    }
+
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
             const lineup = await this.lineupCtrl.lineup;

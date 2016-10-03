@@ -114,6 +114,17 @@ export class S3File {
         await this.remove(src);
     }
 
+    async moveDir(src: string, dst: string): Promise<void> {
+        const files = _.filter(await this.list(`${src}/`), (path) => {
+            return !path.endsWith("/");
+        });
+        await Promise.all(_.map(files, (srcPath) => {
+            const dstPath = srcPath.replace(src, dst);
+            return this.move(srcPath, dstPath);
+        }));
+        await this.removeDir(src);
+    }
+
     async list(path: string): Promise<Array<string>> {
         const bucketName = await this.settings.s3Bucket;
         const res = await this.invoke<{ Contents: { Key: string }[] }>((s3) => s3.listObjects({
