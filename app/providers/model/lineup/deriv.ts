@@ -1,8 +1,8 @@
 import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
-import * as Observ from "./_observ";
-import {Lineup, LineupValue} from "./lineup";
+import {Illustration, createNewKey} from "./lineup";
+import {Item, ItemValue} from "./item";
 import {ItemSpec, ItemSpecValue} from "./spec";
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
 import {InputInterval} from "../../../util/input_interval";
@@ -16,7 +16,7 @@ export class ItemSpecDeriv {
     private _current: ItemSpecDerivValue;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private illust: Observ.Illustration, public specValue: ItemSpecValue, public info: Info.SpecDeriv) {
+    constructor(private illust: Illustration, public specValue: ItemSpecValue, public info: Info.SpecDeriv) {
         this.availables = _.map(info.value.availables, (a) => {
             return new ItemSpecDerivValue(illust, this, a);
         });
@@ -61,7 +61,7 @@ export class ItemSpecDeriv {
     }
 
     createNew(): ItemSpecDerivValue {
-        const key = Observ.createNewKey("new_deriv_value", (key) => this.get(key));
+        const key = createNewKey("new_deriv_value", (key) => this.get(key));
         const one = new ItemSpecDerivValue(this.illust, this, {
             name: "新しい派生の値",
             key: key,
@@ -77,7 +77,7 @@ export class ItemSpecDerivValue {
     private _image: CachedImage;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private illust: Observ.Illustration, public deriv: ItemSpecDeriv, public info: Info.SpecDerivValue) {
+    constructor(private illust: Illustration, public deriv: ItemSpecDeriv, public info: Info.SpecDerivValue) {
     }
 
     refreshIllustrations() {

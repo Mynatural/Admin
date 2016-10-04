@@ -5,7 +5,8 @@ import {NavController, NavParams} from "ionic-angular";
 import {SpecPage} from "./spec";
 import {Prompt} from "../../providers/util_prompt";
 
-import {LineupController, LineupValue} from "../../providers/model/lineup/lineup";
+import {LineupController} from "../../providers/model/lineup/lineup";
+import {ItemValue} from "../../providers/model/lineup/item";
 import {ItemSpec} from "../../providers/model/lineup/spec";
 import {Logger} from "../../util/logging";
 
@@ -15,7 +16,7 @@ const logger = new Logger("ItemPage");
     templateUrl: 'build/pages/lineup/item.html'
 })
 export class ItemPage {
-    item: LineupValue;
+    item: ItemValue;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams, private lineupCtrl: LineupController) {
         this.item = params.get("item");

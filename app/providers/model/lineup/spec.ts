@@ -1,8 +1,8 @@
 import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
-import * as Observ from "./_observ";
-import {Lineup, LineupValue} from "./lineup";
+import {Illustration, createNewKey} from "./lineup";
+import {Item, ItemValue} from "./item";
 import {ItemSpecDeriv, ItemSpecDerivValue} from "./deriv";
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
 import {InputInterval} from "../../../util/input_interval";
@@ -16,7 +16,7 @@ export class ItemSpec {
     private _current: ItemSpecValue;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private illust: Observ.Illustration, public item: LineupValue, public info: Info.Spec) {
+    constructor(private illust: Illustration, public item: ItemValue, public info: Info.Spec) {
         this.availables = _.map(info.value.availables, (key) => {
             const v = _.find(item.info.specValues, {"key": key});
             return new ItemSpecValue(illust, this, v);
@@ -64,7 +64,7 @@ export class ItemSpec {
     }
 
     createNew() {
-        const key = Observ.createNewKey("new_value", (key) => this.get(key));
+        const key = createNewKey("new_value", (key) => this.get(key));
         const one = new ItemSpecValue(this.illust, this, {
             name: "新しい仕様の値",
             key: key,
@@ -84,7 +84,7 @@ export class ItemSpecValue {
     private _image: CachedImage;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private illust: Observ.Illustration, public spec: ItemSpec, public info: Info.SpecValue) {
+    constructor(private illust: Illustration, public spec: ItemSpec, public info: Info.SpecValue) {
         this.derives = _.map(info.derives, (o) => new ItemSpecDeriv(illust, this, o));
     }
 
@@ -133,7 +133,7 @@ export class ItemSpecValue {
     }
 
     createDeriv(): ItemSpecDeriv {
-        const key = Observ.createNewKey("new_deriv", (key) => this.getDeriv(key));
+        const key = createNewKey("new_deriv", (key) => this.getDeriv(key));
         const one = new ItemSpecDeriv(this.illust, this, {
             name: "新しい派生",
             key: key,

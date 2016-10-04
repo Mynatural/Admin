@@ -1,8 +1,8 @@
 import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
-import * as Observ from "./_observ";
-import {LineupValue} from "./lineup";
+import {Illustration} from "./lineup";
+import {ItemValue} from "./item";
 import {CachedImage} from "../../aws/s3file";
 import {InputInterval} from "../../../util/input_interval";
 import * as Base64 from "../../../util/base64";
@@ -14,7 +14,7 @@ export class ItemMeasure {
     private _image: CachedImage;
     current: number;
 
-    constructor(private illust: Observ.Illustration, public item: LineupValue, public info: Info.Measurement) {
+    constructor(private illust: Illustration, public item: ItemValue, public info: Info.Measurement) {
         this.current = info.value.initial;
     }
 

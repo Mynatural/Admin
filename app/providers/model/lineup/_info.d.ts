@@ -1,5 +1,5 @@
 
-export type LineupValue = {
+export type ItemValue = {
     name: string,
     price: number,
     description: string,

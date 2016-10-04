@@ -3,7 +3,8 @@ import {SafeUrl} from '@angular/platform-browser';
 import {NavController} from "ionic-angular";
 
 import {ItemPage} from "./item";
-import * as Lineup from "../../providers/model/lineup/lineup";
+import {LineupController} from "../../providers/model/lineup/lineup";
+import {Item, ItemValue} from "../../providers/model/lineup/item";
 import {Logger} from "../../util/logging";
 
 const logger = new Logger("LineupPage");
@@ -15,9 +16,9 @@ export class LineupPage {
     static title = "ラインナップ";
     static icon = "filing";
     title = LineupPage.title;
-    lineup: Lineup.Lineup;
+    lineup: Item;
 
-    constructor(private nav: NavController, lineupCtrl: Lineup.LineupController) {
+    constructor(private nav: NavController, lineupCtrl: LineupController) {
         lineupCtrl.lineup.then((v) => {
             this.lineup = v;
         });
@@ -31,7 +32,7 @@ export class LineupPage {
         await Promise.all(this.lineup.availables.map((a) => a.writeInfo()));
     }
 
-    open(item: Lineup.LineupValue) {
+    open(item: ItemValue) {
         logger.debug(() => `Opening lineup: ${item.info.name}`);
         this.nav.push(ItemPage, {
             item: item
