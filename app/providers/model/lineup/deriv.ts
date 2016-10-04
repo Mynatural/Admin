@@ -1,7 +1,7 @@
 import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
-import {Illustration, createNewKey} from "./lineup";
+import {LineupController, createNewKey} from "./lineup";
 import {ItemGroup, Item} from "./item";
 import {SpecGroup, Spec} from "./spec";
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
@@ -9,16 +9,16 @@ import {InputInterval} from "../../../util/input_interval";
 import * as Base64 from "../../../util/base64";
 import {Logger} from "../../../util/logging";
 
-const logger = new Logger("LineupSpecDeriv");
+const logger = new Logger("Lineup.Deriv");
 
 export class DerivGroup {
     availables: Deriv[];
     private _current: Deriv;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private illust: Illustration, public spec: Spec, public info: Info.DerivGroup) {
+    constructor(private ctrl: LineupController, public spec: Spec, public info: Info.DerivGroup) {
         this.availables = _.map(info.value.availables, (a) => {
-            return new Deriv(illust, this, a);
+            return new Deriv(ctrl, this, a);
         });
         this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
     }
@@ -30,7 +30,7 @@ export class DerivGroup {
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
-            await this.illust.onChanging.derivGroupKey(this, async () => {
+            await this.ctrl.onChanging.derivGroupKey(this, async () => {
                 logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
                 this.info.key = v;
             });
@@ -51,7 +51,7 @@ export class DerivGroup {
     }
 
     async remove(o: Deriv): Promise<void> {
-        await this.illust.onRemoving.deriv(o, async () => {
+        await this.ctrl.onRemoving.deriv(o, async () => {
             _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
             _.remove(this.info.value.availables, (a) => _.isEqual(a.key, o.info.key));
             if (_.isEqual(this.info.value.initial, o.info.key)) {
@@ -62,7 +62,7 @@ export class DerivGroup {
 
     createNew(): Deriv {
         const key = createNewKey("new_deriv_value", (key) => this.get(key));
-        const one = new Deriv(this.illust, this, {
+        const one = new Deriv(this.ctrl, this, {
             name: "新しい派生の値",
             key: key,
             description: ""
@@ -77,7 +77,7 @@ export class Deriv {
     private _image: CachedImage;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private illust: Illustration, public derivGroup: DerivGroup, public info: Info.Deriv) {
+    constructor(private ctrl: LineupController, public derivGroup: DerivGroup, public info: Info.Deriv) {
     }
 
     refreshIllustrations() {
@@ -91,7 +91,7 @@ export class Deriv {
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
-            await this.illust.onChanging.derivKey(this, async () => {
+            await this.ctrl.onChanging.derivKey(this, async () => {
                 logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
                 this.info.key = v;
             });
@@ -100,7 +100,7 @@ export class Deriv {
 
     private refreshImage(clear = false): CachedImage {
         if (clear || _.isNil(this._image)) {
-            this._image = this.illust.deriv(this);
+            this._image = this.ctrl.illust.deriv(this);
         }
         return this._image;
     }

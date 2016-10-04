@@ -43,8 +43,8 @@ export class ItemPage {
 
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-            const lineup = await this.lineupCtrl.lineup;
-            await lineup.remove(this.item);
+            const itemGroup = await this.lineupCtrl.itemGroup;
+            await itemGroup.remove(this.item);
             this.nav.pop();
         }
     }

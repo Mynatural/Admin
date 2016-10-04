@@ -16,20 +16,20 @@ export class ItemGroupPage {
     static title = "ラインナップ";
     static icon = "filing";
     title = ItemGroupPage.title;
-    lineup: ItemGroup;
+    itemGroup: ItemGroup;
 
     constructor(private nav: NavController, lineupCtrl: LineupController) {
-        lineupCtrl.lineup.then((v) => {
-            this.lineup = v;
+        lineupCtrl.itemGroup.then((v) => {
+            this.itemGroup = v;
         });
     }
 
     get isReady(): boolean {
-        return !_.isNil(this.lineup);
+        return !_.isNil(this.itemGroup);
     }
 
     async write(): Promise<void> {
-        await Promise.all(this.lineup.availables.map((a) => a.writeInfo()));
+        await Promise.all(this.itemGroup.availables.map((a) => a.writeInfo()));
     }
 
     open(item: Item) {
@@ -40,6 +40,6 @@ export class ItemGroupPage {
     }
 
     addNew() {
-        this.open(this.lineup.createNew());
+        this.open(this.itemGroup.createNew());
     }
 }

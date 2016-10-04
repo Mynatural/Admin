@@ -15,7 +15,7 @@ const logger = new Logger("Lineup");
 const ROOT = "unauthorized";
 const LINEUP = "lineup";
 const SPEC_VALUE = "spec-value";
-export const INFO_JSON = "info.json.encoded";
+const INFO_JSON = "info.json.encoded";
 
 const SIDES = ["FRONT", "BACK"];
 
@@ -28,7 +28,7 @@ export function createNewKey(prefix: string, find: (v: string) => any): string {
     return key;
 }
 
-export function itemDir(key: string): string {
+function itemDir(key: string): string {
     return `${ROOT}/${LINEUP}/${key}`;
 }
 
@@ -38,13 +38,17 @@ function dirItem(o: Item): string {
 
 @Injectable()
 export class LineupController {
+    onChanging: OnChanging;
+    onRemoving: OnRemoving;
     illust: Illustration;
-    lineup: Promise<ItemGroup>;
+    itemGroup: Promise<ItemGroup>;
 
     constructor(private s3image: S3Image) {
+        this.onChanging = new OnChanging(s3image.s3);
+        this.onRemoving = new OnRemoving(s3image.s3);
         this.illust = new Illustration(s3image);
-        this.lineup = this.getAll().then((list) => {
-            return new ItemGroup(this.illust, list);
+        this.itemGroup = this.getAll().then((list) => {
+            return new ItemGroup(this, list);
         });
     }
 
@@ -74,7 +78,12 @@ export class LineupController {
     private async load(key: string): Promise<Item> {
         const text = await this.s3image.s3.read(`${itemDir(key)}/${INFO_JSON}`);
         const info = Base64.decodeJson(text) as Info.Item;
-        return new Item(this.illust, key, info);
+        return new Item(this, key, info);
+    }
+
+    async write(item: Item): Promise<void> {
+        const path = `${itemDir(item.key)}/${INFO_JSON}`;
+        await this.s3image.s3.write(path, Base64.encodeJson(item.info));
     }
 }
 
@@ -94,17 +103,18 @@ function imagesSpec(o: Spec): string[] {
             _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${o.specGroup.info.key}/images/${this.dirSpecRelative(o)}/illustration.${sux}`));
 }
 
-export class Illustration {
-    onChanging: OnChanging;
-    onRemoving: OnRemoving;
-
-    constructor(public s3image: S3Image) {
-        this.onChanging = new OnChanging(s3image.s3);
-        this.onRemoving = new OnRemoving(s3image.s3);
-    }
+class Illustration {
+    constructor(private s3image: S3Image) { }
 
     itemTitle(o: Item): CachedImage {
         return this.s3image.createCache([`${dirItem(o)}/title.png`]);
+    }
+
+    async uploadItemTitle(o: Item, file: File): Promise<void> {
+        if (file) {
+            const path = `${dirItem(o)}/title.png`;
+            await this.s3image.s3.upload(path, file);
+        }
     }
 
     // SpecSide -> CachedImage
