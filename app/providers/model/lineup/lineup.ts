@@ -1,9 +1,9 @@
 import {Injectable} from "@angular/core";
 
 import * as Info from "./_info.d";
-import {Item, ItemValue} from "./item";
-import {ItemSpec, ItemSpecValue} from "./spec";
-import {ItemSpecDeriv, ItemSpecDerivValue} from "./deriv";
+import {ItemGroup, Item} from "./item";
+import {SpecGroup, Spec} from "./spec";
+import {DerivGroup, Deriv} from "./deriv";
 import {ItemMeasure} from "./measure";
 
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
@@ -32,23 +32,23 @@ export function itemDir(key: string): string {
     return `${ROOT}/${LINEUP}/${key}`;
 }
 
-function dirItem(o: ItemValue): string {
+function dirItem(o: Item): string {
     return itemDir(o.key);
 }
 
 @Injectable()
 export class LineupController {
     illust: Illustration;
-    lineup: Promise<Item>;
+    lineup: Promise<ItemGroup>;
 
     constructor(private s3image: S3Image) {
         this.illust = new Illustration(s3image);
         this.lineup = this.getAll().then((list) => {
-            return new Item(this.illust, list);
+            return new ItemGroup(this.illust, list);
         });
     }
 
-    private async getAll(): Promise<ItemValue[]> {
+    private async getAll(): Promise<Item[]> {
         const rootDir = itemDir("");
         const finds = await this.s3image.s3.list(rootDir);
         logger.debug(() => `Finds: ${JSON.stringify(finds, null, 4)}`);
@@ -71,25 +71,25 @@ export class LineupController {
         return _.filter(await Promise.all(list));
     }
 
-    private async load(key: string): Promise<ItemValue> {
+    private async load(key: string): Promise<Item> {
         const text = await this.s3image.s3.read(`${itemDir(key)}/${INFO_JSON}`);
-        const info = Base64.decodeJson(text) as Info.ItemValue;
-        return new ItemValue(this.illust, key, info);
+        const info = Base64.decodeJson(text) as Info.Item;
+        return new Item(this.illust, key, info);
     }
 }
 
-function dirSpecValueRelative(o: ItemSpecValue): string {
+function dirSpecValueRelative(o: Spec): string {
     const keys = _.map(o.derives, (v) => v.current.info.key);
     return `${o.info.key}/${_.join(keys, "/")}`
 }
 
-function imagesDerivValue(o: ItemSpecDerivValue): string[] {
+function imagesDerivValue(o: Deriv): string[] {
     const sv = o.deriv.specValue;
     return _.flatMap([ROOT, dirItem(sv.spec.item)], (base) =>
             _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${sv.spec.info.key}/derives/${sv.info.key}/${o.info.key}/illustration.${sux}`));
 }
 
-function imagesSpecValue(o: ItemSpecValue): string[] {
+function imagesSpecValue(o: Spec): string[] {
     return _.flatMap([ROOT, dirItem(o.spec.item)], (base) =>
             _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${o.spec.info.key}/images/${this.dirSpecValueRelative(o)}/illustration.${sux}`));
 }
@@ -103,12 +103,12 @@ export class Illustration {
         this.onRemoving = new OnRemoving(s3image.s3);
     }
 
-    itemTitle(o: ItemValue): CachedImage {
+    itemTitle(o: Item): CachedImage {
         return this.s3image.createCache([`${dirItem(o)}/title.png`]);
     }
 
     // SpecSide -> CachedImage
-    itemValueCurrent(o: ItemValue): {[key: string]: CachedImage} {
+    itemValueCurrent(o: Item): {[key: string]: CachedImage} {
         const names = _.map(o.specs, (spec) => dirSpecValueRelative(spec.current));
         const dir = `${dirItem(o)}/images/${_.join(names, "/")}/`;
         return _.fromPairs(_.map(SIDES, (side) =>
@@ -121,12 +121,12 @@ export class Illustration {
         return this.s3image.createCache(list);
     }
 
-    specValue(o: ItemSpecValue): CachedImage {
+    specValue(o: Spec): CachedImage {
         const list = imagesSpecValue(o);
         return this.s3image.createCache(list);
     }
 
-    derivValue(o: ItemSpecDerivValue): CachedImage {
+    derivValue(o: Deriv): CachedImage {
         const list = imagesDerivValue(o);
         return this.s3image.createCache(list);
     }
@@ -134,7 +134,7 @@ export class Illustration {
 
 type DoThru = () => Promise<void>;
 
-function refreshIllustrations(item: ItemValue) {
+function refreshIllustrations(item: Item) {
     item.refreshIllustrations();
     item.measurements.forEach((m) => m.refreshIllustrations());
     item.specs.forEach((spec) => {
@@ -152,7 +152,7 @@ function refreshIllustrations(item: ItemValue) {
 class OnChanging {
     constructor(private s3: S3File) { }
 
-    async itemValueKey(o: ItemValue, go: DoThru) {
+    async itemValueKey(o: Item, go: DoThru) {
         const src = dirItem(o);
 
         await go();
@@ -163,25 +163,25 @@ class OnChanging {
         refreshIllustrations(o);
     }
 
-    async specKey(o: ItemSpec, go: DoThru) {
+    async specKey(o: SpecGroup, go: DoThru) {
         await go();
 
         refreshIllustrations(o.item);
     }
 
-    async specValueKey(o: ItemSpecValue, go: DoThru) {
+    async specValueKey(o: Spec, go: DoThru) {
         await go();
 
         refreshIllustrations(o.spec.item);
     }
 
-    async derivKey(o: ItemSpecDeriv, go: DoThru) {
+    async derivKey(o: DerivGroup, go: DoThru) {
         await go();
 
         refreshIllustrations(o.specValue.spec.item);
     }
 
-    async derivValueKey(o: ItemSpecDerivValue, go: DoThru) {
+    async derivValueKey(o: Deriv, go: DoThru) {
         const srcList = imagesDerivValue(o);
 
         await go();
@@ -198,30 +198,30 @@ class OnChanging {
 class OnRemoving {
     constructor(private s3: S3File) { }
 
-    async itemValue(o: ItemValue, go: DoThru) {
+    async itemValue(o: Item, go: DoThru) {
         await go();
         await this.s3.removeDir(dirItem(o));
     }
 
-    async spec(o: ItemSpec, go: DoThru) {
+    async spec(o: SpecGroup, go: DoThru) {
         await go();
 
         refreshIllustrations(o.item);
     }
 
-    async specValue(o: ItemSpecValue, go: DoThru) {
+    async specValue(o: Spec, go: DoThru) {
         await go();
 
         refreshIllustrations(o.spec.item);
     }
 
-    async deriv(o: ItemSpecDeriv, go: DoThru) {
+    async deriv(o: DerivGroup, go: DoThru) {
         await go();
 
         refreshIllustrations(o.specValue.spec.item);
     }
 
-    async derivValue(o: ItemSpecDerivValue, go: DoThru) {
+    async derivValue(o: Deriv, go: DoThru) {
         await go();
 
         refreshIllustrations(o.deriv.specValue.spec.item);

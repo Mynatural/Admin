@@ -2,12 +2,12 @@ import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
-import {SpecPage} from "./spec";
+import {SpecGroupPage} from "./spec_group";
 import {Prompt} from "../../providers/util_prompt";
 
 import {LineupController} from "../../providers/model/lineup/lineup";
-import {ItemValue} from "../../providers/model/lineup/item";
-import {ItemSpec} from "../../providers/model/lineup/spec";
+import {Item} from "../../providers/model/lineup/item";
+import {SpecGroup} from "../../providers/model/lineup/spec";
 import {Logger} from "../../util/logging";
 
 const logger = new Logger("ItemPage");
@@ -16,7 +16,7 @@ const logger = new Logger("ItemPage");
     templateUrl: 'build/pages/lineup/item.html'
 })
 export class ItemPage {
-    item: ItemValue;
+    item: Item;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams, private lineupCtrl: LineupController) {
         this.item = params.get("item");
@@ -49,8 +49,8 @@ export class ItemPage {
         }
     }
 
-    open(spec: ItemSpec) {
-        this.nav.push(SpecPage, {
+    open(spec: SpecGroup) {
+        this.nav.push(SpecGroupPage, {
             spec: spec
         });
     }

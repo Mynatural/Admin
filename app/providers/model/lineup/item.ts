@@ -3,7 +3,7 @@ import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
 import {Illustration, createNewKey, itemDir, INFO_JSON} from "./lineup";
-import {ItemSpec, ItemSpecValue} from "./spec";
+import {SpecGroup, Spec} from "./spec";
 import {ItemMeasure} from "./measure";
 import {S3Image, CachedImage} from "../../aws/s3file";
 import {InputInterval} from "../../../util/input_interval";
@@ -12,22 +12,22 @@ import {Logger} from "../../../util/logging";
 
 const logger = new Logger("Item");
 
-export class Item {
-    constructor(private illust: Illustration, public availables: ItemValue[]) { }
+export class ItemGroup {
+    constructor(private illust: Illustration, public availables: Item[]) { }
 
-    get(key: string): ItemValue {
+    get(key: string): Item {
         return _.find(this.availables, {"key": key});
     }
 
-    async remove(o: ItemValue): Promise<void> {
+    async remove(o: Item): Promise<void> {
         await this.illust.onRemoving.itemValue(o, async () => {
             _.remove(this.availables, (a) => _.isEqual(a.key, o.key));
         })
     }
 
-    createNew(): ItemValue {
+    createNew(): Item {
         const key = createNewKey("new_created", (key) => _.find(this.availables, {"key": key}));
-        const one = new ItemValue(this.illust, key, {
+        const one = new Item(this.illust, key, {
             name: "新しいラインナップ",
             price: 500,
             description: "",
@@ -40,16 +40,16 @@ export class Item {
     }
 }
 
-export class ItemValue {
-    specs: ItemSpec[];
+export class Item {
+    specs: SpecGroup[];
     measurements: ItemMeasure[];
     private _titleImage: CachedImage;
     private _images: {[key: string]: CachedImage}; // SpecSide -> CachedImage
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private illust: Illustration, private _key: string, public info: Info.ItemValue) {
+    constructor(private illust: Illustration, private _key: string, public info: Info.Item) {
         logger.info(() => `${_key}: ${JSON.stringify(info, null, 4)}`);
-        this.specs = _.map(info.specs, (spec) => new ItemSpec(illust, this, spec));
+        this.specs = _.map(info.specs, (spec) => new SpecGroup(illust, this, spec));
         this.measurements = _.map(info.measurements, (m) => new ItemMeasure(illust, this, m));
     }
 
@@ -123,20 +123,20 @@ export class ItemValue {
         await this.illust.s3image.s3.write(path, Base64.encodeJson(this.info));
     }
 
-    getSpec(key: string): ItemSpec {
+    getSpec(key: string): SpecGroup {
         return _.find(this.specs, (s) => _.isEqual(s.info.key, key));
     }
 
-    async removeSpec(o: ItemSpec): Promise<void> {
+    async removeSpec(o: SpecGroup): Promise<void> {
         await this.illust.onRemoving.spec(o, async () => {
             _.remove(this.specs, (a) => _.isEqual(a.info.key, o.info.key));
             _.remove(this.info.specs, (a) => _.isEqual(a.key, o.info.key));
         });
     }
 
-    createSpec(): ItemSpec {
+    createSpec(): SpecGroup {
         const key = createNewKey("new_spec", (key) => this.getSpec(key));
-        const one = new ItemSpec(this.illust, this, {
+        const one = new SpecGroup(this.illust, this, {
             name: "新しい仕様",
             key: key,
             side: "FRONT",

@@ -4,19 +4,19 @@ import {NavController} from "ionic-angular";
 
 import {ItemPage} from "./item";
 import {LineupController} from "../../providers/model/lineup/lineup";
-import {Item, ItemValue} from "../../providers/model/lineup/item";
+import {ItemGroup, Item} from "../../providers/model/lineup/item";
 import {Logger} from "../../util/logging";
 
-const logger = new Logger("LineupPage");
+const logger = new Logger("ItemGroupPage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/lineup.html'
+    templateUrl: 'build/pages/lineup/item_group.html'
 })
-export class LineupPage {
+export class ItemGroupPage {
     static title = "ラインナップ";
     static icon = "filing";
-    title = LineupPage.title;
-    lineup: Item;
+    title = ItemGroupPage.title;
+    lineup: ItemGroup;
 
     constructor(private nav: NavController, lineupCtrl: LineupController) {
         lineupCtrl.lineup.then((v) => {
@@ -32,7 +32,7 @@ export class LineupPage {
         await Promise.all(this.lineup.availables.map((a) => a.writeInfo()));
     }
 
-    open(item: ItemValue) {
+    open(item: Item) {
         logger.debug(() => `Opening lineup: ${item.info.name}`);
         this.nav.push(ItemPage, {
             item: item

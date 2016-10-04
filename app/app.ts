@@ -6,7 +6,7 @@ import {FATHENS_DIRECTIVES} from "./components/all";
 import {FATHENS_PROVIDERS} from "./providers/all";
 import {Credentials} from "./providers/config/credentials";
 import {HomePage} from './pages/home/home';
-import {LineupPage} from './pages/lineup/lineup';
+import {ItemGroupPage} from './pages/lineup/item_group';
 import {Logger} from "./util/logging";
 
 const logger = new Logger("App");
@@ -18,7 +18,7 @@ export class MyApp {
     @ViewChild(Nav) nav: Nav;
 
     rootPage: any = HomePage;
-    pages = [HomePage, LineupPage];
+    pages = [HomePage, ItemGroupPage];
     menuTitle = "もくじ";
 
     isDevel: boolean = false;

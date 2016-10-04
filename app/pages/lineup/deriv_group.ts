@@ -4,24 +4,23 @@ import {NavController, NavParams} from "ionic-angular";
 
 import {DerivPage} from "./deriv";
 import {Prompt} from "../../providers/util_prompt";
-import {ItemSpecValue} from "../../providers/model/lineup/spec";
-import {ItemSpecDeriv} from "../../providers/model/lineup/deriv";
+import {DerivGroup, Deriv} from "../../providers/model/lineup/deriv";
 import {Logger} from "../../util/logging";
 
-const logger = new Logger("SpecValuePage");
+const logger = new Logger("DerivGroupPage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/spec_value.html'
+    templateUrl: 'build/pages/lineup/deriv_group.html'
 })
-export class SpecValuePage {
-    specValue: ItemSpecValue;
+export class DerivGroupPage {
+    deriv: DerivGroup;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
-        this.specValue = params.get("specValue");
+        this.deriv = params.get("deriv");
     }
 
     get title(): string {
-        return this.specValue.info.name;
+        return this.deriv.info.name;
     }
 
     get isReady(): boolean {
@@ -30,18 +29,18 @@ export class SpecValuePage {
 
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-            await this.specValue.spec.remove(this.specValue);
+            await this.deriv.specValue.removeDeriv(this.deriv);
             this.nav.pop();
         }
     }
 
-    open(v: ItemSpecDeriv) {
+    open(v: Deriv) {
         this.nav.push(DerivPage, {
-            deriv: v
+            derivValue: v
         });
     }
 
     addNew() {
-        this.open(this.specValue.createDeriv());
+        this.open(this.deriv.createNew());
     }
 }

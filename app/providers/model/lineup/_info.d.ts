@@ -1,14 +1,14 @@
 
-export type ItemValue = {
+export type Item = {
     name: string,
     price: number,
     description: string,
-    specs: Spec[],
-    specValues: SpecValue[],
+    specs: SpecGroup[],
+    specValues: Spec[],
     measurements: Measurement[]
 }
 
-export type Spec = {
+export type SpecGroup = {
     name: string,
     key: string,
     side: SpecSide,
@@ -21,24 +21,24 @@ export type Spec = {
 
 export type SpecSide = "FRONT" | "BACK";
 
-export type SpecValue = {
+export type Spec = {
     name: string,
     key: string,
     description: string,
-    derives: SpecDeriv[],
+    derives: DerivGroup[],
     price: number
 }
 
-export type SpecDeriv = {
+export type DerivGroup = {
     name: string,
     key: string,
     value: {
         initial: string,
-        availables: SpecDerivValue[]
+        availables: Deriv[]
     }
 }
 
-export type SpecDerivValue = {
+export type Deriv = {
     name: string,
     key: string,
     description: string

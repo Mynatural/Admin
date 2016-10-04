@@ -2,8 +2,8 @@ import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
 import {Illustration, createNewKey} from "./lineup";
-import {Item, ItemValue} from "./item";
-import {ItemSpec, ItemSpecValue} from "./spec";
+import {ItemGroup, Item} from "./item";
+import {SpecGroup, Spec} from "./spec";
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
 import {InputInterval} from "../../../util/input_interval";
 import * as Base64 from "../../../util/base64";
@@ -11,14 +11,14 @@ import {Logger} from "../../../util/logging";
 
 const logger = new Logger("LineupSpecDeriv");
 
-export class ItemSpecDeriv {
-    availables: ItemSpecDerivValue[];
-    private _current: ItemSpecDerivValue;
+export class DerivGroup {
+    availables: Deriv[];
+    private _current: Deriv;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private illust: Illustration, public specValue: ItemSpecValue, public info: Info.SpecDeriv) {
+    constructor(private illust: Illustration, public specValue: Spec, public info: Info.DerivGroup) {
         this.availables = _.map(info.value.availables, (a) => {
-            return new ItemSpecDerivValue(illust, this, a);
+            return new Deriv(illust, this, a);
         });
         this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
     }
@@ -37,20 +37,20 @@ export class ItemSpecDeriv {
         });
     }
 
-    get current(): ItemSpecDerivValue {
+    get current(): Deriv {
         return this._current;
     }
 
-    set current(v: ItemSpecDerivValue) {
+    set current(v: Deriv) {
         this.specValue.onChangeDeriv();
         this._current = v;
     }
 
-    get(key: string): ItemSpecDerivValue {
+    get(key: string): Deriv {
         return _.find(this.availables, (a) => _.isEqual(key, a.info.key));
     }
 
-    async remove(o: ItemSpecDerivValue): Promise<void> {
+    async remove(o: Deriv): Promise<void> {
         await this.illust.onRemoving.derivValue(o, async () => {
             _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
             _.remove(this.info.value.availables, (a) => _.isEqual(a.key, o.info.key));
@@ -60,9 +60,9 @@ export class ItemSpecDeriv {
         });
     }
 
-    createNew(): ItemSpecDerivValue {
+    createNew(): Deriv {
         const key = createNewKey("new_deriv_value", (key) => this.get(key));
-        const one = new ItemSpecDerivValue(this.illust, this, {
+        const one = new Deriv(this.illust, this, {
             name: "新しい派生の値",
             key: key,
             description: ""
@@ -73,11 +73,11 @@ export class ItemSpecDeriv {
     }
 }
 
-export class ItemSpecDerivValue {
+export class Deriv {
     private _image: CachedImage;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private illust: Illustration, public deriv: ItemSpecDeriv, public info: Info.SpecDerivValue) {
+    constructor(private illust: Illustration, public deriv: DerivGroup, public info: Info.Deriv) {
     }
 
     refreshIllustrations() {
