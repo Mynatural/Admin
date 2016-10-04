@@ -169,7 +169,7 @@ export class S3File {
 export class S3Image {
     private local: Storage = new Storage(LocalStorage);
 
-    constructor(private s3: S3File, private sanitizer: DomSanitizationService) { }
+    constructor(public s3: S3File, private sanitizer: DomSanitizationService) { }
 
     async getUrl(s3path: string): Promise<SafeUrl> {
         assert("Caching S3 path", s3path);

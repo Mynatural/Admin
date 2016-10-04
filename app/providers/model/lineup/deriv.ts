@@ -16,17 +16,11 @@ export class ItemSpecDeriv {
     private _current: ItemSpecDerivValue;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private s3image: S3Image, public specValue: ItemSpecValue, public info: Info.SpecDeriv) {
+    constructor(private illust: Observ.Illustration, public specValue: ItemSpecValue, public info: Info.SpecDeriv) {
         this.availables = _.map(info.value.availables, (a) => {
-            return new ItemSpecDerivValue(s3image, this, a);
+            return new ItemSpecDerivValue(illust, this, a);
         });
         this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
-    }
-
-    async onChangingKey(permit: () => Promise<void>) {
-        this.specValue.onChangingKey(async () => {
-            await permit();
-        });
     }
 
     get key(): string {
@@ -36,8 +30,10 @@ export class ItemSpecDeriv {
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
-            logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
-            this.info.key = v;
+            await this.illust.onChanging.derivKey(this, async () => {
+                logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
+                this.info.key = v;
+            });
         });
     }
 
@@ -54,18 +50,19 @@ export class ItemSpecDeriv {
         return _.find(this.availables, (a) => _.isEqual(key, a.info.key));
     }
 
-    remove(o: ItemSpecDerivValue) {
-        _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
-        _.remove(this.info.value.availables, (a) => _.isEqual(a.key, o.info.key));
-        if (_.isEqual(this.info.value.initial, o.info.key)) {
-            this.info.value.initial = _.head(this.availables).info.key;
-        }
-        this.specValue.onRemovedDeriv(o);
+    async remove(o: ItemSpecDerivValue): Promise<void> {
+        await this.illust.onRemoving.derivValue(o, async () => {
+            _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
+            _.remove(this.info.value.availables, (a) => _.isEqual(a.key, o.info.key));
+            if (_.isEqual(this.info.value.initial, o.info.key)) {
+                this.info.value.initial = _.head(this.availables).info.key;
+            }
+        });
     }
 
     createNew(): ItemSpecDerivValue {
         const key = Observ.createNewKey("new_deriv_value", (key) => this.get(key));
-        const one = new ItemSpecDerivValue(this.s3image, this, {
+        const one = new ItemSpecDerivValue(this.illust, this, {
             name: "新しい派生の値",
             key: key,
             description: ""
@@ -80,19 +77,11 @@ export class ItemSpecDerivValue {
     private _image: CachedImage;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private s3image: S3Image, public deriv: ItemSpecDeriv, public info: Info.SpecDerivValue) {
+    constructor(private illust: Observ.Illustration, public deriv: ItemSpecDeriv, public info: Info.SpecDerivValue) {
     }
 
-    async onChangingKey(permit: () => Promise<void>) {
-        const srcList = this._image.listPath;
-        await this.deriv.onChangingKey(async () => {
-            await permit();
-
-            const dstList = this.updateImage(true).listPath;
-            await Promise.all(_.map(_.zip(srcList, dstList),
-                (pair) => this.s3image.s3.move(pair[0], pair[1])
-            ));
-        });
+    refreshIllustrations() {
+        this.refreshImage(true);
     }
 
     get key(): string {
@@ -102,27 +91,21 @@ export class ItemSpecDerivValue {
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
-            logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
-            await this.onChangingKey(async () => {
+            await this.illust.onChanging.derivValueKey(this, async () => {
+                logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
                 this.info.key = v;
             });
         });
     }
 
-    private updateImage(forceClear = false): CachedImage {
-        if (forceClear) this._image = null;
-
-        const sv = this.deriv.specValue;
-        const list = _.flatMap([Observ.ROOT, sv.spec.item.dir], (base) =>
-            _.map(["svg", "png"], (sux) => `${base}/${Observ.SPEC_VALUE}/${sv.spec.info.key}/derives/${sv.info.key}/${this.info.key}/illustration.${sux}`));
-
-        if (_.isNil(this._image) || !this._image.isSamePath(list)) {
-            this._image = this.s3image.createCache(list);
+    private refreshImage(clear = false): CachedImage {
+        if (clear || _.isNil(this._image)) {
+            this._image = this.illust.derivValue(this);
         }
         return this._image;
     }
 
     get image(): SafeUrl {
-        return this.updateImage().url;
+        return this.refreshImage().url;
     }
 }

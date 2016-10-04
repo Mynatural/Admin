@@ -5,7 +5,7 @@ import * as Info from "./_info.d";
 import * as Observ from "./_observ";
 import {ItemSpec, ItemSpecValue} from "./spec";
 import {ItemMeasure} from "./measure";
-import {S3File, S3Image, CachedImage} from "../../aws/s3file";
+import {S3Image, CachedImage} from "../../aws/s3file";
 import {InputInterval} from "../../../util/input_interval";
 import * as Base64 from "../../../util/base64";
 import {Logger} from "../../../util/logging";
@@ -14,17 +14,19 @@ const logger = new Logger("Lineup");
 
 @Injectable()
 export class LineupController {
+    illust: Observ.Illustration;
     lineup: Promise<Lineup>;
 
-    constructor(private s3: S3File, private s3image: S3Image) {
+    constructor(private s3image: S3Image) {
+        this.illust = new Observ.Illustration(s3image);
         this.lineup = this.getAll().then((list) => {
-            return new Lineup(s3, this.s3image, list);
+            return new Lineup(this.illust, list);
         });
     }
 
     private async getAll(): Promise<LineupValue[]> {
         const rootDir = `${Observ.ROOT}/${Observ.LINEUP}/`
-        const finds = await this.s3.list(rootDir);
+        const finds = await this.s3image.s3.list(rootDir);
         logger.debug(() => `Finds: ${JSON.stringify(finds, null, 4)}`);
         const keys = _.filter(finds.map((path) => {
             if (path.endsWith(`/${Observ.INFO_JSON}`)) {
@@ -46,27 +48,28 @@ export class LineupController {
     }
 
     private async load(key: string): Promise<LineupValue> {
-        const text = await this.s3.read(`${Observ.ROOT}/${Observ.LINEUP}/${key}/${Observ.INFO_JSON}`);
+        const text = await this.s3image.s3.read(`${Observ.ROOT}/${Observ.LINEUP}/${key}/${Observ.INFO_JSON}`);
         const info = Base64.decodeJson(text) as Info.LineupValue;
-        return new LineupValue(this.s3, this.s3image, key, info);
+        return new LineupValue(this.illust, key, info);
     }
 }
 
 export class Lineup {
-    constructor(private s3: S3File, private s3image: S3Image, public availables: LineupValue[]) { }
+    constructor(private illust: Observ.Illustration, public availables: LineupValue[]) { }
 
     get(key: string): LineupValue {
         return _.find(this.availables, {"key": key});
     }
 
     async remove(o: LineupValue): Promise<void> {
-        _.remove(this.availables, (a) => _.isEqual(a.key, o.key));
-        await this.s3.removeDir(o.dir);
+        await this.illust.onRemoving.itemValue(o, async () => {
+            _.remove(this.availables, (a) => _.isEqual(a.key, o.key));
+        })
     }
 
     createNew(): LineupValue {
         const key = Observ.createNewKey("new_created", (key) => _.find(this.availables, {"key": key}));
-        const one = new LineupValue(this.s3, this.s3image, key, {
+        const one = new LineupValue(this.illust, key, {
             name: "新しいラインナップ",
             price: 500,
             description: "",
@@ -83,21 +86,22 @@ export class LineupValue {
     specs: ItemSpec[];
     measurements: ItemMeasure[];
     private _titleImage: CachedImage;
-    private _images: {[key: string]: CachedImage} = {};
+    private _images: {[key: string]: CachedImage}; // SpecSide -> CachedImage
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private s3: S3File, private s3image: S3Image, private _key: string, public info: Info.LineupValue) {
+    constructor(private illust: Observ.Illustration, private _key: string, public info: Info.LineupValue) {
         logger.info(() => `${_key}: ${JSON.stringify(info, null, 4)}`);
-        this.specs = _.map(info.specs, (spec) => new ItemSpec(s3image, this, spec));
-        this.measurements = _.map(info.measurements, (m) => new ItemMeasure(s3image, this, m));
+        this.specs = _.map(info.specs, (spec) => new ItemSpec(illust, this, spec));
+        this.measurements = _.map(info.measurements, (m) => new ItemMeasure(illust, this, m));
     }
 
-    async onChangingKey(permit: () => Promise<void>) {
-        await permit();
+    refreshIllustrations() {
+        this.refreshTiteImage(true);
+        this.refreshCurrentImages(true);
     }
 
     onChangeSpecValue() {
-        this._images = {};
+        this.refreshCurrentImages(true);
     }
 
     get key(): string {
@@ -107,46 +111,41 @@ export class LineupValue {
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
-            logger.debug(() => `Changing lineup key: ${this._key} -> ${v}`);
-            const src = this.dir;
-            this._key = v;
-            await this.s3.moveDir(src, this.dir);
+            await this.illust.onChanging.itemValueKey(this, async () => {
+                logger.debug(() => `Changing lineup key: ${this._key} -> ${v}`);
+                this._key = v;
+            });
         });
     }
 
-    get dir(): string {
-        return `${Observ.ROOT}/${Observ.LINEUP}/${this.key}`
+    private refreshTiteImage(clear = false): CachedImage {
+        if (clear || _.isNil(this._titleImage)) {
+            this._titleImage = this.illust.itemTitle(this);
+        }
+        return this._titleImage;
     }
 
     get titleImage(): SafeUrl {
-        if (_.isNil(this._titleImage)) {
-            this._titleImage = this.s3image.createCache([`${this.dir}/title.png`]);
-        }
-        return this._titleImage.url;
+        return this.refreshTiteImage().url;
     }
 
     async changeImage(file: File): Promise<void> {
         if (file) {
-            await this.s3.upload(`${this.dir}/title.png`, file);
-            this._titleImage = null;
+            const path = this.refreshTiteImage().listPath[0];
+            await this.illust.s3image.s3.upload(path, file);
+            this.refreshTiteImage(true);
         }
     }
 
-    private refreshImages(): {[key: string]: CachedImage} {
-        if (_.isEmpty(this._images)) {
-            const names = _.map(this.specs, (spec) => spec.current.dir);
-            const dir = `${this.dir}/images/${_.join(names, "/")}/`;
-            const list = ["FRONT", "BACK"];
-            _.forEach(list, (side) => {
-                const path = `${dir}/${side}.png`;
-                this._images[side] = this.s3image.createCache([path]);
-            });
+    private refreshCurrentImages(clear = false): {[key: string]: CachedImage} {
+        if (clear || _.isEmpty(this._images)) {
+            this._images = this.illust.itemValueCurrent(this);
         }
         return this._images;
     }
 
     getImage(side: Info.SpecSide): SafeUrl {
-        const safe = this.refreshImages()[side];
+        const safe = this.refreshCurrentImages()[side];
         return safe ? safe.url : null;
     }
 
@@ -162,22 +161,24 @@ export class LineupValue {
     }
 
     async writeInfo(): Promise<void> {
-        const path = `${this.dir}/${Observ.INFO_JSON}`;
-        await this.s3.write(path, Base64.encodeJson(this.info));
+        const path = `${Observ.dirItem(this)}/${Observ.INFO_JSON}`;
+        await this.illust.s3image.s3.write(path, Base64.encodeJson(this.info));
     }
 
     getSpec(key: string): ItemSpec {
         return _.find(this.specs, (s) => _.isEqual(s.info.key, key));
     }
 
-    removeSpec(o: ItemSpec) {
-        _.remove(this.specs, (a) => _.isEqual(a.info.key, o.info.key));
-        _.remove(this.info.specs, (a) => _.isEqual(a.key, o.info.key));
+    async removeSpec(o: ItemSpec): Promise<void> {
+        await this.illust.onRemoving.spec(o, async () => {
+            _.remove(this.specs, (a) => _.isEqual(a.info.key, o.info.key));
+            _.remove(this.info.specs, (a) => _.isEqual(a.key, o.info.key));
+        });
     }
 
     createSpec(): ItemSpec {
         const key = Observ.createNewKey("new_spec", (key) => this.getSpec(key));
-        const one = new ItemSpec(this.s3image, this, {
+        const one = new ItemSpec(this.illust, this, {
             name: "新しい仕様",
             key: key,
             side: "FRONT",

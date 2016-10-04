@@ -16,18 +16,12 @@ export class ItemSpec {
     private _current: ItemSpecValue;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private s3image: S3Image, public item: LineupValue, public info: Info.Spec) {
+    constructor(private illust: Observ.Illustration, public item: LineupValue, public info: Info.Spec) {
         this.availables = _.map(info.value.availables, (key) => {
             const v = _.find(item.info.specValues, {"key": key});
-            return new ItemSpecValue(s3image, this, v);
+            return new ItemSpecValue(illust, this, v);
         });
         this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
-    }
-
-    async onChangingKey(permit: () => Promise<void>) {
-        this.item.onChangingKey(async () => {
-            await permit();
-        });
     }
 
     get key(): string {
@@ -37,8 +31,10 @@ export class ItemSpec {
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
-            logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
-            this.info.key = v;
+            await this.illust.onChanging.specKey(this, async () => {
+                logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
+                this.info.key = v;
+            });
         });
     }
 
@@ -55,19 +51,21 @@ export class ItemSpec {
         return  _.find(this.availables, (a) => _.isEqual(key, a.info.key));
     }
 
-    remove(o: ItemSpecValue) {
+    async remove(o: ItemSpecValue): Promise<void> {
         if (_.size(this.availables) > 1) {
-            _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
-            _.remove(this.info.value.availables, (a) => _.isEqual(a, o.info.key));
-            if (_.isEqual(this.info.value.initial, o.info.key)) {
-                this.info.value.initial = _.head(this.availables).info.key;
-            }
+            await this.illust.onRemoving.specValue(o, async () => {
+                _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
+                _.remove(this.info.value.availables, (a) => _.isEqual(a, o.info.key));
+                if (_.isEqual(this.info.value.initial, o.info.key)) {
+                    this.info.value.initial = _.head(this.availables).info.key;
+                }
+            });
         }
     }
 
     createNew() {
         const key = Observ.createNewKey("new_value", (key) => this.get(key));
-        const one = new ItemSpecValue(this.s3image, this, {
+        const one = new ItemSpecValue(this.illust, this, {
             name: "新しい仕様の値",
             key: key,
             description: "",
@@ -84,11 +82,14 @@ export class ItemSpec {
 export class ItemSpecValue {
     derives: ItemSpecDeriv[];
     private _image: CachedImage;
-    private _dir: string;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private s3image: S3Image, public spec: ItemSpec, public info: Info.SpecValue) {
-        this.derives = _.map(info.derives, (o) => new ItemSpecDeriv(s3image, this, o));
+    constructor(private illust: Observ.Illustration, public spec: ItemSpec, public info: Info.SpecValue) {
+        this.derives = _.map(info.derives, (o) => new ItemSpecDeriv(illust, this, o));
+    }
+
+    refreshIllustrations() {
+        this.refreshImage(true);
     }
 
     get key(): string {
@@ -98,56 +99,42 @@ export class ItemSpecValue {
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
-            logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
-            this.info.key = v;
+            await this.illust.onChanging.specValueKey(this, async () => {
+                logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
+                this.info.key = v;
+            });
         });
-    }
-
-    async onChangingKey(permit: () => Promise<void>) {
-        this.spec.onChangingKey(async () => {
-            await permit();
-        });
-    }
-
-    async onRemovedDeriv(o: ItemSpecDerivValue) {
-
     }
 
     onChangeDeriv() {
-        this._dir = null;
         this.spec.item.onChangeSpecValue();
     }
 
-    get dir(): string {
-        if (_.isNil(this._dir)) {
-            const keys = _.map(this.derives, (v) => v.current.info.key);
-            logger.debug(() => `Building dir from keys: ${keys}`);
-            this._dir = `${this.info.key}/${_.join(keys, "/")}`
+    private refreshImage(clear = false): CachedImage {
+        if (clear || _.isNil(this._image)) {
+            this._image = this.illust.specValue(this);
         }
-        return this._dir;
+        return this._image;
     }
 
     get image(): SafeUrl {
-        const list = _.flatMap([Observ.ROOT, this.spec.item.dir], (base) =>
-            _.map(["svg", "png"], (sux) => `${base}/${Observ.SPEC_VALUE}/${this.spec.info.key}/images/${this.dir}/illustration.${sux}`));
-        if (_.isNil(this._image) || !this._image.isSamePath(list)) {
-            this._image = this.s3image.createCache(list);
-        }
-        return this._image.url;
+        return this.refreshImage().url;
     }
 
     getDeriv(key: string): ItemSpecDeriv {
         return _.find(this.derives, (a) => _.isEqual(key, a.info.key));
     }
 
-    removeDeriv(o: ItemSpecDeriv) {
-        _.remove(this.derives, (a) => _.isEqual(a.info.key, o.info.key));
-        _.remove(this.info.derives, (a) => _.isEqual(a.key, o.info.key));
+    async removeDeriv(o: ItemSpecDeriv): Promise<void> {
+        await this.illust.onRemoving.deriv(o, async () => {
+            _.remove(this.derives, (a) => _.isEqual(a.info.key, o.info.key));
+            _.remove(this.info.derives, (a) => _.isEqual(a.key, o.info.key));
+        });
     }
 
     createDeriv(): ItemSpecDeriv {
         const key = Observ.createNewKey("new_deriv", (key) => this.getDeriv(key));
-        const one = new ItemSpecDeriv(this.s3image, this, {
+        const one = new ItemSpecDeriv(this.illust, this, {
             name: "新しい派生",
             key: key,
             value: {
