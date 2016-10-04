@@ -215,8 +215,12 @@ export class S3Image {
 export class CachedImage {
     private _url: SafeUrl;
 
-    constructor(private s3image: S3Image, public pathList: string[], refreshRate: number) {
+    constructor(private s3image: S3Image, private _pathList: string[], refreshRate: number) {
         this.refresh(refreshRate);
+    }
+
+    get listPath(): string[] {
+        return _.map(this._pathList, (a) => a);
     }
 
     private async load(path: string): Promise<SafeUrl> {
@@ -232,8 +236,8 @@ export class CachedImage {
         try {
             var url;
             var i = 0;
-            while (_.isNil(url) && i < this.pathList.length) {
-                url = await this.load(this.pathList[i++]);
+            while (_.isNil(url) && i < this._pathList.length) {
+                url = await this.load(this._pathList[i++]);
             }
             this._url = url;
         } finally {
@@ -244,7 +248,7 @@ export class CachedImage {
     }
 
     isSamePath(pathList: string[]): boolean {
-        return _.isEmpty(_.difference(this.pathList, pathList));
+        return _.isEmpty(_.difference(this._pathList, pathList));
     }
 
     get url(): SafeUrl {
