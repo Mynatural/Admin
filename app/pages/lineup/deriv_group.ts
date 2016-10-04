@@ -13,14 +13,14 @@ const logger = new Logger("DerivGroupPage");
     templateUrl: 'build/pages/lineup/deriv_group.html'
 })
 export class DerivGroupPage {
-    deriv: DerivGroup;
+    derivGroup: DerivGroup;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
-        this.deriv = params.get("deriv");
+        this.derivGroup = params.get("derivGroup");
     }
 
     get title(): string {
-        return this.deriv.info.name;
+        return this.derivGroup.info.name;
     }
 
     get isReady(): boolean {
@@ -29,18 +29,18 @@ export class DerivGroupPage {
 
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-            await this.deriv.specValue.removeDeriv(this.deriv);
+            await this.derivGroup.spec.removeDeriv(this.derivGroup);
             this.nav.pop();
         }
     }
 
     open(v: Deriv) {
         this.nav.push(DerivPage, {
-            derivValue: v
+            deriv: v
         });
     }
 
     addNew() {
-        this.open(this.deriv.createNew());
+        this.open(this.derivGroup.createNew());
     }
 }

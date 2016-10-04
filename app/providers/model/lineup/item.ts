@@ -31,8 +31,8 @@ export class ItemGroup {
             name: "新しいラインナップ",
             price: 500,
             description: "",
+            specGroups: [],
             specs: [],
-            specValues: [],
             measurements: []
         });
         this.availables.unshift(one);
@@ -41,7 +41,7 @@ export class ItemGroup {
 }
 
 export class Item {
-    specs: SpecGroup[];
+    specGroups: SpecGroup[];
     measurements: ItemMeasure[];
     private _titleImage: CachedImage;
     private _images: {[key: string]: CachedImage}; // SpecSide -> CachedImage
@@ -49,7 +49,7 @@ export class Item {
 
     constructor(private illust: Illustration, private _key: string, public info: Info.Item) {
         logger.info(() => `${_key}: ${JSON.stringify(info, null, 4)}`);
-        this.specs = _.map(info.specs, (spec) => new SpecGroup(illust, this, spec));
+        this.specGroups = _.map(info.specGroups, (spec) => new SpecGroup(illust, this, spec));
         this.measurements = _.map(info.measurements, (m) => new ItemMeasure(illust, this, m));
     }
 
@@ -58,7 +58,7 @@ export class Item {
         this.refreshCurrentImages(true);
     }
 
-    onChangeSpecValue() {
+    onChangeSpec() {
         this.refreshCurrentImages(true);
     }
 
@@ -69,7 +69,7 @@ export class Item {
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
-            await this.illust.onChanging.itemValueKey(this, async () => {
+            await this.illust.onChanging.itemKey(this, async () => {
                 logger.debug(() => `Changing lineup key: ${this._key} -> ${v}`);
                 this._key = v;
             });
@@ -109,7 +109,7 @@ export class Item {
 
     get totalPrice(): number {
         var result = this.info.price;
-        _.forEach(this.specs, (spec, key) => {
+        _.forEach(this.specGroups, (spec, key) => {
             const v = spec.current;
             if (v) {
                 result = result + v.info.price;
@@ -124,13 +124,13 @@ export class Item {
     }
 
     getSpec(key: string): SpecGroup {
-        return _.find(this.specs, (s) => _.isEqual(s.info.key, key));
+        return _.find(this.specGroups, (s) => _.isEqual(s.info.key, key));
     }
 
     async removeSpec(o: SpecGroup): Promise<void> {
-        await this.illust.onRemoving.spec(o, async () => {
-            _.remove(this.specs, (a) => _.isEqual(a.info.key, o.info.key));
-            _.remove(this.info.specs, (a) => _.isEqual(a.key, o.info.key));
+        await this.illust.onRemoving.specGroup(o, async () => {
+            _.remove(this.specGroups, (a) => _.isEqual(a.info.key, o.info.key));
+            _.remove(this.info.specGroups, (a) => _.isEqual(a.key, o.info.key));
         });
     }
 
@@ -147,8 +147,8 @@ export class Item {
         });
         const initial = one.createNew();
         one.info.value.initial = initial.info.key;
-        this.specs.unshift(one);
-        this.info.specs.unshift(one.info);
+        this.specGroups.unshift(one);
+        this.info.specGroups.unshift(one.info);
         return one;
     }
 }

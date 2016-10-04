@@ -14,20 +14,20 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content padding class="lineup-pages" id="deriv_value-page">
+<ion-content padding class="lineup-pages" id="deriv-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="main" *ngIf="isReady">
         <div class="name_key">
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="derivValue.info.name"></ion-input>
+                    <ion-input [(ngModel)]="deriv.info.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
                 <ion-item>
                     <ion-label floating>Key</ion-label>
-                    <ion-input [(ngModel)]="derivValue.key"></ion-input>
+                    <ion-input [(ngModel)]="deriv.key"></ion-input>
                 </ion-item>
             </div>
         </div>
@@ -35,7 +35,7 @@
         <div class="description">
             <ion-item>
                 <ion-label floating>Description</ion-label>
-                <ion-input [(ngModel)]="derivValue.info.description"></ion-input>
+                <ion-input [(ngModel)]="deriv.info.description"></ion-input>
             </ion-item>
         </div>
     </div>

@@ -49,9 +49,9 @@ export class ItemPage {
         }
     }
 
-    open(spec: SpecGroup) {
+    open(specGroup: SpecGroup) {
         this.nav.push(SpecGroupPage, {
-            spec: spec
+            specGroup: specGroup
         });
     }
 

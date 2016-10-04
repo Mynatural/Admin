@@ -14,20 +14,20 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content padding class="lineup-pages" id="deriv-page">
+<ion-content padding class="lineup-pages" id="deriv_group-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="main" *ngIf="isReady">
         <div class="name_key">
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="deriv.info.name"></ion-input>
+                    <ion-input [(ngModel)]="derivGroup.info.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
                 <ion-item>
                     <ion-label floating>Key</ion-label>
-                    <ion-input [(ngModel)]="deriv.key"></ion-input>
+                    <ion-input [(ngModel)]="derivGroup.key"></ion-input>
                 </ion-item>
             </div>
         </div>
@@ -40,10 +40,10 @@
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let a of deriv.availables">
+            <ion-item *ngFor="let a of derivGroup.availables">
                 <ion-label (click)="open(a)">{{a.info.name}} ({{a.info.key}})</ion-label>
-                <button item-right clear (click)="deriv.info.value.initial = a.info.key">
-                    <ion-icon [name]="a.info.key === deriv.info.value.initial ? 'checkbox-outline' : 'square-outline'"></ion-icon>
+                <button item-right clear (click)="derivGroup.info.value.initial = a.info.key">
+                    <ion-icon [name]="a.info.key === derivGroup.info.value.initial ? 'checkbox-outline' : 'square-outline'"></ion-icon>
                 </button>
             </ion-item>
         </ion-list>

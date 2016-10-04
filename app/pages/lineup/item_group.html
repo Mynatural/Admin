@@ -17,7 +17,7 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content padding class="lineup-pages" id="lineup-page">
+<ion-content padding class="lineup-pages" id="item_group-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="lineup-list" *ngIf="isReady">
         <ion-card *ngFor="let item of lineup.availables" (click)="open(item)">

@@ -14,20 +14,20 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content padding class="lineup-pages" id="spec_value-page">
+<ion-content padding class="lineup-pages" id="spec-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="main" *ngIf="isReady">
         <div class="name_key">
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="specValue.info.name"></ion-input>
+                    <ion-input [(ngModel)]="spec.info.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
                 <ion-item>
                     <ion-label floating>Key</ion-label>
-                    <ion-input [(ngModel)]="specValue.key"></ion-input>
+                    <ion-input [(ngModel)]="spec.key"></ion-input>
                 </ion-item>
             </div>
         </div>
@@ -35,14 +35,14 @@
         <div class="description">
             <ion-item>
                 <ion-label floating>Description</ion-label>
-                <ion-input [(ngModel)]="specValue.info.description"></ion-input>
+                <ion-input [(ngModel)]="spec.info.description"></ion-input>
             </ion-item>
         </div>
 
         <div class="price">
             <ion-item>
                 <ion-label floating>Price</ion-label>
-                <ion-input [(ngModel)]="specValue.info.price" type="number"></ion-input>
+                <ion-input [(ngModel)]="spec.info.price" type="number"></ion-input>
             </ion-item>
         </div>
 
@@ -54,7 +54,7 @@
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let a of specValue.derives" (click)="open(a)">
+            <ion-item *ngFor="let a of spec.derives" (click)="open(a)">
                 <ion-label>{{a.info.name}} ({{a.info.key}})</ion-label>
             </ion-item>
         </ion-list>

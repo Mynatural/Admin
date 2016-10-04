@@ -18,7 +18,7 @@ export class SpecGroup {
 
     constructor(private illust: Illustration, public item: Item, public info: Info.SpecGroup) {
         this.availables = _.map(info.value.availables, (key) => {
-            const v = _.find(item.info.specValues, {"key": key});
+            const v = _.find(item.info.specs, {"key": key});
             return new Spec(illust, this, v);
         });
         this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
@@ -31,7 +31,7 @@ export class SpecGroup {
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
-            await this.illust.onChanging.specKey(this, async () => {
+            await this.illust.onChanging.specGroupKey(this, async () => {
                 logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
                 this.info.key = v;
             });
@@ -43,7 +43,7 @@ export class SpecGroup {
     }
 
     set current(v: Spec) {
-        this.item.onChangeSpecValue();
+        this.item.onChangeSpec();
         this._current = v;
     }
 
@@ -53,7 +53,7 @@ export class SpecGroup {
 
     async remove(o: Spec): Promise<void> {
         if (_.size(this.availables) > 1) {
-            await this.illust.onRemoving.specValue(o, async () => {
+            await this.illust.onRemoving.spec(o, async () => {
                 _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
                 _.remove(this.info.value.availables, (a) => _.isEqual(a, o.info.key));
                 if (_.isEqual(this.info.value.initial, o.info.key)) {
@@ -73,7 +73,7 @@ export class SpecGroup {
             price: 100
         });
         this.availables.unshift(one);
-        this.item.info.specValues.unshift(one.info);
+        this.item.info.specs.unshift(one.info);
         this.info.value.availables.unshift(one.info.key);
         return one;
     }
@@ -84,7 +84,7 @@ export class Spec {
     private _image: CachedImage;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private illust: Illustration, public spec: SpecGroup, public info: Info.Spec) {
+    constructor(private illust: Illustration, public specGroup: SpecGroup, public info: Info.Spec) {
         this.derives = _.map(info.derives, (o) => new DerivGroup(illust, this, o));
     }
 
@@ -99,7 +99,7 @@ export class Spec {
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
-            await this.illust.onChanging.specValueKey(this, async () => {
+            await this.illust.onChanging.specKey(this, async () => {
                 logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
                 this.info.key = v;
             });
@@ -107,12 +107,12 @@ export class Spec {
     }
 
     onChangeDeriv() {
-        this.spec.item.onChangeSpecValue();
+        this.specGroup.item.onChangeSpec();
     }
 
     private refreshImage(clear = false): CachedImage {
         if (clear || _.isNil(this._image)) {
-            this._image = this.illust.specValue(this);
+            this._image = this.illust.spec(this);
         }
         return this._image;
     }
@@ -126,7 +126,7 @@ export class Spec {
     }
 
     async removeDeriv(o: DerivGroup): Promise<void> {
-        await this.illust.onRemoving.deriv(o, async () => {
+        await this.illust.onRemoving.derivGroup(o, async () => {
             _.remove(this.derives, (a) => _.isEqual(a.info.key, o.info.key));
             _.remove(this.info.derives, (a) => _.isEqual(a.key, o.info.key));
         });

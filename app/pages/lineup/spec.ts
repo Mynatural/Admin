@@ -14,14 +14,14 @@ const logger = new Logger("SpecPage");
     templateUrl: 'build/pages/lineup/spec.html'
 })
 export class SpecPage {
-    specValue: Spec;
+    spec: Spec;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
-        this.specValue = params.get("specValue");
+        this.spec = params.get("spec");
     }
 
     get title(): string {
-        return this.specValue.info.name;
+        return this.spec.info.name;
     }
 
     get isReady(): boolean {
@@ -30,18 +30,18 @@ export class SpecPage {
 
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-            await this.specValue.spec.remove(this.specValue);
+            await this.spec.specGroup.remove(this.spec);
             this.nav.pop();
         }
     }
 
     open(v: DerivGroup) {
         this.nav.push(DerivPage, {
-            deriv: v
+            derivGroup: v
         });
     }
 
     addNew() {
-        this.open(this.specValue.createDeriv());
+        this.open(this.spec.createDeriv());
     }
 }

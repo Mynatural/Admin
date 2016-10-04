@@ -14,7 +14,7 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content padding class="lineup-pages" id="spec-page">
+<ion-content padding class="lineup-pages" id="spec_group-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="main" *ngIf="isReady">
         <div class="name_key">
@@ -49,7 +49,7 @@
                     <ion-option [value]="null" [selected]="spec.info.canSame == null">
                         None
                     </ion-option>
-                    <ion-option *ngFor="let v of spec.item.specs" [value]="v" [selected]="v.info.key == spec.info.canSame">
+                    <ion-option *ngFor="let v of specGroup.item.specGroups" [value]="v" [selected]="v.info.key == spec.info.canSame">
                         {{v.info.name}}
                     </ion-option>
                 </ion-select>
@@ -64,7 +64,7 @@
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let a of spec.availables">
+            <ion-item *ngFor="let a of specGroup.availables">
                 <ion-label (click)="open(a)">{{a.info.name}} ({{a.info.key}})</ion-label>
                 <button item-right clear (click)="spec.info.value.initial = a.info.key">
                     <ion-icon [name]="a.info.key === spec.info.value.initial ? 'checkbox-outline' : 'square-outline'"></ion-icon>

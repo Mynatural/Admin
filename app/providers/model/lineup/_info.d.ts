@@ -3,8 +3,8 @@ export type Item = {
     name: string,
     price: number,
     description: string,
-    specs: SpecGroup[],
-    specValues: Spec[],
+    specGroups: SpecGroup[],
+    specs: Spec[],
     measurements: Measurement[]
 }
 
@@ -15,7 +15,7 @@ export type SpecGroup = {
     canSame?: string, // key of other Spec
     value: {
         initial: string,
-        availables: string[] // keys of SpecValue
+        availables: string[] // keys of Spec
     }
 }
 

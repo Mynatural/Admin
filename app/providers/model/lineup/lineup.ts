@@ -78,20 +78,20 @@ export class LineupController {
     }
 }
 
-function dirSpecValueRelative(o: Spec): string {
+function dirSpecRelative(o: Spec): string {
     const keys = _.map(o.derives, (v) => v.current.info.key);
     return `${o.info.key}/${_.join(keys, "/")}`
 }
 
 function imagesDerivValue(o: Deriv): string[] {
-    const sv = o.deriv.specValue;
-    return _.flatMap([ROOT, dirItem(sv.spec.item)], (base) =>
-            _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${sv.spec.info.key}/derives/${sv.info.key}/${o.info.key}/illustration.${sux}`));
+    const sv = o.derivGroup.spec;
+    return _.flatMap([ROOT, dirItem(sv.specGroup.item)], (base) =>
+            _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${sv.specGroup.info.key}/derives/${sv.info.key}/${o.info.key}/illustration.${sux}`));
 }
 
-function imagesSpecValue(o: Spec): string[] {
-    return _.flatMap([ROOT, dirItem(o.spec.item)], (base) =>
-            _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${o.spec.info.key}/images/${this.dirSpecValueRelative(o)}/illustration.${sux}`));
+function imagesSpec(o: Spec): string[] {
+    return _.flatMap([ROOT, dirItem(o.specGroup.item)], (base) =>
+            _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${o.specGroup.info.key}/images/${this.dirSpecRelative(o)}/illustration.${sux}`));
 }
 
 export class Illustration {
@@ -109,7 +109,7 @@ export class Illustration {
 
     // SpecSide -> CachedImage
     itemValueCurrent(o: Item): {[key: string]: CachedImage} {
-        const names = _.map(o.specs, (spec) => dirSpecValueRelative(spec.current));
+        const names = _.map(o.specGroups, (specGroup) => dirSpecRelative(specGroup.current));
         const dir = `${dirItem(o)}/images/${_.join(names, "/")}/`;
         return _.fromPairs(_.map(SIDES, (side) =>
             [side, this.s3image.createCache([`${dir}/${side}.png`])]
@@ -121,12 +121,12 @@ export class Illustration {
         return this.s3image.createCache(list);
     }
 
-    specValue(o: Spec): CachedImage {
-        const list = imagesSpecValue(o);
+    spec(o: Spec): CachedImage {
+        const list = imagesSpec(o);
         return this.s3image.createCache(list);
     }
 
-    derivValue(o: Deriv): CachedImage {
+    deriv(o: Deriv): CachedImage {
         const list = imagesDerivValue(o);
         return this.s3image.createCache(list);
     }
@@ -137,12 +137,12 @@ type DoThru = () => Promise<void>;
 function refreshIllustrations(item: Item) {
     item.refreshIllustrations();
     item.measurements.forEach((m) => m.refreshIllustrations());
-    item.specs.forEach((spec) => {
-        spec.availables.forEach((specValue) => {
-            specValue.refreshIllustrations();
-            specValue.derives.forEach((deriv) => {
-                deriv.availables.forEach((derivValue) => {
-                    derivValue.refreshIllustrations();
+    item.specGroups.forEach((spec) => {
+        spec.availables.forEach((spec) => {
+            spec.refreshIllustrations();
+            spec.derives.forEach((derivGroup) => {
+                derivGroup.availables.forEach((deriv) => {
+                    deriv.refreshIllustrations();
                 })
             })
         })
@@ -152,7 +152,7 @@ function refreshIllustrations(item: Item) {
 class OnChanging {
     constructor(private s3: S3File) { }
 
-    async itemValueKey(o: Item, go: DoThru) {
+    async itemKey(o: Item, go: DoThru) {
         const src = dirItem(o);
 
         await go();
@@ -163,25 +163,25 @@ class OnChanging {
         refreshIllustrations(o);
     }
 
-    async specKey(o: SpecGroup, go: DoThru) {
+    async specGroupKey(o: SpecGroup, go: DoThru) {
         await go();
 
         refreshIllustrations(o.item);
     }
 
-    async specValueKey(o: Spec, go: DoThru) {
+    async specKey(o: Spec, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.spec.item);
+        refreshIllustrations(o.specGroup.item);
     }
 
-    async derivKey(o: DerivGroup, go: DoThru) {
+    async derivGroupKey(o: DerivGroup, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.specValue.spec.item);
+        refreshIllustrations(o.spec.specGroup.item);
     }
 
-    async derivValueKey(o: Deriv, go: DoThru) {
+    async derivKey(o: Deriv, go: DoThru) {
         const srcList = imagesDerivValue(o);
 
         await go();
@@ -191,7 +191,7 @@ class OnChanging {
             (pair) => this.s3.move(pair[0], pair[1])
         ));
 
-        refreshIllustrations(o.deriv.specValue.spec.item);
+        refreshIllustrations(o.derivGroup.spec.specGroup.item);
     }
 }
 
@@ -203,27 +203,27 @@ class OnRemoving {
         await this.s3.removeDir(dirItem(o));
     }
 
-    async spec(o: SpecGroup, go: DoThru) {
+    async specGroup(o: SpecGroup, go: DoThru) {
         await go();
 
         refreshIllustrations(o.item);
     }
 
-    async specValue(o: Spec, go: DoThru) {
+    async spec(o: Spec, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.spec.item);
+        refreshIllustrations(o.specGroup.item);
     }
 
-    async deriv(o: DerivGroup, go: DoThru) {
+    async derivGroup(o: DerivGroup, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.specValue.spec.item);
+        refreshIllustrations(o.spec.specGroup.item);
     }
 
-    async derivValue(o: Deriv, go: DoThru) {
+    async deriv(o: Deriv, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.deriv.specValue.spec.item);
+        refreshIllustrations(o.derivGroup.spec.specGroup.item);
     }
 }

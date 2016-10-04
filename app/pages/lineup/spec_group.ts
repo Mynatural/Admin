@@ -13,15 +13,15 @@ const logger = new Logger("SpecGroupPage");
     templateUrl: 'build/pages/lineup/spec_group.html'
 })
 export class SpecGroupPage {
-    spec: SpecGroup;
+    specGroup: SpecGroup;
     sides = ["FRONT", "BACK"];
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
-        this.spec = params.get("spec");
+        this.specGroup = params.get("specGroup");
     }
 
     get title(): string {
-        return this.spec.info.name;
+        return this.specGroup.info.name;
     }
 
     get isReady(): boolean {
@@ -30,18 +30,18 @@ export class SpecGroupPage {
 
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-            await this.spec.item.removeSpec(this.spec);
+            await this.specGroup.item.removeSpec(this.specGroup);
             this.nav.pop();
         }
     }
 
     open(sv: Spec) {
         this.nav.push(SpecPage, {
-            specValue: sv
+            spec: sv
         });
     }
 
     addNew() {
-        this.open(this.spec.createNew());
+        this.open(this.specGroup.createNew());
     }
 }
