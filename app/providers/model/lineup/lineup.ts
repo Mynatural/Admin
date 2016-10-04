@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
-import * as Util from "./_util";
+import * as Observ from "./_observ";
 import {ItemSpec, ItemSpecValue} from "./spec";
 import {ItemMeasure} from "./measure";
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
@@ -23,11 +23,11 @@ export class LineupController {
     }
 
     private async getAll(): Promise<LineupValue[]> {
-        const rootDir = `${Util.ROOT}/$Util.{LINEUP}/`
+        const rootDir = `${Observ.ROOT}/${Observ.LINEUP}/`
         const finds = await this.s3.list(rootDir);
         logger.debug(() => `Finds: ${JSON.stringify(finds, null, 4)}`);
         const keys = _.filter(finds.map((path) => {
-            if (path.endsWith(`/${Util.INFO_JSON}`)) {
+            if (path.endsWith(`/${Observ.INFO_JSON}`)) {
                 const l = _.split(path, "/");
                 return l[l.length - 2];
             }
@@ -46,7 +46,7 @@ export class LineupController {
     }
 
     private async load(key: string): Promise<LineupValue> {
-        const text = await this.s3.read(`${Util.ROOT}/${Util.LINEUP}/${key}/${Util.INFO_JSON}`);
+        const text = await this.s3.read(`${Observ.ROOT}/${Observ.LINEUP}/${key}/${Observ.INFO_JSON}`);
         const info = Base64.decodeJson(text) as Info.LineupValue;
         return new LineupValue(this.s3, this.s3image, key, info);
     }
@@ -65,7 +65,7 @@ export class Lineup {
     }
 
     createNew(): LineupValue {
-        const key = Util.createNewKey("new_created", (key) => _.find(this.availables, {"key": key}));
+        const key = Observ.createNewKey("new_created", (key) => _.find(this.availables, {"key": key}));
         const one = new LineupValue(this.s3, this.s3image, key, {
             name: "新しいラインナップ",
             price: 500,
@@ -92,8 +92,8 @@ export class LineupValue {
         this.measurements = _.map(info.measurements, (m) => new ItemMeasure(s3image, this, m));
     }
 
-    onChangingKey(permit: (v: boolean) => Promise<void>) {
-
+    async onChangingKey(permit: () => Promise<void>) {
+        await permit();
     }
 
     onChangeSpecValue() {
@@ -115,7 +115,7 @@ export class LineupValue {
     }
 
     get dir(): string {
-        return `${Util.ROOT}/${Util.LINEUP}/${this.key}`
+        return `${Observ.ROOT}/${Observ.LINEUP}/${this.key}`
     }
 
     get titleImage(): SafeUrl {
@@ -162,7 +162,7 @@ export class LineupValue {
     }
 
     async writeInfo(): Promise<void> {
-        const path = `${this.dir}/${Util.INFO_JSON}`;
+        const path = `${this.dir}/${Observ.INFO_JSON}`;
         await this.s3.write(path, Base64.encodeJson(this.info));
     }
 
@@ -176,7 +176,7 @@ export class LineupValue {
     }
 
     createSpec(): ItemSpec {
-        const key = Util.createNewKey("new_spec", (key) => this.getSpec(key));
+        const key = Observ.createNewKey("new_spec", (key) => this.getSpec(key));
         const one = new ItemSpec(this.s3image, this, {
             name: "新しい仕様",
             key: key,

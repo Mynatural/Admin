@@ -1,7 +1,7 @@
 import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
-import * as Util from "./_util";
+import * as Observ from "./_observ";
 import {Lineup, LineupValue} from "./lineup";
 import {ItemSpecDeriv, ItemSpecDerivValue} from "./deriv";
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
@@ -22,6 +22,12 @@ export class ItemSpec {
             return new ItemSpecValue(s3image, this, v);
         });
         this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
+    }
+
+    async onChangingKey(permit: () => Promise<void>) {
+        this.item.onChangingKey(async () => {
+            await permit();
+        });
     }
 
     get key(): string {
@@ -60,7 +66,7 @@ export class ItemSpec {
     }
 
     createNew() {
-        const key = Util.createNewKey("new_value", (key) => this.get(key));
+        const key = Observ.createNewKey("new_value", (key) => this.get(key));
         const one = new ItemSpecValue(this.s3image, this, {
             name: "新しい仕様の値",
             key: key,
@@ -97,10 +103,14 @@ export class ItemSpecValue {
         });
     }
 
-    onChangingKey(permit: (v: boolean) => Promise<void>) {
-        this.spec.item.onChangingKey(async (v) => {
-
+    async onChangingKey(permit: () => Promise<void>) {
+        this.spec.onChangingKey(async () => {
+            await permit();
         });
+    }
+
+    async onRemovedDeriv(o: ItemSpecDerivValue) {
+
     }
 
     onChangeDeriv() {
@@ -118,8 +128,8 @@ export class ItemSpecValue {
     }
 
     get image(): SafeUrl {
-        const list = _.flatMap([Util.ROOT, this.spec.item.dir], (base) =>
-            _.map(["svg", "png"], (sux) => `${base}/${Util.SPEC_VALUE}/${this.spec.info.key}/images/${this.dir}/illustration.${sux}`));
+        const list = _.flatMap([Observ.ROOT, this.spec.item.dir], (base) =>
+            _.map(["svg", "png"], (sux) => `${base}/${Observ.SPEC_VALUE}/${this.spec.info.key}/images/${this.dir}/illustration.${sux}`));
         if (_.isNil(this._image) || !this._image.isSamePath(list)) {
             this._image = this.s3image.createCache(list);
         }
@@ -136,7 +146,7 @@ export class ItemSpecValue {
     }
 
     createDeriv(): ItemSpecDeriv {
-        const key = Util.createNewKey("new_deriv", (key) => this.getDeriv(key));
+        const key = Observ.createNewKey("new_deriv", (key) => this.getDeriv(key));
         const one = new ItemSpecDeriv(this.s3image, this, {
             name: "新しい派生",
             key: key,
