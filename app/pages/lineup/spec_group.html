@@ -49,7 +49,7 @@
                     <ion-option [value]="null" [selected]="specGroup.info.canSame == null">
                         None
                     </ion-option>
-                    <ion-option *ngFor="let v of specGroup.item.specGroups" [value]="v" [selected]="v.info.key == specGroup.info.canSame">
+                    <ion-option *ngFor="let v of specGroups" [value]="v" [selected]="v.info.key == specGroup.info.canSame">
                         {{v.info.name}}
                     </ion-option>
                 </ion-select>

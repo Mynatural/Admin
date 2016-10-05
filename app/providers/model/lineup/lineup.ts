@@ -61,14 +61,19 @@ export class LineupController {
     }
 
     private async load(key: string): Promise<Item> {
-        const text = await this.s3image.s3.read(`${Path.itemDir(key)}/${INFO_JSON}`);
+        const text = await this.s3image.s3.read(Path.infoItem(key));
         const info = Base64.decodeJson(text) as Info.Item;
         return new Item(this, key, info);
     }
 
     async write(item: Item): Promise<void> {
-        const path = `${Path.itemDir(item.key)}/${INFO_JSON}`;
+        const path = Path.infoItem(item.key)
         await this.s3image.s3.write(path, Base64.encodeJson(item.info));
+    }
+
+    async loadSpec(key: string): Promise<Info.Spec> {
+        const text = await this.s3image.s3.read(Path.infoSpec(key));
+        return Base64.decodeJson(text) as Info.Spec;
     }
 }
 
@@ -80,58 +85,64 @@ const INFO_JSON = "info.json.encoded";
 const SIDES: Info.SpecSide[] = ["FRONT", "BACK"];
 
 class Path {
+    private static join(...list): string {
+        return _.join(_.flattenDeep(list), "/");
+    }
+
     static itemDir(key: string): string {
-        return `${ROOT}/${LINEUP}/${key}`;
+        return Path.join(ROOT, LINEUP, key);
     }
 
     static dirItem(o: Item): string {
         return Path.itemDir(o.key);
     }
 
-    private static dirSpecRelative(o: Spec): string {
-        const keys = _.map(o.derives, (v) => v.current.info.key);
-        keys.unshift(o.info.key);
-        return _.join(keys, "/");
+    static infoItem(key: string): string {
+        return Path.join(Path.itemDir(key), INFO_JSON);
     }
 
-    private static dirSpec(spec: Spec): string {
-        const base = spec.global ? ROOT : Path.dirItem(spec.specGroup.item);
-        return `${base}/${SPEC}/${spec.specGroup.info.key}`;
-    }
-
-    private static illustration(dir: string, sux: string): string {
-        return `${dir}/illustration.${sux}`;
-    }
-
-    private static illustrations(dir: string): string[] {
-        return _.map(["svg", "png"], (sux) => Path.illustration(dir, sux));
-    }
-
-    private static underSpec(spec: Spec, under: string): string[] {
-        return Path.illustrations(`${Path.dirSpec(spec)}/${under}`);
+    static infoSpec(key: string): string {
+        return Path.join(ROOT, SPEC, key, INFO_JSON);
     }
 
     static imagesItemTitle(o: Item): string[] {
-        return [`${Path.dirItem(o)}/title.png`];
+        return [Path.join(Path.dirItem(o), "title.png")];
     }
 
-    static imagesItem(o: Item, side: Info.SpecSide): string[] {
-        const names = _.map(o.specGroups, (specGroup) => Path.dirSpecRelative(specGroup.current));
-        const dir = `${Path.dirItem(o)}/images/${_.join(names, "/")}`;
-        return [`${dir}/${side}.png`];
+    static async imagesItem(o: Item, side: Info.SpecSide): Promise<string[]> {
+        const names = _.map(await o.specGroups, (specGroup) => {
+            const spec = specGroup.current;
+            const keys = _.map(spec.derives, (v) => v.current.key);
+            keys.unshift(spec.key);
+            return keys;
+        });
+        return [Path.join(Path.dirItem(o), "images", names, `${side}.png`)];
     }
 
     static imagesDeriv(o: Deriv): string[] {
         const spec = o.derivGroup.spec;
-        return Path.underSpec(spec, `derives/${spec.info.key}/${o.derivGroup.info.key}/${o.info.key}`);
+        return Path.illustrations(Path.dirSpec(spec), "derives", o.derivGroup.key, o.key);
     }
 
     static imagesSpec(spec: Spec): string[] {
-        return Path.underSpec(spec, `images/${Path.dirSpecRelative(spec)}`);
+        const keys = _.map(spec.derives, (v) => v.current.key);
+        return Path.illustrations(Path.dirSpec(spec), "images", keys);
     }
 
     static imagesMeasure(o: Measure): string[] {
-        return Path.illustrations(`${Path.dirItem(o.item)}/measurements/${o.info.key}`);
+        return Path.illustrations(Path.dirItem(o.item), "measurements", o.key);
+    }
+
+    private static illustrations(...paths): string[] {
+        return _.map(["svg", "png"], (sux) => Path.join(paths, `illustration.${sux}`));
+    }
+
+    private static dirSpec(spec: Spec): string {
+        const list = [spec.global ? ROOT : Path.dirItem(spec.specGroup.item)];
+        list.push(SPEC);
+        if (!spec.global) list.push(spec.specGroup.key);
+        list.push(spec.key);
+        return Path.join(list);
     }
 }
 
@@ -156,14 +167,14 @@ class Illustration {
     }
 
     // SpecSide -> CachedImage
-    itemCurrent(o: Item): {[key: string]: CachedImage} {
-        return _.fromPairs(_.map(SIDES, (side) =>
-            [side, this.s3image.createCache(Path.imagesItem(o, side))]
-        ));
+    async itemCurrent(o: Item): Promise<{[key: string]: CachedImage}> {
+        return _.fromPairs(await Promise.all(_.map(SIDES, async (side) =>
+            [side, this.s3image.createCache(await Path.imagesItem(o, side))]
+        )));
     }
 
     async uploadItemCurrent(o: Item, side: Info.SpecSide, file: File): Promise<void> {
-        await this.upload(Path.imagesItem(o, side), file);
+        await this.upload(await Path.imagesItem(o, side), file);
     }
 
     specCurrent(o: Spec): CachedImage {
@@ -198,16 +209,16 @@ async function refresh(item: Item): Promise<void> {
 
     item.refreshIllustrations();
     item.measurements.forEach((m) => m.refreshIllustrations());
-    item.specGroups.forEach((spec) => {
+    (await item.specGroups).forEach((spec) => {
         spec.availables.forEach((spec) => {
             spec.refreshIllustrations();
             spec.derives.forEach((derivGroup) => {
                 derivGroup.availables.forEach((deriv) => {
                     deriv.refreshIllustrations();
-                })
-            })
-        })
-    })
+                });
+            });
+        });
+    });
 }
 
 class OnChanging {
@@ -265,6 +276,12 @@ class OnChanging {
         ));
 
         await refresh(o.derivGroup.spec.specGroup.item);
+    }
+
+    async measureKey(o: Measure, go: DoThru) {
+        await go();
+
+        await o.refreshIllustrations();
     }
 }
 

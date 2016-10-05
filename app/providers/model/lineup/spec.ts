@@ -11,16 +11,40 @@ import {Logger} from "../../../util/logging";
 
 const logger = new Logger("Lineup.Spec");
 
+type InfoSpec = {
+    key: string,
+    info: Info.Spec,
+    global: boolean
+}
+
 export class SpecGroup {
+    static async createGroups(ctrl: LineupController, item: Item, infos: Info.SpecGroup[]): Promise<SpecGroup[]> {
+        const allKeys = _.uniq(_.flatten(_.map(infos, (info) => info.value.availables)));
+        const all = await Promise.all(_.map(allKeys, async (key) => {
+            let v = _.find(item.info.specs, {"key": key});
+            let global = false;
+            if (_.isNil(v)) {
+                v = await ctrl.loadSpec(key);
+                global = true;
+            }
+            return {
+                key: key,
+                info: v,
+                global: global
+            };
+        }));
+        return _.map(infos, (info) => {
+            const availables = _.map(info.value.availables, (a) => _.find(all, {"key": a}));
+            return new SpecGroup(ctrl, item, info, availables);
+        });
+    }
+
     availables: Spec[];
     private _current: Spec;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private ctrl: LineupController, public item: Item, public info: Info.SpecGroup) {
-        this.availables = _.map(info.value.availables, (key) => {
-            const v = _.find(item.info.specs, {"key": key});
-            return new Spec(ctrl, this, v);
-        });
+    constructor(private ctrl: LineupController, public item: Item, public info: Info.SpecGroup, specs: InfoSpec[]) {
+        this.availables = specs.map((s) => new Spec(ctrl, this, s.info, s.global));
     }
 
     get key(): string {
@@ -73,7 +97,7 @@ export class SpecGroup {
             description: "",
             derives: [],
             price: 100
-        });
+        }, false);
         this.availables.unshift(one);
         this.item.info.specs.unshift(one.info);
         this.info.value.availables.unshift(one.info.key);
@@ -83,11 +107,10 @@ export class SpecGroup {
 
 export class Spec {
     derives: DerivGroup[];
-    private _global: boolean;
     private _image: CachedImage;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private ctrl: LineupController, public specGroup: SpecGroup, public info: Info.Spec) {
+    constructor(private ctrl: LineupController, public specGroup: SpecGroup, public info: Info.Spec, private _global: boolean) {
         this.derives = _.map(info.derives, (o) => new DerivGroup(ctrl, this, o));
     }
 

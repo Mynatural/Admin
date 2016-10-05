@@ -11,11 +11,25 @@ import {Logger} from "../../../util/logging";
 const logger = new Logger("Lineup.Measure");
 
 export class Measure {
+    private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
     private _image: CachedImage;
     current: number;
 
     constructor(private ctrl: LineupController, public item: Item, public info: Info.Measurement) {
         this.current = info.value.initial;
+    }
+
+    get key(): string {
+        return this.info.key;
+    }
+
+    set key(v: string) {
+        if (_.isEmpty(v)) return;
+        this._changeKey.update(v, async (v) => {
+            await this.ctrl.onChanging.measureKey(this, async () => {
+                this.info.key = v;
+            });
+        });
     }
 
     refreshIllustrations() {

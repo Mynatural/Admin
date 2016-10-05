@@ -41,7 +41,7 @@ export class ItemGroup {
 }
 
 export class Item {
-    specGroups: SpecGroup[];
+    specGroups: Promise<SpecGroup[]>;
     measurements: Measure[];
     private _titleImage: CachedImage;
     private _images: {[key: string]: CachedImage}; // SpecSide -> CachedImage
@@ -49,7 +49,7 @@ export class Item {
 
     constructor(private ctrl: LineupController, private _key: string, public info: Info.Item) {
         logger.info(() => `${_key}: ${JSON.stringify(info, null, 4)}`);
-        this.specGroups = _.map(info.specGroups, (spec) => new SpecGroup(ctrl, this, spec));
+        this.specGroups = SpecGroup.createGroups(ctrl, this, info.specGroups);
         this.measurements = _.map(info.measurements, (m) => new Measure(ctrl, this, m));
     }
 
@@ -96,7 +96,10 @@ export class Item {
 
     private refreshCurrentImages(clear = false): {[key: string]: CachedImage} {
         if (clear || _.isEmpty(this._images)) {
-            this._images = this.ctrl.illust.itemCurrent(this);
+            this._images = {};
+            this.ctrl.illust.itemCurrent(this).then((m) => {
+                _.forEach(m, (value, key) => this._images[key] = value);
+            });
         }
         return this._images;
     }
@@ -106,9 +109,9 @@ export class Item {
         return safe ? safe.url : null;
     }
 
-    get totalPrice(): number {
+    async getTotalPrice(): Promise<number> {
         var result = this.info.price;
-        _.forEach(this.specGroups, (spec, key) => {
+        _.forEach(await this.specGroups, (spec, key) => {
             const v = spec.current;
             if (v) {
                 result = result + v.info.price;
@@ -121,20 +124,20 @@ export class Item {
         await this.ctrl.write(this);
     }
 
-    getSpec(key: string): SpecGroup {
-        return _.find(this.specGroups, (s) => _.isEqual(s.info.key, key));
+    async getSpec(key: string): Promise<SpecGroup> {
+        return _.find(await this.specGroups, (s) => _.isEqual(s.info.key, key));
     }
 
     async removeSpec(o: SpecGroup): Promise<void> {
         await this.ctrl.onRemoving.specGroup(o, async () => {
-            _.remove(this.specGroups, (a) => _.isEqual(a.info.key, o.info.key));
+            _.remove(await this.specGroups, (a) => _.isEqual(a.info.key, o.info.key));
             _.remove(this.info.specGroups, (a) => _.isEqual(a.key, o.info.key));
         });
     }
 
-    createSpec(): SpecGroup {
+    async createSpec(): Promise<SpecGroup> {
         const key = this.ctrl.createNewKey("new_spec", (key) => this.getSpec(key));
-        const one = new SpecGroup(this.ctrl, this, {
+        const one = _.head(await SpecGroup.createGroups(this.ctrl, this, [{
             name: "新しい仕様",
             key: key,
             side: "FRONT",
@@ -142,10 +145,10 @@ export class Item {
                 initial: "",
                 availables: []
             }
-        });
+        }]));
         const initial = one.createNew();
         one.info.value.initial = initial.info.key;
-        this.specGroups.unshift(one);
+        (await this.specGroups).unshift(one);
         this.info.specGroups.unshift(one.info);
         return one;
     }

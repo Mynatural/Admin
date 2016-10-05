@@ -14,10 +14,12 @@ const logger = new Logger("SpecGroupPage");
 })
 export class SpecGroupPage {
     specGroup: SpecGroup;
+    specGroups: SpecGroup[];
     sides = ["FRONT", "BACK"];
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.specGroup = params.get("specGroup");
+        this.specGroup.item.specGroups.then((v) => this.specGroups = v);
     }
 
     get title(): string {

@@ -17,9 +17,11 @@ const logger = new Logger("ItemPage");
 })
 export class ItemPage {
     item: Item;
+    specGroups: SpecGroup[];
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams, private lineupCtrl: LineupController) {
         this.item = params.get("item");
+        this.item.specGroups.then((v) => this.specGroups = v);
     }
 
     get title(): string {
@@ -55,7 +57,7 @@ export class ItemPage {
         });
     }
 
-    addNew() {
-        this.open(this.item.createSpec());
+    async addNew() {
+        this.open(await this.item.createSpec());
     }
 }

@@ -61,7 +61,7 @@
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let a of item.specGroups" (click)="open(a)">
+            <ion-item *ngFor="let a of specGroups" (click)="open(a)">
                 <ion-label>{{a.info.name}} ({{a.info.key}})</ion-label>
             </ion-item>
         </ion-list>
