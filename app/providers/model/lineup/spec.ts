@@ -114,7 +114,9 @@ export class Spec {
     }
 
     set global(v: boolean) {
-        this._global = v;
+        this.ctrl.onChanging.specGlobal(this, async () => {
+            this._global = v;
+        });
     }
 
     onChangeDeriv() {

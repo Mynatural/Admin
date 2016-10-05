@@ -88,6 +88,29 @@ class Path {
         return Path.itemDir(o.key);
     }
 
+    private static dirSpecRelative(o: Spec): string {
+        const keys = _.map(o.derives, (v) => v.current.info.key);
+        keys.unshift(o.info.key);
+        return _.join(keys, "/");
+    }
+
+    private static dirSpec(spec: Spec): string {
+        const base = spec.global ? ROOT : Path.dirItem(spec.specGroup.item);
+        return `${base}/${SPEC}/${spec.specGroup.info.key}`;
+    }
+
+    private static illustration(dir: string, sux: string): string {
+        return `${dir}/illustration.${sux}`;
+    }
+
+    private static illustrations(dir: string): string[] {
+        return _.map(["svg", "png"], (sux) => Path.illustration(dir, sux));
+    }
+
+    private static underSpec(spec: Spec, under: string): string[] {
+        return Path.illustrations(`${Path.dirSpec(spec)}/${under}`);
+    }
+
     static imagesItemTitle(o: Item): string[] {
         return [`${Path.dirItem(o)}/title.png`];
     }
@@ -96,29 +119,6 @@ class Path {
         const names = _.map(o.specGroups, (specGroup) => Path.dirSpecRelative(specGroup.current));
         const dir = `${Path.dirItem(o)}/images/${_.join(names, "/")}`;
         return [`${dir}/${side}.png`];
-    }
-
-    static dirSpecRelative(o: Spec): string {
-        const keys = _.map(o.derives, (v) => v.current.info.key);
-        keys.unshift(o.info.key);
-        return _.join(keys, "/");
-    }
-
-    static dirSpec(spec: Spec): string {
-        const base = spec.global ? ROOT : Path.dirItem(spec.specGroup.item);
-        return `${base}/${SPEC}/${spec.specGroup.info.key}`;
-    }
-
-    static illustration(dir: string, sux: string): string {
-        return `${dir}/illustration.${sux}`;
-    }
-
-    static illustrations(dir: string): string[] {
-        return _.map(["svg", "png"], (sux) => Path.illustration(dir, sux));
-    }
-
-    static underSpec(spec: Spec, under: string): string[] {
-        return Path.illustrations(`${Path.dirSpec(spec)}/${under}`);
     }
 
     static imagesDeriv(o: Deriv): string[] {
@@ -193,7 +193,9 @@ class Illustration {
 
 type DoThru = () => Promise<void>;
 
-function refreshIllustrations(item: Item) {
+async function refresh(item: Item): Promise<void> {
+    await item.writeInfo();
+
     item.refreshIllustrations();
     item.measurements.forEach((m) => m.refreshIllustrations());
     item.specGroups.forEach((spec) => {
@@ -225,25 +227,31 @@ class OnChanging {
         const dst = Path.dirItem(o);
         await this.s3.moveDir(src, dst);
 
-        refreshIllustrations(o);
+        await refresh(o);
     }
 
     async specGroupKey(o: SpecGroup, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.item);
+        await refresh(o.item);
     }
 
     async specKey(o: Spec, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.specGroup.item);
+        await refresh(o.specGroup.item);
+    }
+
+    async specGlobal(o: Spec, go: DoThru) {
+        await go();
+
+        await refresh(o.specGroup.item);
     }
 
     async derivGroupKey(o: DerivGroup, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.spec.specGroup.item);
+        await refresh(o.spec.specGroup.item);
     }
 
     async derivKey(o: Deriv, go: DoThru) {
@@ -256,7 +264,7 @@ class OnChanging {
             (pair) => this.moveFile(pair[0], pair[1])
         ));
 
-        refreshIllustrations(o.derivGroup.spec.specGroup.item);
+        await refresh(o.derivGroup.spec.specGroup.item);
     }
 }
 
@@ -271,24 +279,24 @@ class OnRemoving {
     async specGroup(o: SpecGroup, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.item);
+        await refresh(o.item);
     }
 
     async spec(o: Spec, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.specGroup.item);
+        await refresh(o.specGroup.item);
     }
 
     async derivGroup(o: DerivGroup, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.spec.specGroup.item);
+        await refresh(o.spec.specGroup.item);
     }
 
     async deriv(o: Deriv, go: DoThru) {
         await go();
 
-        refreshIllustrations(o.derivGroup.spec.specGroup.item);
+        await refresh(o.derivGroup.spec.specGroup.item);
     }
 }
