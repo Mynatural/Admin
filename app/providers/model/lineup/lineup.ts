@@ -4,37 +4,13 @@ import * as Info from "./_info.d";
 import {ItemGroup, Item} from "./item";
 import {SpecGroup, Spec} from "./spec";
 import {DerivGroup, Deriv} from "./deriv";
-import {ItemMeasure} from "./measure";
+import {Measure} from "./measure";
 
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
 import * as Base64 from "../../../util/base64";
 import {Logger} from "../../../util/logging";
 
 const logger = new Logger("Lineup");
-
-const ROOT = "unauthorized";
-const LINEUP = "lineup";
-const SPEC_VALUE = "spec-value";
-const INFO_JSON = "info.json.encoded";
-
-const SIDES = ["FRONT", "BACK"];
-
-export function createNewKey(prefix: string, find: (v: string) => any): string {
-    var index = 0;
-    var key;
-    while (_.isNil(key) || !_.isNil(find(key))) {
-        key = `${prefix}_${index++}`;
-    }
-    return key;
-}
-
-function itemDir(key: string): string {
-    return `${ROOT}/${LINEUP}/${key}`;
-}
-
-function dirItem(o: Item): string {
-    return itemDir(o.key);
-}
 
 @Injectable()
 export class LineupController {
@@ -52,8 +28,17 @@ export class LineupController {
         });
     }
 
+    createNewKey(prefix: string, find: (v: string) => any): string {
+        var index = 0;
+        var key;
+        while (_.isNil(key) || !_.isNil(find(key))) {
+            key = `${prefix}_${index++}`;
+        }
+        return key;
+    }
+
     private async getAll(): Promise<Item[]> {
-        const rootDir = itemDir("");
+        const rootDir = Path.itemDir("");
         const finds = await this.s3image.s3.list(rootDir);
         logger.debug(() => `Finds: ${JSON.stringify(finds, null, 4)}`);
         const keys = _.filter(finds.map((path) => {
@@ -76,69 +61,133 @@ export class LineupController {
     }
 
     private async load(key: string): Promise<Item> {
-        const text = await this.s3image.s3.read(`${itemDir(key)}/${INFO_JSON}`);
+        const text = await this.s3image.s3.read(`${Path.itemDir(key)}/${INFO_JSON}`);
         const info = Base64.decodeJson(text) as Info.Item;
         return new Item(this, key, info);
     }
 
     async write(item: Item): Promise<void> {
-        const path = `${itemDir(item.key)}/${INFO_JSON}`;
+        const path = `${Path.itemDir(item.key)}/${INFO_JSON}`;
         await this.s3image.s3.write(path, Base64.encodeJson(item.info));
     }
 }
 
-function dirSpecRelative(o: Spec): string {
-    const keys = _.map(o.derives, (v) => v.current.info.key);
-    return `${o.info.key}/${_.join(keys, "/")}`
-}
+const ROOT = "unauthorized";
+const LINEUP = "lineup";
+const SPEC = "_spec";
+const INFO_JSON = "info.json.encoded";
 
-function imagesDerivValue(o: Deriv): string[] {
-    const sv = o.derivGroup.spec;
-    return _.flatMap([ROOT, dirItem(sv.specGroup.item)], (base) =>
-            _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${sv.specGroup.info.key}/derives/${sv.info.key}/${o.info.key}/illustration.${sux}`));
-}
+const SIDES: Info.SpecSide[] = ["FRONT", "BACK"];
 
-function imagesSpec(o: Spec): string[] {
-    return _.flatMap([ROOT, dirItem(o.specGroup.item)], (base) =>
-            _.map(["svg", "png"], (sux) => `${base}/${SPEC_VALUE}/${o.specGroup.info.key}/images/${this.dirSpecRelative(o)}/illustration.${sux}`));
+class Path {
+    static itemDir(key: string): string {
+        return `${ROOT}/${LINEUP}/${key}`;
+    }
+
+    static dirItem(o: Item): string {
+        return Path.itemDir(o.key);
+    }
+
+    static imagesItemTitle(o: Item): string[] {
+        return [`${Path.dirItem(o)}/title.png`];
+    }
+
+    static imagesItem(o: Item, side: Info.SpecSide): string[] {
+        const names = _.map(o.specGroups, (specGroup) => Path.dirSpecRelative(specGroup.current));
+        const dir = `${Path.dirItem(o)}/images/${_.join(names, "/")}`;
+        return [`${dir}/${side}.png`];
+    }
+
+    static dirSpecRelative(o: Spec): string {
+        const keys = _.map(o.derives, (v) => v.current.info.key);
+        keys.unshift(o.info.key);
+        return _.join(keys, "/");
+    }
+
+    static dirSpec(spec: Spec): string {
+        const base = spec.global ? ROOT : Path.dirItem(spec.specGroup.item);
+        return `${base}/${SPEC}/${spec.specGroup.info.key}`;
+    }
+
+    static illustration(dir: string, sux: string): string {
+        return `${dir}/illustration.${sux}`;
+    }
+
+    static illustrations(dir: string): string[] {
+        return _.map(["svg", "png"], (sux) => Path.illustration(dir, sux));
+    }
+
+    static underSpec(spec: Spec, under: string): string[] {
+        return Path.illustrations(`${Path.dirSpec(spec)}/${under}`);
+    }
+
+    static imagesDeriv(o: Deriv): string[] {
+        const spec = o.derivGroup.spec;
+        return Path.underSpec(spec, `derives/${spec.info.key}/${o.derivGroup.info.key}/${o.info.key}`);
+    }
+
+    static imagesSpec(spec: Spec): string[] {
+        return Path.underSpec(spec, `images/${Path.dirSpecRelative(spec)}`);
+    }
+
+    static imagesMeasure(o: Measure): string[] {
+        return Path.illustrations(`${Path.dirItem(o.item)}/measurements/${o.info.key}`);
+    }
 }
 
 class Illustration {
     constructor(private s3image: S3Image) { }
 
+    private async upload(pathList: string[], file: File): Promise<void> {
+        const sux = file.name.replace(/.*\./, "");
+        const path = _.find(pathList, sux);
+        if (_.isNil(path)) {
+            throw `Illegal file type: ${sux}`;
+        }
+        await this.s3image.s3.upload(path, file);
+    }
+
     itemTitle(o: Item): CachedImage {
-        return this.s3image.createCache([`${dirItem(o)}/title.png`]);
+        return this.s3image.createCache(Path.imagesItemTitle(o));
     }
 
     async uploadItemTitle(o: Item, file: File): Promise<void> {
-        if (file) {
-            const path = `${dirItem(o)}/title.png`;
-            await this.s3image.s3.upload(path, file);
-        }
+        await this.upload(Path.imagesItemTitle(o), file);
     }
 
     // SpecSide -> CachedImage
-    itemValueCurrent(o: Item): {[key: string]: CachedImage} {
-        const names = _.map(o.specGroups, (specGroup) => dirSpecRelative(specGroup.current));
-        const dir = `${dirItem(o)}/images/${_.join(names, "/")}/`;
+    itemCurrent(o: Item): {[key: string]: CachedImage} {
         return _.fromPairs(_.map(SIDES, (side) =>
-            [side, this.s3image.createCache([`${dir}/${side}.png`])]
+            [side, this.s3image.createCache(Path.imagesItem(o, side))]
         ));
     }
 
-    measure(o: ItemMeasure): CachedImage {
-        const list = _.map(["svg", "png"], (sux) => `${dirItem(o.item)}/measurements/${o.info.key}/illustration.${sux}`);
-        return this.s3image.createCache(list);
+    async uploadItemCurrent(o: Item, side: Info.SpecSide, file: File): Promise<void> {
+        await this.upload(Path.imagesItem(o, side), file);
     }
 
-    spec(o: Spec): CachedImage {
-        const list = imagesSpec(o);
-        return this.s3image.createCache(list);
+    specCurrent(o: Spec): CachedImage {
+        return this.s3image.createCache(Path.imagesSpec(o));
+    }
+
+    async uploadSpecCurrent(o: Spec, file: File): Promise<void> {
+        await this.upload(Path.imagesSpec(o), file);
     }
 
     deriv(o: Deriv): CachedImage {
-        const list = imagesDerivValue(o);
-        return this.s3image.createCache(list);
+        return this.s3image.createCache(Path.imagesDeriv(o));
+    }
+
+    async uploadDeriv(o: Deriv, file: File): Promise<void> {
+        await this.upload(Path.imagesDeriv(o), file);
+    }
+
+    measure(o: Measure): CachedImage {
+        return this.s3image.createCache(Path.imagesMeasure(o));
+    }
+
+    async uploadMeasure(o: Measure, file: File): Promise<void> {
+        await this.upload(Path.imagesMeasure(o), file);
     }
 }
 
@@ -162,12 +211,18 @@ function refreshIllustrations(item: Item) {
 class OnChanging {
     constructor(private s3: S3File) { }
 
+    private async moveFile(src, dst): Promise<void> {
+        if (await this.s3.exists(src)) {
+            await this.s3.move(src, dst);
+        }
+    }
+
     async itemKey(o: Item, go: DoThru) {
-        const src = dirItem(o);
+        const src = Path.dirItem(o);
 
         await go();
 
-        const dst = dirItem(o);
+        const dst = Path.dirItem(o);
         await this.s3.moveDir(src, dst);
 
         refreshIllustrations(o);
@@ -192,13 +247,13 @@ class OnChanging {
     }
 
     async derivKey(o: Deriv, go: DoThru) {
-        const srcList = imagesDerivValue(o);
+        const srcList = Path.imagesDeriv(o);
 
         await go();
 
-        const dstList = imagesDerivValue(o);
+        const dstList = Path.imagesDeriv(o);
         await Promise.all(_.map(_.zip(srcList, dstList),
-            (pair) => this.s3.move(pair[0], pair[1])
+            (pair) => this.moveFile(pair[0], pair[1])
         ));
 
         refreshIllustrations(o.derivGroup.spec.specGroup.item);
@@ -210,7 +265,7 @@ class OnRemoving {
 
     async itemValue(o: Item, go: DoThru) {
         await go();
-        await this.s3.removeDir(dirItem(o));
+        await this.s3.removeDir(Path.dirItem(o));
     }
 
     async specGroup(o: SpecGroup, go: DoThru) {

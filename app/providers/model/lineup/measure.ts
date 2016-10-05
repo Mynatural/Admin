@@ -10,7 +10,7 @@ import {Logger} from "../../../util/logging";
 
 const logger = new Logger("Lineup.Measure");
 
-export class ItemMeasure {
+export class Measure {
     private _image: CachedImage;
     current: number;
 

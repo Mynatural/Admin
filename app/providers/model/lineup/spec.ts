@@ -1,7 +1,7 @@
 import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
-import {LineupController, createNewKey} from "./lineup";
+import {LineupController} from "./lineup";
 import {ItemGroup, Item} from "./item";
 import {DerivGroup, Deriv} from "./deriv";
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
@@ -66,7 +66,7 @@ export class SpecGroup {
     }
 
     createNew() {
-        const key = createNewKey("new_value", (key) => this.get(key));
+        const key = this.ctrl.createNewKey("new_value", (key) => this.get(key));
         const one = new Spec(this.ctrl, this, {
             name: "新しい仕様の値",
             key: key,
@@ -83,6 +83,7 @@ export class SpecGroup {
 
 export class Spec {
     derives: DerivGroup[];
+    private _global: boolean;
     private _image: CachedImage;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
@@ -108,13 +109,21 @@ export class Spec {
         });
     }
 
+    get global(): boolean {
+        return this._global;
+    }
+
+    set global(v: boolean) {
+        this._global = v;
+    }
+
     onChangeDeriv() {
         this.specGroup.item.onChangeSpec();
     }
 
     private refreshImage(clear = false): CachedImage {
         if (clear || _.isNil(this._image)) {
-            this._image = this.ctrl.illust.spec(this);
+            this._image = this.ctrl.illust.specCurrent(this);
         }
         return this._image;
     }
@@ -135,7 +144,7 @@ export class Spec {
     }
 
     createDeriv(): DerivGroup {
-        const key = createNewKey("new_deriv", (key) => this.getDeriv(key));
+        const key = this.ctrl.createNewKey("new_deriv", (key) => this.getDeriv(key));
         const one = new DerivGroup(this.ctrl, this, {
             name: "新しい派生",
             key: key,

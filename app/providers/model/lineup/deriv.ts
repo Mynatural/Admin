@@ -1,7 +1,7 @@
 import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
-import {LineupController, createNewKey} from "./lineup";
+import {LineupController} from "./lineup";
 import {ItemGroup, Item} from "./item";
 import {SpecGroup, Spec} from "./spec";
 import {S3File, S3Image, CachedImage} from "../../aws/s3file";
@@ -63,7 +63,7 @@ export class DerivGroup {
     }
 
     createNew(): Deriv {
-        const key = createNewKey("new_deriv_value", (key) => this.get(key));
+        const key = this.ctrl.createNewKey("new_deriv_value", (key) => this.get(key));
         const one = new Deriv(this.ctrl, this, {
             name: "新しい派生の値",
             key: key,

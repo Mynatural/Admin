@@ -2,9 +2,9 @@ import {Injectable} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 
 import * as Info from "./_info.d";
-import {LineupController, createNewKey} from "./lineup";
+import {LineupController} from "./lineup";
 import {SpecGroup, Spec} from "./spec";
-import {ItemMeasure} from "./measure";
+import {Measure} from "./measure";
 import {S3Image, CachedImage} from "../../aws/s3file";
 import {InputInterval} from "../../../util/input_interval";
 import * as Base64 from "../../../util/base64";
@@ -26,7 +26,7 @@ export class ItemGroup {
     }
 
     createNew(): Item {
-        const key = createNewKey("new_created", (key) => _.find(this.availables, {"key": key}));
+        const key = this.ctrl.createNewKey("new_created", (key) => _.find(this.availables, {"key": key}));
         const one = new Item(this.ctrl, key, {
             name: "新しいラインナップ",
             price: 500,
@@ -42,7 +42,7 @@ export class ItemGroup {
 
 export class Item {
     specGroups: SpecGroup[];
-    measurements: ItemMeasure[];
+    measurements: Measure[];
     private _titleImage: CachedImage;
     private _images: {[key: string]: CachedImage}; // SpecSide -> CachedImage
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
@@ -50,7 +50,7 @@ export class Item {
     constructor(private ctrl: LineupController, private _key: string, public info: Info.Item) {
         logger.info(() => `${_key}: ${JSON.stringify(info, null, 4)}`);
         this.specGroups = _.map(info.specGroups, (spec) => new SpecGroup(ctrl, this, spec));
-        this.measurements = _.map(info.measurements, (m) => new ItemMeasure(ctrl, this, m));
+        this.measurements = _.map(info.measurements, (m) => new Measure(ctrl, this, m));
     }
 
     refreshIllustrations() {
@@ -88,13 +88,15 @@ export class Item {
     }
 
     async changeImage(file: File): Promise<void> {
-        await this.ctrl.illust.uploadItemTitle(this, file);
-        this.refreshTiteImage(true);
+        if (file) {
+            await this.ctrl.illust.uploadItemTitle(this, file);
+            this.refreshTiteImage(true);
+        }
     }
 
     private refreshCurrentImages(clear = false): {[key: string]: CachedImage} {
         if (clear || _.isEmpty(this._images)) {
-            this._images = this.ctrl.illust.itemValueCurrent(this);
+            this._images = this.ctrl.illust.itemCurrent(this);
         }
         return this._images;
     }
@@ -131,7 +133,7 @@ export class Item {
     }
 
     createSpec(): SpecGroup {
-        const key = createNewKey("new_spec", (key) => this.getSpec(key));
+        const key = this.ctrl.createNewKey("new_spec", (key) => this.getSpec(key));
         const one = new SpecGroup(this.ctrl, this, {
             name: "新しい仕様",
             key: key,
