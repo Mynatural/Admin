@@ -40,7 +40,7 @@ export class DerivGroupPage {
         });
     }
 
-    addNew() {
-        this.open(this.derivGroup.createNew());
+    async addNew() {
+        this.open(await this.derivGroup.createNew());
     }
 }

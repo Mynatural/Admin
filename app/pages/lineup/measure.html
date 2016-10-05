@@ -1,0 +1,49 @@
+<ion-header>
+    <ion-navbar>
+        <button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+        <ion-buttons end>
+            <button (click)="delete()">
+                <ion-icon name="trash"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+</ion-header>
+
+<ion-content padding class="lineup-pages" id="measure-page">
+    <ion-spinner *ngIf="!isReady"></ion-spinner>
+    <div class="main" *ngIf="isReady">
+        <div class="name_key">
+            <div class="name">
+                <ion-item>
+                    <ion-label floating>Name</ion-label>
+                    <ion-input [(ngModel)]="measure.info.name"></ion-input>
+                </ion-item>
+            </div>
+            <div class="key">
+                <ion-item>
+                    <ion-label floating>Key</ion-label>
+                    <ion-input [(ngModel)]="measure.key"></ion-input>
+                </ion-item>
+            </div>
+        </div>
+
+        <div class="description">
+            <ion-item>
+                <ion-label floating>Description</ion-label>
+                <ion-input [(ngModel)]="measure.info.description"></ion-input>
+            </ion-item>
+        </div>
+
+        <ion-card class="image" (click)="uploadImage()">
+            <img *ngIf="measure.image" [src]="measure.image">
+            <div class="no-image" *ngIf="!measure.image">
+                NO IMAGE
+            </div>
+        </ion-card>
+    </div>
+</ion-content>

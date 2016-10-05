@@ -25,8 +25,8 @@ export class ItemGroup {
         })
     }
 
-    createNew(): Item {
-        const key = this.ctrl.createNewKey("new_created", (key) => _.find(this.availables, {"key": key}));
+    async createNew(): Promise<Item> {
+        const key = await this.ctrl.createNewKey("new_created", async (key) => _.find(this.availables, {"key": key}));
         const one = new Item(this.ctrl, key, {
             name: "新しいラインナップ",
             price: 500,
@@ -88,10 +88,8 @@ export class Item {
     }
 
     async changeImage(file: File): Promise<void> {
-        if (file) {
-            await this.ctrl.illust.uploadItemTitle(this, file);
-            this.refreshTiteImage(true);
-        }
+        await this.ctrl.illust.uploadItemTitle(this, file);
+        this.refreshTiteImage(true);
     }
 
     private refreshCurrentImages(clear = false): {[key: string]: CachedImage} {
@@ -125,18 +123,18 @@ export class Item {
     }
 
     async getSpec(key: string): Promise<SpecGroup> {
-        return _.find(await this.specGroups, (s) => _.isEqual(s.info.key, key));
+        return _.find(await this.specGroups, {key: key});
     }
 
     async removeSpec(o: SpecGroup): Promise<void> {
         await this.ctrl.onRemoving.specGroup(o, async () => {
-            _.remove(await this.specGroups, (a) => _.isEqual(a.info.key, o.info.key));
-            _.remove(this.info.specGroups, (a) => _.isEqual(a.key, o.info.key));
+            _.remove(await this.specGroups, {key: o.key});
+            _.remove(this.info.specGroups, {key: o.key});
         });
     }
 
     async createSpec(): Promise<SpecGroup> {
-        const key = this.ctrl.createNewKey("new_spec", (key) => this.getSpec(key));
+        const key = await this.ctrl.createNewKey("new_spec", async (key) => this.getSpec(key));
         const one = _.head(await SpecGroup.createGroups(this.ctrl, this, [{
             name: "新しい仕様",
             key: key,
@@ -146,10 +144,39 @@ export class Item {
                 availables: []
             }
         }]));
-        const initial = one.createNew();
+        const initial = await one.createNew();
         one.info.value.initial = initial.info.key;
         (await this.specGroups).unshift(one);
         this.info.specGroups.unshift(one.info);
+        return one;
+    }
+
+    async getMeasure(key: string): Promise<Measure> {
+        return _.find(this.measurements, {key: key});
+    }
+
+    async removeMeasure(o: Measure): Promise<void> {
+        await this.ctrl.onRemoving.measure(o, async () => {
+            _.remove(this.measurements, {key: o.key});
+            _.remove(this.info.measurements, {key: o.key});
+        });
+    }
+
+    async createMeasure(): Promise<Measure> {
+        const key = await this.ctrl.createNewKey("new_measure", async (key) => this.getMeasure(key));
+        const one = new Measure(this.ctrl, this, {
+            name: "新しい寸法",
+            key: key,
+            description: "",
+            value: {
+                initial: 0,
+                min: 0,
+                max: 100,
+                step: 1
+            }
+        });
+        this.measurements.unshift(one);
+        this.info.measurements.unshift(one.info);
         return one;
     }
 }

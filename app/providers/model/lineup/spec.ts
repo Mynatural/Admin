@@ -89,8 +89,8 @@ export class SpecGroup {
         }
     }
 
-    createNew() {
-        const key = this.ctrl.createNewKey("new_value", (key) => this.get(key));
+    async createNew(): Promise<Spec> {
+        const key = await this.ctrl.createNewKey("new_value", async (key) => this.get(key));
         const one = new Spec(this.ctrl, this, {
             name: "新しい仕様の値",
             key: key,
@@ -168,8 +168,8 @@ export class Spec {
         });
     }
 
-    createDeriv(): DerivGroup {
-        const key = this.ctrl.createNewKey("new_deriv", (key) => this.getDeriv(key));
+    async createDeriv(): Promise<DerivGroup> {
+        const key = await this.ctrl.createNewKey("new_deriv", async (key) => this.getDeriv(key));
         const one = new DerivGroup(this.ctrl, this, {
             name: "新しい派生",
             key: key,
@@ -178,7 +178,7 @@ export class Spec {
                 availables: []
             }
         });
-        const initial = one.createNew();
+        const initial = await one.createNew();
         one.info.value.initial = initial.info.key;
         this.derives.unshift(one);
         this.info.derives.unshift(one.info);

@@ -39,7 +39,7 @@ export class ItemGroupPage {
         });
     }
 
-    addNew() {
-        this.open(this.itemGroup.createNew());
+    async addNew() {
+        this.open(await this.itemGroup.createNew());
     }
 }

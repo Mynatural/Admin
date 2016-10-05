@@ -43,6 +43,11 @@ export class Measure {
         return this._image;
     }
 
+    async changeImage(file: File): Promise<void> {
+        await this.ctrl.illust.uploadMeasure(this, file);
+        this.refreshImage(true);
+    }
+
     get image(): SafeUrl {
         return this.refreshImage().url;
     }

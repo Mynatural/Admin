@@ -28,10 +28,10 @@ export class LineupController {
         });
     }
 
-    createNewKey(prefix: string, find: (v: string) => any): string {
+    async createNewKey(prefix: string, find: (v: string) => Promise<any>): Promise<string> {
         var index = 0;
         var key;
-        while (_.isNil(key) || !_.isNil(find(key))) {
+        while (_.isNil(key) || !_.isNil(await find(key))) {
             key = `${prefix}_${index++}`;
         }
         return key;
@@ -151,7 +151,7 @@ class Illustration {
 
     private async upload(pathList: string[], file: File): Promise<void> {
         const sux = file.name.replace(/.*\./, "");
-        const path = _.find(pathList, sux);
+        const path = _.find(pathList, (path) => _.endsWith(path, `.${sux}`));
         if (_.isNil(path)) {
             throw `Illegal file type: ${sux}`;
         }
@@ -315,5 +315,11 @@ class OnRemoving {
         await go();
 
         await refresh(o.derivGroup.spec.specGroup.item);
+    }
+
+    async measure(o: Measure, go: DoThru) {
+        await go();
+
+        await refresh(o.item);
     }
 }

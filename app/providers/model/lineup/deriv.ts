@@ -62,8 +62,8 @@ export class DerivGroup {
         });
     }
 
-    createNew(): Deriv {
-        const key = this.ctrl.createNewKey("new_deriv_value", (key) => this.get(key));
+    async createNew(): Promise<Deriv> {
+        const key = await this.ctrl.createNewKey("new_deriv_value", async (key) => this.get(key));
         const one = new Deriv(this.ctrl, this, {
             name: "新しい派生の値",
             key: key,

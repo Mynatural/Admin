@@ -43,7 +43,7 @@ export class SpecGroupPage {
         });
     }
 
-    addNew() {
-        this.open(this.specGroup.createNew());
+    async addNew() {
+        this.open(await this.specGroup.createNew());
     }
 }

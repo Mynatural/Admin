@@ -41,7 +41,7 @@ export class SpecPage {
         });
     }
 
-    addNew() {
-        this.open(this.spec.createDeriv());
+    async addNew() {
+        this.open(await this.spec.createDeriv());
     }
 }

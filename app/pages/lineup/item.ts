@@ -3,11 +3,13 @@ import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
 import {SpecGroupPage} from "./spec_group";
+import {MeasurePage} from "./measure";
 import {Prompt} from "../../providers/util_prompt";
 
 import {LineupController} from "../../providers/model/lineup/lineup";
 import {Item} from "../../providers/model/lineup/item";
 import {SpecGroup} from "../../providers/model/lineup/spec";
+import {Measure} from "../../providers/model/lineup/measure";
 import {Logger} from "../../util/logging";
 
 const logger = new Logger("ItemPage");
@@ -51,13 +53,23 @@ export class ItemPage {
         }
     }
 
-    open(specGroup: SpecGroup) {
+    openSpec(specGroup: SpecGroup) {
         this.nav.push(SpecGroupPage, {
             specGroup: specGroup
         });
     }
 
-    async addNew() {
-        this.open(await this.item.createSpec());
+    async addNewSpec() {
+        this.openSpec(await this.item.createSpec());
+    }
+
+    openMeasure(measure: Measure) {
+        this.nav.push(MeasurePage, {
+            measure: measure
+        });
+    }
+
+    async addNewMeasure() {
+        this.openMeasure(await this.item.createMeasure());
     }
 }

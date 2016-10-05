@@ -47,6 +47,7 @@ export type Deriv = {
 export type Measurement = {
     name: string,
     key: string,
+    description: string,
     value: {
         initial: number,
         min: number,

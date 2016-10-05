@@ -56,12 +56,25 @@
         <ion-list class="children">
             <ion-item-divider>
                 <ion-label>Specs</ion-label>
-                <button item-right (click)="addNew()">
+                <button item-right (click)="addNewSpec()">
                     <ion-icon name="add"></ion-icon>
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let a of specGroups" (click)="open(a)">
+            <ion-item *ngFor="let a of specGroups" (click)="openSpec(a)">
+                <ion-label>{{a.info.name}} ({{a.info.key}})</ion-label>
+            </ion-item>
+        </ion-list>
+
+        <ion-list class="children">
+            <ion-item-divider>
+                <ion-label>Measurements</ion-label>
+                <button item-right (click)="addNewMeasure()">
+                    <ion-icon name="add"></ion-icon>
+                    Add new
+                </button>
+            </ion-item-divider>
+            <ion-item *ngFor="let a of item.measurements" (click)="openMeasure(a)">
                 <ion-label>{{a.info.name}} ({{a.info.key}})</ion-label>
             </ion-item>
         </ion-list>
