@@ -2,7 +2,7 @@ import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
-import {DerivPage} from "./deriv";
+import {DerivGroupPage} from "./deriv_group";
 import {Prompt} from "../../providers/util_prompt";
 import {Spec} from "../../providers/model/lineup/spec";
 import {DerivGroup} from "../../providers/model/lineup/deriv";
@@ -36,7 +36,7 @@ export class SpecPage {
     }
 
     open(v: DerivGroup) {
-        this.nav.push(DerivPage, {
+        this.nav.push(DerivGroupPage, {
             derivGroup: v
         });
     }

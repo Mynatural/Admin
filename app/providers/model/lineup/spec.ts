@@ -21,7 +21,6 @@ export class SpecGroup {
             const v = _.find(item.info.specs, {"key": key});
             return new Spec(ctrl, this, v);
         });
-        this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
     }
 
     get key(): string {
@@ -39,6 +38,9 @@ export class SpecGroup {
     }
 
     get current(): Spec {
+        if (_.isNil(this._current)) {
+            this._current = this.get(this.info.value.initial);
+        }
         return this._current;
     }
 

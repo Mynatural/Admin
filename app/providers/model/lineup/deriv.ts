@@ -20,7 +20,6 @@ export class DerivGroup {
         this.availables = _.map(info.value.availables, (a) => {
             return new Deriv(ctrl, this, a);
         });
-        this.current = _.find(this.availables, (a) => _.isEqual(a.info.key, info.value.initial));
     }
 
     get key(): string {
@@ -38,6 +37,9 @@ export class DerivGroup {
     }
 
     get current(): Deriv {
+        if (_.isNil(this._current)) {
+            this._current = this.get(this.info.value.initial);
+        }
         return this._current;
     }
 
