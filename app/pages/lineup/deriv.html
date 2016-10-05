@@ -38,5 +38,12 @@
                 <ion-input [(ngModel)]="deriv.info.description"></ion-input>
             </ion-item>
         </div>
+
+        <ion-card class="image" (click)="uploadImage()">
+            <img *ngIf="deriv.image" [src]="deriv.image">
+            <div class="no-image" *ngIf="!deriv.image">
+                NO IMAGE
+            </div>
+        </ion-card>
     </div>
 </ion-content>

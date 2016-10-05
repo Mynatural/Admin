@@ -32,4 +32,15 @@ export class DerivPage {
             this.nav.pop();
         }
     }
+
+    async uploadImage() {
+        try {
+            const file = await this.prompt.file("Illustration", "PNG/SVG file");
+            if (!_.isNil(file)) {
+                await this.deriv.changeImage(file);
+            }
+        } catch (ex) {
+            logger.warn(() => `Failed to load image: ${ex}`);
+        }
+    }
 }
