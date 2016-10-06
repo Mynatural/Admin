@@ -6,6 +6,7 @@ import {SpecGroupPage} from "./spec_group";
 import {MeasurePage} from "./measure";
 import {Prompt} from "../../providers/util_prompt";
 
+import * as Info from "../../providers/model/lineup/_info";
 import {LineupController} from "../../providers/model/lineup/lineup";
 import {Item} from "../../providers/model/lineup/item";
 import {SpecGroup} from "../../providers/model/lineup/spec";
@@ -20,6 +21,7 @@ const logger = new Logger("ItemPage");
 export class ItemPage {
     item: Item;
     specGroups: SpecGroup[];
+    sides = ["FRONT", "BACK"];
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams, private lineupCtrl: LineupController) {
         this.item = params.get("item");
@@ -34,11 +36,22 @@ export class ItemPage {
         return !_.isNil(this.title);
     }
 
-    async uploadImage() {
+    async uploadTitleImage() {
         try {
             const file = await this.prompt.file("Title Image", "PNG file");
             if (!_.isNil(file)) {
-                await this.item.changeImage(file);
+                await this.item.changeTitleImage(file);
+            }
+        } catch (ex) {
+            logger.warn(() => `Failed to load image: ${ex}`);
+        }
+    }
+
+    async uploadImage(side: Info.SpecSide) {
+        try {
+            const file = await this.prompt.file("Image", "PNG file");
+            if (!_.isNil(file)) {
+                await this.item.changeImage(side, file);
             }
         } catch (ex) {
             logger.warn(() => `Failed to load image: ${ex}`);

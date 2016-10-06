@@ -87,7 +87,7 @@ export class Item {
         return this.refreshTiteImage().url;
     }
 
-    async changeImage(file: File): Promise<void> {
+    async changeTitleImage(file: File): Promise<void> {
         await this.ctrl.illust.uploadItemTitle(this, file);
         this.refreshTiteImage(true);
     }
@@ -105,6 +105,11 @@ export class Item {
     getImage(side: Info.SpecSide): SafeUrl {
         const safe = this.refreshCurrentImages()[side];
         return safe ? safe.url : null;
+    }
+
+    async changeImage(side: Info.SpecSide, file: File): Promise<void> {
+        await this.ctrl.illust.uploadItemCurrent(this, side, file);
+        this.refreshCurrentImages(true);
     }
 
     async getTotalPrice(): Promise<number> {
