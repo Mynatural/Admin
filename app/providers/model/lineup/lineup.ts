@@ -144,6 +144,38 @@ class Path {
         list.push(spec.key);
         return Path.join(list);
     }
+
+    static async allPathItem(o: Item): Promise<string[][]> {
+        const lists = _.map(await o.specGroups, (specGroup) =>
+            _.map(specGroup.availables, (spec) =>
+                _.map(Path.allPathSpec(spec), (b) =>
+                    _.flatten([spec.key, b])
+                )
+            )
+        );
+        return combinations(lists);
+    }
+
+    static allPathSpec(spec: Spec): string[][] {
+        const lists = _.map(spec.deriveGroups, (derivGroup) =>
+            _.map(derivGroup.availables, (deriv) => deriv.key)
+        );
+        return combinations(lists);
+    }
+}
+
+function combinations(lists: any[][]): any[][] {
+    const list = _.head(lists);
+    const lefts = _.tail(lists);
+    if (_.isEmpty(lefts)) {
+        return _.map(list, (a) => [a]);
+    } else {
+        return _.flatMap(list, (a) =>
+            _.map(combinations(lefts), (b) =>
+                _.flattenDeep([a, b])
+            )
+        );
+    }
 }
 
 class Illustration {
