@@ -58,7 +58,7 @@ export class Item {
         this.refreshCurrentImages(true);
     }
 
-    onChangeSpec() {
+    onChangedSpecCurrent() {
         this.refreshCurrentImages(true);
     }
 

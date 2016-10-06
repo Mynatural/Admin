@@ -63,30 +63,31 @@ export class SpecGroup {
 
     get current(): Spec {
         if (_.isNil(this._current)) {
-            this._current = this.get(this.info.value.initial);
+            this._current = this.get(this.info.value.initial) || _.head(this.availables);
         }
         return this._current;
     }
 
     set current(v: Spec) {
-        this.item.onChangeSpec();
-        this._current = v;
+        if (_.find(this.availables, {key: v.key}) && !_.isEqual(this.current.key, v.key)) {
+            this._current = v;
+            this.item.onChangedSpecCurrent();
+        }
     }
 
     get(key: string) {
-        return  _.find(this.availables, (a) => _.isEqual(key, a.info.key));
+        return  _.find(this.availables, {key: key});
     }
 
     async remove(o: Spec): Promise<void> {
-        if (_.size(this.availables) > 1) {
-            await this.ctrl.onRemoving.spec(o, async () => {
-                _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
-                _.remove(this.info.value.availables, (a) => _.isEqual(a, o.info.key));
-                if (_.isEqual(this.info.value.initial, o.info.key)) {
-                    this.info.value.initial = _.head(this.availables).info.key;
-                }
-            });
-        }
+        if (_.size(this.availables) < 2) return;
+        await this.ctrl.onRemoving.spec(o, async () => {
+            _.remove(this.availables, {key: o.key});
+            _.remove(this.info.value.availables, {key: o.key});
+            if (_.isEqual(this.info.value.initial, o.info.key)) {
+                this.info.value.initial = _.head(this.availables).info.key;
+            }
+        });
     }
 
     async createNew(): Promise<Spec> {
@@ -95,7 +96,7 @@ export class SpecGroup {
             name: "新しい仕様の値",
             key: key,
             description: "",
-            derives: [],
+            deriveGroups: [],
             price: 100
         }, false);
         this.availables.unshift(one);
@@ -106,12 +107,17 @@ export class SpecGroup {
 }
 
 export class Spec {
-    derives: DerivGroup[];
+    deriveGroups: DerivGroup[];
     private _image: CachedImage;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
     constructor(private ctrl: LineupController, public specGroup: SpecGroup, public info: Info.Spec, private _global: boolean) {
-        this.derives = _.map(info.derives, (o) => new DerivGroup(ctrl, this, o));
+        this.deriveGroups = _.map(info.deriveGroups, (o) => new DerivGroup(ctrl, this, o));
+    }
+
+    onChangedDerivCurrent() {
+        this.specGroup.item.onChangedSpecCurrent();
+        this.refreshIllustrations();
     }
 
     refreshIllustrations() {
@@ -126,7 +132,9 @@ export class Spec {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.specKey(this, async () => {
-                logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
+                if (_.isEqual(this.specGroup.info.value.initial, this.key)) {
+                    this.specGroup.info.value.initial = v;
+                }
                 this.info.key = v;
             });
         });
@@ -142,10 +150,6 @@ export class Spec {
         });
     }
 
-    onChangeDeriv() {
-        this.specGroup.item.onChangeSpec();
-    }
-
     private refreshImage(clear = false): CachedImage {
         if (clear || _.isNil(this._image)) {
             this._image = this.ctrl.illust.specCurrent(this);
@@ -153,18 +157,23 @@ export class Spec {
         return this._image;
     }
 
+    async changeImage(file: File): Promise<void> {
+        await this.ctrl.illust.uploadSpecCurrent(this, file);
+        this.refreshImage(true);
+    }
+
     get image(): SafeUrl {
         return this.refreshImage().url;
     }
 
     getDeriv(key: string): DerivGroup {
-        return _.find(this.derives, (a) => _.isEqual(key, a.info.key));
+        return _.find(this.deriveGroups, {key: key});
     }
 
     async removeDeriv(o: DerivGroup): Promise<void> {
         await this.ctrl.onRemoving.derivGroup(o, async () => {
-            _.remove(this.derives, (a) => _.isEqual(a.info.key, o.info.key));
-            _.remove(this.info.derives, (a) => _.isEqual(a.key, o.info.key));
+            _.remove(this.deriveGroups, {key: o.key});
+            _.remove(this.info.deriveGroups, {key: o.key});
         });
     }
 
@@ -180,8 +189,8 @@ export class Spec {
         });
         const initial = await one.createNew();
         one.info.value.initial = initial.info.key;
-        this.derives.unshift(one);
-        this.info.derives.unshift(one.info);
+        this.deriveGroups.unshift(one);
+        this.info.deriveGroups.unshift(one.info);
         return one;
     }
 }

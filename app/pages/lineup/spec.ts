@@ -29,9 +29,13 @@ export class SpecPage {
     }
 
     async delete(): Promise<void> {
-        if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-            await this.spec.specGroup.remove(this.spec);
-            this.nav.pop();
+        if (_.size(this.spec.specGroup.availables) > 1) {
+            if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+                await this.spec.specGroup.remove(this.spec);
+                this.nav.pop();
+            }
+        } else {
+            await this.prompt.alert("最後の１つなので削除できません");
         }
     }
 
@@ -43,5 +47,16 @@ export class SpecPage {
 
     async addNew() {
         this.open(await this.spec.createDeriv());
+    }
+
+    async uploadImage() {
+        try {
+            const file = await this.prompt.file("Illustration", "PNG/SVG file");
+            if (!_.isNil(file)) {
+                await this.spec.changeImage(file);
+            }
+        } catch (ex) {
+            logger.warn(() => `Failed to load image: ${ex}`);
+        }
     }
 }

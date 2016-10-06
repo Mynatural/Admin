@@ -112,7 +112,7 @@ class Path {
     static async imagesItem(o: Item, side: Info.SpecSide): Promise<string[]> {
         const names = _.map(await o.specGroups, (specGroup) => {
             const spec = specGroup.current;
-            const keys = _.map(spec.derives, (v) => v.current.key);
+            const keys = _.map(spec.deriveGroups, (v) => v.current.key);
             keys.unshift(spec.key);
             return keys;
         });
@@ -125,7 +125,7 @@ class Path {
     }
 
     static imagesSpec(spec: Spec): string[] {
-        const keys = _.map(spec.derives, (v) => v.current.key);
+        const keys = _.map(spec.deriveGroups, (v) => v.current.key);
         return Path.illustrations(Path.dirSpec(spec), "images", keys);
     }
 
@@ -212,7 +212,7 @@ async function refresh(item: Item): Promise<void> {
     (await item.specGroups).forEach((spec) => {
         spec.availables.forEach((spec) => {
             spec.refreshIllustrations();
-            spec.derives.forEach((derivGroup) => {
+            spec.deriveGroups.forEach((derivGroup) => {
                 derivGroup.availables.forEach((deriv) => {
                     deriv.refreshIllustrations();
                 });

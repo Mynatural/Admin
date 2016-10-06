@@ -30,7 +30,6 @@ export class DerivGroup {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.derivGroupKey(this, async () => {
-                logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
                 this.info.key = v;
             });
         });
@@ -38,24 +37,27 @@ export class DerivGroup {
 
     get current(): Deriv {
         if (_.isNil(this._current)) {
-            this._current = this.get(this.info.value.initial);
+            this._current = this.get(this.info.value.initial) || _.head(this.availables);
         }
         return this._current;
     }
 
     set current(v: Deriv) {
-        this.spec.onChangeDeriv();
-        this._current = v;
+        if (_.find(this.availables, {key: v.key}) && !_.isEqual(this.current.key, v.key)) {
+            this._current = v;
+            this.spec.onChangedDerivCurrent();
+        }
     }
 
     get(key: string): Deriv {
-        return _.find(this.availables, (a) => _.isEqual(key, a.info.key));
+        return _.find(this.availables, {key: key});
     }
 
     async remove(o: Deriv): Promise<void> {
+        if (_.size(this.availables) < 2) return;
         await this.ctrl.onRemoving.deriv(o, async () => {
-            _.remove(this.availables, (a) => _.isEqual(a.info.key, o.info.key));
-            _.remove(this.info.value.availables, (a) => _.isEqual(a.key, o.info.key));
+            _.remove(this.availables, {key: o.key});
+            _.remove(this.info.value.availables, {key: o.key});
             if (_.isEqual(this.info.value.initial, o.info.key)) {
                 this.info.value.initial = _.head(this.availables).info.key;
             }
@@ -94,7 +96,9 @@ export class Deriv {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.derivKey(this, async () => {
-                logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
+                if (_.isEqual(this.derivGroup.info.value.initial, this.key)) {
+                    this.derivGroup.info.value.initial = v;
+                }
                 this.info.key = v;
             });
         });

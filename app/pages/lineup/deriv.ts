@@ -27,9 +27,13 @@ export class DerivPage {
     }
 
     async delete(): Promise<void> {
-        if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-            await this.deriv.derivGroup.remove(this.deriv);
-            this.nav.pop();
+        if (_.size(this.deriv.derivGroup.availables) > 1) {
+            if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+                await this.deriv.derivGroup.remove(this.deriv);
+                this.nav.pop();
+            }
+        } else {
+            await this.prompt.alert("最後の１つなので削除できません");
         }
     }
 

@@ -54,9 +54,21 @@
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let a of spec.derives" (click)="open(a)">
-                <ion-label>{{a.info.name}} ({{a.info.key}})</ion-label>
+            <ion-item *ngFor="let dg of spec.deriveGroups">
+                <ion-label (click)="open(dg)">{{dg.info.name}} ({{dg.key}})</ion-label>
+                <ion-select [(ngModel)]="dg.current">
+                    <ion-option *ngFor="let v of dg.availables" [value]="v" [selected]="v.key == dg.current.key">
+                        {{v.info.name}}
+                    </ion-option>
+                </ion-select>
             </ion-item>
         </ion-list>
+
+        <ion-card class="image" (click)="uploadImage()">
+            <img *ngIf="spec.image" [src]="spec.image">
+            <div class="no-image" *ngIf="!spec.image">
+                NO IMAGE
+            </div>
+        </ion-card>
     </div>
 </ion-content>

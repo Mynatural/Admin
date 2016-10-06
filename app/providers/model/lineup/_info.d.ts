@@ -25,7 +25,7 @@ export type Spec = {
     name: string,
     key: string,
     description: string,
-    derives: DerivGroup[],
+    deriveGroups: DerivGroup[],
     price: number
 }
 

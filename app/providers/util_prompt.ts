@@ -5,6 +5,21 @@ import {AlertController} from "ionic-angular";
 export class Prompt {
     constructor(private alertCtrl: AlertController) { }
 
+    alert(msg: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.alertCtrl.create({
+                title: msg,
+                buttons: [
+                    {
+                        text: "OK",
+                        role: "cancel",
+                        handler: resolve
+                    }
+                ]
+            }).present();
+        });
+    }
+
     confirm(msg: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             this.alertCtrl.create({
