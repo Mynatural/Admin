@@ -225,19 +225,29 @@ class OnChanging {
     constructor(private s3: S3File) { }
 
     private async moveFile(src, dst): Promise<void> {
-        if (await this.s3.exists(src)) {
+        if (!_.isEqual(src, dst) && await this.s3.exists(src)) {
             await this.s3.move(src, dst);
         }
     }
 
+    private async moveDir(src, dst): Promise<void> {
+        if (!_.isEqual(src, dst) && await this.s3.exists(src)) {
+            await this.s3.moveDir(src, dst);
+        }
+    }
+
+    private async moveFiles(srcList, dstList): Promise<void> {
+        await Promise.all(_.map(_.zip(srcList, dstList),
+            (pair) => this.moveFile(pair[0], pair[1])
+        ));
+    }
+
     async itemKey(o: Item, go: DoThru) {
         const src = Path.dirItem(o);
-
         await go();
-
         const dst = Path.dirItem(o);
-        await this.s3.moveDir(src, dst);
 
+        await this.moveDir(src, dst);
         await refresh(o);
     }
 
@@ -267,20 +277,19 @@ class OnChanging {
 
     async derivKey(o: Deriv, go: DoThru) {
         const srcList = Path.imagesDeriv(o);
-
         await go();
-
         const dstList = Path.imagesDeriv(o);
-        await Promise.all(_.map(_.zip(srcList, dstList),
-            (pair) => this.moveFile(pair[0], pair[1])
-        ));
 
+        await this.moveFiles(srcList, dstList);
         await refresh(o.derivGroup.spec.specGroup.item);
     }
 
     async measureKey(o: Measure, go: DoThru) {
+        const srcList = Path.imagesMeasure(o);
         await go();
+        const dstList = Path.imagesMeasure(o);
 
+        await this.moveFiles(srcList, dstList);
         await o.refreshIllustrations();
     }
 }
