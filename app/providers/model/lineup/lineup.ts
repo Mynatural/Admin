@@ -168,7 +168,7 @@ class Path {
     static async allKeysItem(o: Item): Promise<string[][]> {
         const lists = _.map(await o.specGroups, (specGroup) =>
             _.map(specGroup.availables, (spec) =>
-                _.map(Path.allPathSpec(spec), (b) =>
+                _.map(Path.allKeysSpec(spec), (b) =>
                     _.flatten([spec.key, b])
                 )
             )
