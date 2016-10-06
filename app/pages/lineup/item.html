@@ -62,7 +62,7 @@
                 </button>
             </ion-item-divider>
             <ion-item *ngFor="let a of specGroups" (click)="openSpec(a)">
-                <ion-label>{{a.info.name}} ({{a.info.key}})</ion-label>
+                <ion-label>{{a.info.name}} ({{a.key}})</ion-label>
             </ion-item>
         </ion-list>
 
@@ -75,7 +75,7 @@
                 </button>
             </ion-item-divider>
             <ion-item *ngFor="let a of item.measurements" (click)="openMeasure(a)">
-                <ion-label>{{a.info.name}} ({{a.info.key}})</ion-label>
+                <ion-label>{{a.info.name}} ({{a.key}})</ion-label>
             </ion-item>
         </ion-list>
     </div>

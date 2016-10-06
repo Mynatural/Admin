@@ -41,9 +41,9 @@
                 </button>
             </ion-item-divider>
             <ion-item *ngFor="let a of derivGroup.availables">
-                <ion-label (click)="open(a)">{{a.info.name}} ({{a.info.key}})</ion-label>
-                <button item-right clear (click)="derivGroup.info.value.initial = a.info.key">
-                    <ion-icon [name]="a.info.key === derivGroup.info.value.initial ? 'checkbox-outline' : 'square-outline'"></ion-icon>
+                <ion-label (click)="open(a)">{{a.info.name}} ({{a.key}})</ion-label>
+                <button item-right clear (click)="derivGroup.info.value.initial = a.key">
+                    <ion-icon [name]="a.key === derivGroup.info.value.initial ? 'checkbox-outline' : 'square-outline'"></ion-icon>
                 </button>
             </ion-item>
         </ion-list>

@@ -26,7 +26,7 @@ export class ItemGroup {
     }
 
     async createNew(): Promise<Item> {
-        const key = await this.ctrl.createNewKey("new_created", async (key) => _.find(this.availables, {"key": key}));
+        const key = await this.ctrl.createNewKey("new_created", async (key) => _.find(this.availables, {key: key}));
         const one = new Item(this.ctrl, key, {
             name: "新しいラインナップ",
             price: 500,
@@ -145,7 +145,7 @@ export class Item {
             }
         }]));
         const initial = await one.createNew();
-        one.info.value.initial = initial.info.key;
+        one.info.value.initial = initial.key;
         (await this.specGroups).unshift(one);
         this.info.specGroups.unshift(one.info);
         return one;

@@ -55,7 +55,6 @@ export class SpecGroup {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.specGroupKey(this, async () => {
-                logger.debug(() => `Changing lineup key: ${this.info.key} -> ${v}`);
                 this.info.key = v;
             });
         });
@@ -84,8 +83,8 @@ export class SpecGroup {
         await this.ctrl.onRemoving.spec(o, async () => {
             _.remove(this.availables, {key: o.key});
             _.remove(this.info.value.availables, {key: o.key});
-            if (_.isEqual(this.info.value.initial, o.info.key)) {
-                this.info.value.initial = _.head(this.availables).info.key;
+            if (_.isEqual(this.info.value.initial, o.key)) {
+                this.info.value.initial = _.head(this.availables).key;
             }
         });
     }
@@ -101,7 +100,7 @@ export class SpecGroup {
         }, false);
         this.availables.unshift(one);
         this.item.info.specs.unshift(one.info);
-        this.info.value.availables.unshift(one.info.key);
+        this.info.value.availables.unshift(one.key);
         return one;
     }
 }
@@ -188,7 +187,7 @@ export class Spec {
             }
         });
         const initial = await one.createNew();
-        one.info.value.initial = initial.info.key;
+        one.info.value.initial = initial.key;
         this.deriveGroups.unshift(one);
         this.info.deriveGroups.unshift(one.info);
         return one;

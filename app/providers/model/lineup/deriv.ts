@@ -58,8 +58,8 @@ export class DerivGroup {
         await this.ctrl.onRemoving.deriv(o, async () => {
             _.remove(this.availables, {key: o.key});
             _.remove(this.info.value.availables, {key: o.key});
-            if (_.isEqual(this.info.value.initial, o.info.key)) {
-                this.info.value.initial = _.head(this.availables).info.key;
+            if (_.isEqual(this.info.value.initial, o.key)) {
+                this.info.value.initial = _.head(this.availables).key;
             }
         });
     }
