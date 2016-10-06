@@ -37,7 +37,9 @@ export class MeasurePage {
         try {
             const file = await this.prompt.file("Illustration", "PNG/SVG file");
             if (!_.isNil(file)) {
-                await this.measure.changeImage(file);
+                await this.prompt.loading("Uploading...", async () => {
+                    await this.measure.changeImage(file);
+                });
             }
         } catch (ex) {
             logger.warn(() => `Failed to load image: ${ex}`);

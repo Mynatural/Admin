@@ -40,7 +40,9 @@ export class ItemPage {
         try {
             const file = await this.prompt.file("Title Image", "PNG file");
             if (!_.isNil(file)) {
-                await this.item.changeTitleImage(file);
+                await this.prompt.loading("Uploading...", async () => {
+                    await this.item.changeTitleImage(file);
+                })
             }
         } catch (ex) {
             logger.warn(() => `Failed to load image: ${ex}`);
@@ -51,7 +53,9 @@ export class ItemPage {
         try {
             const file = await this.prompt.file("Image", "PNG file");
             if (!_.isNil(file)) {
-                await this.item.changeImage(side, file);
+                await this.prompt.loading("Uploading...", async () => {
+                    await this.item.changeImage(side, file);
+                });
             }
         } catch (ex) {
             logger.warn(() => `Failed to load image: ${ex}`);

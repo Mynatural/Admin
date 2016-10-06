@@ -1,9 +1,18 @@
 import {Injectable} from "@angular/core";
-import {AlertController} from "ionic-angular";
+import {AlertController, LoadingController} from "ionic-angular";
 
 @Injectable()
 export class Prompt {
-    constructor(private alertCtrl: AlertController) { }
+    constructor(private alertCtrl: AlertController, private loadingCtrl: LoadingController) { }
+
+    async loading(msg: string, proc: () => Promise<void>): Promise<void> {
+        const m = this.loadingCtrl.create({
+            content: msg
+        });
+        m.present();
+        await proc();
+        m.dismiss();
+    }
 
     alert(msg: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {

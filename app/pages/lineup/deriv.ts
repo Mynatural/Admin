@@ -41,7 +41,9 @@ export class DerivPage {
         try {
             const file = await this.prompt.file("Illustration", "PNG/SVG file");
             if (!_.isNil(file)) {
-                await this.deriv.changeImage(file);
+                await this.prompt.loading("Uploading...", async () => {
+                    await this.deriv.changeImage(file);
+                });
             }
         } catch (ex) {
             logger.warn(() => `Failed to load image: ${ex}`);
