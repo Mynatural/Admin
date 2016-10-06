@@ -97,6 +97,14 @@ class Path {
         return Path.itemDir(o.key);
     }
 
+    static dirSpec(spec: Spec): string {
+        const list = [spec.global ? ROOT : Path.dirItem(spec.specGroup.item)];
+        list.push(SPEC);
+        if (!spec.global) list.push(spec.specGroup.key);
+        list.push(spec.key);
+        return Path.join(list);
+    }
+
     static infoItem(key: string): string {
         return Path.join(Path.itemDir(key), INFO_JSON);
     }
@@ -116,7 +124,7 @@ class Path {
             keys.unshift(spec.key);
             return keys;
         });
-        return [Path.join(Path.dirItem(o), "images", names, `${side}.png`)];
+        return [Path.makeImageItem(o, side, names)];
     }
 
     static imagesDeriv(o: Deriv): string[] {
@@ -137,15 +145,27 @@ class Path {
         return _.map(["svg", "png"], (sux) => Path.join(paths, `illustration.${sux}`));
     }
 
-    private static dirSpec(spec: Spec): string {
-        const list = [spec.global ? ROOT : Path.dirItem(spec.specGroup.item)];
-        list.push(SPEC);
-        if (!spec.global) list.push(spec.specGroup.key);
-        list.push(spec.key);
-        return Path.join(list);
+    private static makeImageItem(o: Item, side: Info.SpecSide, keys: string[]): string {
+        return Path.join(Path.dirItem(o), "images", keys, `${side}.png`);
     }
 
-    static async allPathItem(o: Item): Promise<string[][]> {
+    private static makeImagesSpec(o: Spec, keys: string[]): string[] {
+        return Path.illustrations(Path.dirSpec(o), "images", keys);
+    }
+
+    static async allImagesItem(o: Item): Promise<string[]> {
+        return _.flatMap(await Path.allKeysItem(o), (keys) =>
+            _.map(SIDES, (side) => Path.makeImageItem(o, side, keys))
+        );
+    }
+
+    static allImagesSpec(o: Spec): string[] {
+        return _.flatMap(Path.allKeysSpec(o), (keys) =>
+            Path.makeImagesSpec(o, keys)
+        );
+    }
+
+    static async allKeysItem(o: Item): Promise<string[][]> {
         const lists = _.map(await o.specGroups, (specGroup) =>
             _.map(specGroup.availables, (spec) =>
                 _.map(Path.allPathSpec(spec), (b) =>
@@ -156,7 +176,7 @@ class Path {
         return combinations(lists);
     }
 
-    static allPathSpec(spec: Spec): string[][] {
+    static allKeysSpec(spec: Spec): string[][] {
         const lists = _.map(spec.deriveGroups, (derivGroup) =>
             _.map(derivGroup.availables, (deriv) => deriv.key)
         );
@@ -274,6 +294,12 @@ class OnChanging {
         ));
     }
 
+    private async moveDirs(srcList, dstList): Promise<void> {
+        await Promise.all(_.map(_.zip(srcList, dstList),
+            (pair) => this.moveDir(pair[0], pair[1])
+        ));
+    }
+
     async itemKey(o: Item, go: DoThru) {
         const src = Path.dirItem(o);
         await go();
@@ -284,33 +310,62 @@ class OnChanging {
     }
 
     async specGroupKey(o: SpecGroup, go: DoThru) {
+        const srcList = _.map(o.availables, (v) => Path.dirSpec(v));
         await go();
+        const dstList = _.map(o.availables, (v) => Path.dirSpec(v));
 
+        await this.moveDirs(srcList, dstList);
         await refresh(o.item);
     }
 
     async specKey(o: Spec, go: DoThru) {
+        const srcList = Path.allImagesItem(o.specGroup.item);
+        const srcDir = Path.dirSpec(o);
+
         await go();
 
+        const dstList = Path.allImagesItem(o.specGroup.item);
+        const dstDir = Path.dirSpec(o);
+
+        await Promise.all([
+            this.moveFiles(srcList, dstList),
+            this.moveDir(srcDir, dstDir)
+        ]);
         await refresh(o.specGroup.item);
     }
 
     async specGlobal(o: Spec, go: DoThru) {
+        const srcDir = Path.dirSpec(o);
         await go();
+        const dstDir = Path.dirSpec(o);
 
+        await this.moveDir(srcDir, dstDir);
         await refresh(o.specGroup.item);
     }
 
     async derivGroupKey(o: DerivGroup, go: DoThru) {
+        const srcList = _.flatMap(o.availables, (v) => Path.imagesDeriv(v));
         await go();
+        const dstList = _.flatMap(o.availables, (v) => Path.imagesDeriv(v));
 
+        await this.moveFiles(srcList, dstList);
         await refresh(o.spec.specGroup.item);
     }
 
     async derivKey(o: Deriv, go: DoThru) {
-        const srcList = Path.imagesDeriv(o);
+        const srcList = _.flatten([
+            Path.allImagesItem(o.derivGroup.spec.specGroup.item),
+            Path.allImagesSpec(o.derivGroup.spec),
+            Path.imagesDeriv(o)
+        ]);
+
         await go();
-        const dstList = Path.imagesDeriv(o);
+
+        const dstList _.flatten([
+            Path.allImagesItem(o.derivGroup.spec.specGroup.item),
+            Path.allImagesSpec(o.derivGroup.spec),
+            Path.imagesDeriv(o)
+        ]);
 
         await this.moveFiles(srcList, dstList);
         await refresh(o.derivGroup.spec.specGroup.item);
