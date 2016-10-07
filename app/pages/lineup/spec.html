@@ -52,7 +52,7 @@
             </ion-item>
         </ion-row>
 
-        <ion-list class="children">
+        <ion-card class="children">
             <ion-item-divider>
                 <ion-label>Derives</ion-label>
                 <button item-right (click)="addNew()">
@@ -68,7 +68,7 @@
                     </ion-option>
                 </ion-select>
             </ion-item>
-        </ion-list>
+        </ion-card>
 
         <ion-card class="image" (click)="uploadImage()">
             <img *ngIf="spec.image" [src]="spec.image">

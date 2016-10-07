@@ -26,6 +26,7 @@
         font-size: 1rem;
         font-style: italic;
         color: #448;
+        border-bottom: 2px solid #448;
 
         &>div:nth-child(1) {
             margin-left: 1rem;
@@ -70,6 +71,16 @@
     }
 
     .children, .values {
-        margin-top: 2rem;
+        &>ion-item-divider {
+            background-color: #faffff;
+        }
+
+        &>ion-item {
+            ion-label {
+                color: #444;
+                background-color: lightcyan;
+                font-size: 1.5rem;
+            }
+        }
     }
 }

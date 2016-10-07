@@ -38,7 +38,7 @@
             </div>
         </ion-row>
 
-        <ion-list class="values">
+        <ion-card class="values">
             <ion-item-divider>
                 <ion-label>Values</ion-label>
                 <button item-right (click)="addNew()">
@@ -49,6 +49,6 @@
             <ion-item *ngFor="let a of derivGroup.availables">
                 <ion-label (click)="open(a)">{{a.name}} ({{a.key}})</ion-label>
             </ion-item>
-        </ion-list>
+        </ion-card>
     </div>
 </ion-content>

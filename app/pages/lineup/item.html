@@ -62,7 +62,7 @@
             </ion-card>
         </ion-row>
 
-        <ion-list class="children">
+        <ion-card class="children">
             <ion-item-divider>
                 <ion-label>Measurements</ion-label>
                 <button item-right (click)="addNewMeasure()">
@@ -70,12 +70,12 @@
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let a of item.measurements" (click)="openMeasure(a)">
-                <ion-label>{{a.name}} ({{a.key}})</ion-label>
+            <ion-item *ngFor="let a of item.measurements">
+                <ion-label (click)="openMeasure(a)">{{a.name}} ({{a.key}})</ion-label>
             </ion-item>
-        </ion-list>
+        </ion-card>
 
-        <ion-list class="children">
+        <ion-card class="children">
             <ion-item-divider>
                 <ion-label>Specs</ion-label>
                 <button item-right (click)="addNewSpec()">
@@ -91,7 +91,7 @@
                     </ion-option>
                 </ion-select>
             </ion-item>
-        </ion-list>
+        </ion-card>
 
         <ion-row>
             <ion-card class="image" *ngFor="let side of sides" (click)="uploadImage(side)">
