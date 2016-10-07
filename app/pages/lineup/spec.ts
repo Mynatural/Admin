@@ -21,7 +21,7 @@ export class SpecPage {
     }
 
     get title(): string {
-        return this.spec.info.name;
+        return this.spec.name;
     }
 
     get isReady(): boolean {

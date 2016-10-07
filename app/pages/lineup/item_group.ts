@@ -33,7 +33,7 @@ export class ItemGroupPage {
     }
 
     open(item: Item) {
-        logger.debug(() => `Opening lineup: ${item.info.name}`);
+        logger.debug(() => `Opening lineup: ${item.name}`);
         this.nav.push(ItemPage, {
             item: item
         });

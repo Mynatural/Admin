@@ -19,7 +19,7 @@ export class DerivPage {
     }
 
     get title(): string {
-        return this.deriv.info.name;
+        return this.deriv.name;
     }
 
     get isReady(): boolean {

@@ -21,7 +21,7 @@
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="specGroup.info.name"></ion-input>
+                    <ion-input [(ngModel)]="specGroup.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
@@ -34,10 +34,10 @@
 
         <div class="side">
             <ion-item>Side</ion-item>
-            <ion-list radio-group [(ngModel)]="specGroup.info.side">
+            <ion-list radio-group [(ngModel)]="specGroup.side">
                 <ion-item *ngFor="let v of sides">
                     <ion-label>{{v}}</ion-label>
-                    <ion-radio [value]="v" [checked]="specGroup.info.side === v"></ion-radio>
+                    <ion-radio [value]="v" [checked]="specGroup.side === v"></ion-radio>
                 </ion-item>
             </ion-list>
         </div>
@@ -45,12 +45,12 @@
         <div class="canSame">
             <ion-item>
                 <ion-label>canSame</ion-label>
-                <ion-select [(ngModel)]="specGroup.info.canSame">
-                    <ion-option [value]="null" [selected]="specGroup.info.canSame == null">
+                <ion-select [(ngModel)]="specGroup.canSame">
+                    <ion-option [value]="null" [selected]="specGroup.canSame == null">
                         None
                     </ion-option>
-                    <ion-option *ngFor="let v of specGroups" [value]="v" [selected]="v.key == specGroup.info.canSame">
-                        {{v.info.name}}
+                    <ion-option *ngFor="let v of specGroup.item.specGroups" [value]="v" [selected]="v.key == specGroup.canSame">
+                        {{v.name}}
                     </ion-option>
                 </ion-select>
             </ion-item>
@@ -65,10 +65,7 @@
                 </button>
             </ion-item-divider>
             <ion-item *ngFor="let a of specGroup.availables">
-                <ion-label (click)="open(a)">{{a.info.name}} ({{a.key}})</ion-label>
-                <button item-right clear (click)="specGroup.info.value.initial = a.key">
-                    <ion-icon [name]="a.key === specGroup.info.value.initial ? 'checkbox-outline' : 'square-outline'"></ion-icon>
-                </button>
+                <ion-label (click)="open(a)">{{a.name}} ({{a.key}})</ion-label>
             </ion-item>
         </ion-list>
     </div>

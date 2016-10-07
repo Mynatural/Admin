@@ -63,12 +63,12 @@ export class LineupController {
     private async load(key: string): Promise<Item> {
         const text = await this.s3image.s3.read(Path.infoItem(key));
         const info = Base64.decodeJson(text) as Info.Item;
-        return new Item(this, key, info);
+        return await Item.byJSON(this, key, info);
     }
 
-    async write(item: Item): Promise<void> {
-        const path = Path.infoItem(item.key)
-        await this.s3image.s3.write(path, Base64.encodeJson(item.info));
+    async write(key: string, json: Info.Item): Promise<void> {
+        const path = Path.infoItem(key)
+        await this.s3image.s3.write(path, Base64.encodeJson(json));
     }
 
     async loadSpec(key: string): Promise<Info.Spec> {
@@ -98,9 +98,9 @@ class Path {
     }
 
     static dirSpec(spec: Spec): string {
-        const list = [spec.global ? ROOT : Path.dirItem(spec.specGroup.item)];
+        const list = [spec.isGlobal ? ROOT : Path.dirItem(spec.specGroup.item)];
         list.push(SPEC);
-        if (!spec.global) list.push(spec.specGroup.key);
+        if (!spec.isGlobal) list.push(spec.specGroup.key);
         list.push(spec.key);
         return Path.join(list);
     }
@@ -120,7 +120,7 @@ class Path {
     static async imagesItem(o: Item, side: Info.SpecSide): Promise<string[]> {
         const names = _.map(await o.specGroups, (specGroup) => {
             const spec = specGroup.current;
-            const keys = _.map(spec.deriveGroups, (v) => v.current.key);
+            const keys = _.map(spec.derivGroups, (v) => v.current.key);
             keys.unshift(spec.key);
             return keys;
         });
@@ -133,7 +133,7 @@ class Path {
     }
 
     static imagesSpec(spec: Spec): string[] {
-        const keys = _.map(spec.deriveGroups, (v) => v.current.key);
+        const keys = _.map(spec.derivGroups, (v) => v.current.key);
         return Path.illustrations(Path.dirSpec(spec), "images", keys);
     }
 
@@ -177,7 +177,7 @@ class Path {
     }
 
     static allKeysSpec(spec: Spec): string[][] {
-        const lists = _.map(spec.deriveGroups, (derivGroup) =>
+        const lists = _.map(spec.derivGroups, (derivGroup) =>
             _.map(derivGroup.availables, (deriv) => deriv.key)
         );
         return combinations(lists);
@@ -264,7 +264,7 @@ async function refresh(item: Item): Promise<void> {
     (await item.specGroups).forEach((spec) => {
         spec.availables.forEach((spec) => {
             spec.refreshIllustrations();
-            spec.deriveGroups.forEach((derivGroup) => {
+            spec.derivGroups.forEach((derivGroup) => {
                 derivGroup.availables.forEach((deriv) => {
                     deriv.refreshIllustrations();
                 });
@@ -289,6 +289,7 @@ class OnChanging {
     }
 
     private async moveFiles(srcList, dstList): Promise<void> {
+        logger.debug(() => `Moving files: ${JSON.stringify(srcList, null, 4)}`);
         await Promise.all(_.map(_.zip(srcList, dstList),
             (pair) => this.moveFile(pair[0], pair[1])
         ));
@@ -319,12 +320,12 @@ class OnChanging {
     }
 
     async specKey(o: Spec, go: DoThru) {
-        const srcList = Path.allImagesItem(o.specGroup.item);
+        const srcList = await Path.allImagesItem(o.specGroup.item);
         const srcDir = Path.dirSpec(o);
 
         await go();
 
-        const dstList = Path.allImagesItem(o.specGroup.item);
+        const dstList = await Path.allImagesItem(o.specGroup.item);
         const dstDir = Path.dirSpec(o);
 
         await Promise.all([

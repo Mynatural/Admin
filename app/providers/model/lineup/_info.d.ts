@@ -14,7 +14,6 @@ export type SpecGroup = {
     side: SpecSide,
     canSame?: string, // key of other Spec
     value: {
-        initial: string,
         availables: string[] // keys of Spec
     }
 }
@@ -25,7 +24,7 @@ export type Spec = {
     name: string,
     key: string,
     description: string,
-    deriveGroups: DerivGroup[],
+    derivGroups: DerivGroup[],
     price: number
 }
 
@@ -33,7 +32,6 @@ export type DerivGroup = {
     name: string,
     key: string,
     value: {
-        initial: string,
         availables: Deriv[]
     }
 }

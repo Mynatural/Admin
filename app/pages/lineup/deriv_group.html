@@ -21,7 +21,7 @@
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="derivGroup.info.name"></ion-input>
+                    <ion-input [(ngModel)]="derivGroup.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
@@ -41,10 +41,7 @@
                 </button>
             </ion-item-divider>
             <ion-item *ngFor="let a of derivGroup.availables">
-                <ion-label (click)="open(a)">{{a.info.name}} ({{a.key}})</ion-label>
-                <button item-right clear (click)="derivGroup.info.value.initial = a.key">
-                    <ion-icon [name]="a.key === derivGroup.info.value.initial ? 'checkbox-outline' : 'square-outline'"></ion-icon>
-                </button>
+                <ion-label (click)="open(a)">{{a.name}} ({{a.key}})</ion-label>
             </ion-item>
         </ion-list>
     </div>

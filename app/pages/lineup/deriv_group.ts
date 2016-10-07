@@ -20,7 +20,7 @@ export class DerivGroupPage {
     }
 
     get title(): string {
-        return this.derivGroup.info.name;
+        return this.derivGroup.name;
     }
 
     get isReady(): boolean {

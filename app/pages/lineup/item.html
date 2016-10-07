@@ -21,7 +21,7 @@
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="item.info.name"></ion-input>
+                    <ion-input [(ngModel)]="item.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
@@ -35,14 +35,14 @@
         <div class="description">
             <ion-item>
                 <ion-label floating>Description</ion-label>
-                <ion-input [(ngModel)]="item.info.description"></ion-input>
+                <ion-input [(ngModel)]="item.description"></ion-input>
             </ion-item>
         </div>
 
         <div class="price">
             <ion-item>
                 <ion-label floating>Price</ion-label>
-                <ion-input [(ngModel)]="item.info.price" type="number"></ion-input>
+                <ion-input [(ngModel)]="item.price" type="number"></ion-input>
             </ion-item>
         </div>
 
@@ -63,7 +63,7 @@
                 </button>
             </ion-item-divider>
             <ion-item *ngFor="let a of item.measurements" (click)="openMeasure(a)">
-                <ion-label>{{a.info.name}} ({{a.key}})</ion-label>
+                <ion-label>{{a.name}} ({{a.key}})</ion-label>
             </ion-item>
         </ion-list>
 
@@ -75,11 +75,11 @@
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let sg of specGroups">
-                <ion-label (click)="openSpec(sg)">{{sg.info.name}} ({{sg.key}})</ion-label>
+            <ion-item *ngFor="let sg of item.specGroups">
+                <ion-label (click)="openSpec(sg)">{{sg.name}} ({{sg.key}})</ion-label>
                 <ion-select [(ngModel)]="sg.current">
                     <ion-option *ngFor="let v of sg.availables" [value]="v" [selected]="v.key == sg.current.key">
-                        {{v.info.name}}
+                        {{v.name}}
                     </ion-option>
                 </ion-select>
             </ion-item>

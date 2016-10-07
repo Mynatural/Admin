@@ -19,7 +19,7 @@ export class MeasurePage {
     }
 
     get title(): string {
-        return this.measure.info.name;
+        return this.measure.name;
     }
 
     get isReady(): boolean {

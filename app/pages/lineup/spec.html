@@ -21,7 +21,7 @@
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="spec.info.name"></ion-input>
+                    <ion-input [(ngModel)]="spec.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
@@ -35,14 +35,14 @@
         <div class="description">
             <ion-item>
                 <ion-label floating>Description</ion-label>
-                <ion-input [(ngModel)]="spec.info.description"></ion-input>
+                <ion-input [(ngModel)]="spec.description"></ion-input>
             </ion-item>
         </div>
 
         <div class="price">
             <ion-item>
                 <ion-label floating>Price</ion-label>
-                <ion-input [(ngModel)]="spec.info.price" type="number"></ion-input>
+                <ion-input [(ngModel)]="spec.price" type="number"></ion-input>
             </ion-item>
         </div>
 
@@ -55,10 +55,10 @@
                 </button>
             </ion-item-divider>
             <ion-item *ngFor="let dg of spec.deriveGroups">
-                <ion-label (click)="open(dg)">{{dg.info.name}} ({{dg.key}})</ion-label>
+                <ion-label (click)="open(dg)">{{dg.name}} ({{dg.key}})</ion-label>
                 <ion-select [(ngModel)]="dg.current">
                     <ion-option *ngFor="let v of dg.availables" [value]="v" [selected]="v.key == dg.current.key">
-                        {{v.info.name}}
+                        {{v.name}}
                     </ion-option>
                 </ion-select>
             </ion-item>

@@ -1,6 +1,6 @@
 import {SafeUrl} from '@angular/platform-browser';
 
-import * as Info from "./_info.d";
+import * as Json from "./_info.d";
 import {LineupController} from "./lineup";
 import {Item} from "./item";
 import {CachedImage} from "../../aws/s3file";
@@ -11,23 +11,50 @@ import {Logger} from "../../../util/logging";
 const logger = new Logger("Lineup.Measure");
 
 export class Measure {
+    static async byJSON(ctrl: LineupController, item: Item, json: Json.Measurement): Promise<Measure> {
+        return new Measure(ctrl, item, json.key, json.name, json.description,
+            json.value.initial, json.value.min, json.value.max, json.value.step
+        );
+    }
+
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
     private _image: CachedImage;
     current: number;
 
-    constructor(private ctrl: LineupController, public item: Item, public info: Info.Measurement) {
-        this.current = info.value.initial;
+    constructor(private ctrl: LineupController,
+            public item: Item,
+            private _key: string,
+            public name: string,
+            public description: string,
+            public initial: number,
+            public min: number,
+            public max: number,
+            public step: number
+    ) { }
+
+    get asJSON() {
+        return {
+            key: this.key,
+            name: this.name,
+            description: this.description,
+            value: {
+                initial: this.initial,
+                min: this.min,
+                max: this.max,
+                step: this.step
+            }
+        };
     }
 
     get key(): string {
-        return this.info.key;
+        return this._key;
     }
 
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.measureKey(this, async () => {
-                this.info.key = v;
+                this._key = v;
             });
         });
     }
@@ -53,6 +80,6 @@ export class Measure {
     }
 
     get range(): number[] {
-        return _.range(this.info.value.min, this.info.value.max + this.info.value.step, this.info.value.step);
+        return _.range(this.min, this.max + this.step, this.step);
     }
 }

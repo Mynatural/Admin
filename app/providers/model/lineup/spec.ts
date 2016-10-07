@@ -1,6 +1,6 @@
 import {SafeUrl} from '@angular/platform-browser';
 
-import * as Info from "./_info.d";
+import * as Json from "./_info.d";
 import {LineupController} from "./lineup";
 import {ItemGroup, Item} from "./item";
 import {DerivGroup, Deriv} from "./deriv";
@@ -11,18 +11,18 @@ import {Logger} from "../../../util/logging";
 
 const logger = new Logger("Lineup.Spec");
 
-type InfoSpec = {
-    key: string,
-    info: Info.Spec,
-    global: boolean
-}
-
 export class SpecGroup {
-    static async createGroups(ctrl: LineupController, item: Item, infos: Info.SpecGroup[]): Promise<SpecGroup[]> {
-        const allKeys = _.uniq(_.flatten(_.map(infos, (info) => info.value.availables)));
+    static async byJSONs(ctrl: LineupController, item: Item, jsons: Json.SpecGroup[], specs: Json.Spec[]): Promise<SpecGroup[]> {
+
+        const allKeys = _.uniq(_.flatMap(jsons, (json) => json.value.availables));
+        /*{
+            key: string,
+            json: Json.Spec,
+            global: boolean
+        }*/
         const all = await Promise.all(_.map(allKeys, async (key) => {
             try {
-                let v = _.find(item.info.specs, {key: key});
+                let v = _.find(specs, {key: key});
                 let global = false;
                 if (_.isNil(v)) {
                     v = await ctrl.loadSpec(key);
@@ -30,7 +30,7 @@ export class SpecGroup {
                 }
                 return {
                     key: key,
-                    info: v,
+                    json: v,
                     global: global
                 };
             } catch (ex) {
@@ -38,36 +38,59 @@ export class SpecGroup {
                 return null;
             }
         }));
-        return _.filter(_.map(infos, (info) => {
-            const availables = _.filter(_.map(_.uniq(info.value.availables), (a) => _.find(all, {key: a})));
-            return _.isEmpty(availables) ? null : new SpecGroup(ctrl, item, info, availables);
-        }));
+
+        return _.filter(await Promise.all(_.map(jsons, async (json) => {
+            const sg = new SpecGroup(ctrl, item, json.key, json.name, json.side, json.canSame, []);
+            const infos = _.filter(_.map(json.value.availables, (a) =>
+                _.find(all, {key: a})
+            ));
+            sg.availables = _.filter(await Promise.all(_.map(infos, (info) =>
+                Spec.byJSON(ctrl, sg, info.json, info.global)
+            )));
+            return _.isEmpty(sg.availables) ? null : sg;
+        })));
     }
 
-    availables: Spec[];
     private _current: Spec;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private ctrl: LineupController, public item: Item, public info: Info.SpecGroup, specs: InfoSpec[]) {
-        this.availables = specs.map((s) => new Spec(ctrl, this, s.info, s.global));
+    constructor(private ctrl: LineupController,
+            public item: Item,
+            private _key: string,
+            public name: string,
+            public side: Json.SpecSide,
+            public canSame: string,
+            public availables: Spec[]
+    ) { }
+
+    get asJSON() {
+        return {
+            key: this._key,
+            name: this.name,
+            side: this.side,
+            canSame: this.canSame,
+            value: {
+                availables: _.map(this.availables, (o) => o.key)
+            }
+        };
     }
 
     get key(): string {
-        return this.info.key;
+        return this._key;
     }
 
     set key(v: string) {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.specGroupKey(this, async () => {
-                this.info.key = v;
+                this._key = v;
             });
         });
     }
 
     get current(): Spec {
         if (_.isNil(this._current)) {
-            this._current = this.get(this.info.value.initial) || _.head(this.availables);
+            this._current = _.head(this.availables);
         }
         return this._current;
     }
@@ -87,36 +110,70 @@ export class SpecGroup {
         if (_.size(this.availables) < 2) return;
         await this.ctrl.onRemoving.spec(o, async () => {
             _.remove(this.availables, {key: o.key});
-            _.remove(this.info.value.availables, {key: o.key});
-            if (_.isEqual(this.info.value.initial, o.key)) {
-                this.info.value.initial = _.head(this.availables).key;
-            }
         });
     }
 
     async createNew(): Promise<Spec> {
         const key = await this.ctrl.createNewKey("new_value", async (key) => this.get(key));
-        const one = new Spec(this.ctrl, this, {
-            name: "新しい仕様の値",
-            key: key,
-            description: "",
-            deriveGroups: [],
-            price: 100
-        }, false);
+        const one = new Spec(this.ctrl, this, false, key, "新しい仕様の値", "", 100, []);
         this.availables.unshift(one);
-        this.item.info.specs.unshift(one.info);
-        this.info.value.availables.unshift(one.key);
         return one;
     }
 }
 
 export class Spec {
-    deriveGroups: DerivGroup[];
+    static async byJSON(ctrl: LineupController, sg: SpecGroup, json: Json.Spec, isGlobal: boolean): Promise<Spec> {
+        const result = new Spec(ctrl, sg, isGlobal, json.key, json.name, json.description, json.price, []);
+
+        result.derivGroups = await DerivGroup.byJSONs(ctrl, result, json.derivGroups);
+
+        return result;
+    }
+
     private _image: CachedImage;
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private ctrl: LineupController, public specGroup: SpecGroup, public info: Info.Spec, private _global: boolean) {
-        this.deriveGroups = _.map(info.deriveGroups, (o) => new DerivGroup(ctrl, this, o));
+    constructor(private ctrl: LineupController,
+            public specGroup: SpecGroup,
+            private _global: boolean,
+            private _key: string,
+            public name: string,
+            public description: string,
+            public price: number,
+            public derivGroups: DerivGroup[]
+    ) { }
+
+    get asJSON() {
+        return {
+            key: this._key,
+            name: this.name,
+            description: this.description,
+            price: this.price,
+            derivGroups: _.map(this.derivGroups, (o) => o.asJSON)
+        };
+    }
+
+    get key(): string {
+        return this._key;
+    }
+
+    set key(v: string) {
+        if (_.isEmpty(v)) return;
+        this._changeKey.update(v, async (v) => {
+            await this.ctrl.onChanging.specKey(this, async () => {
+                this._key = v;
+            });
+        });
+    }
+
+    get isGlobal(): boolean {
+        return this._global;
+    }
+
+    set isGlobal(v: boolean) {
+        this.ctrl.onChanging.specGlobal(this, async () => {
+            this._global = v;
+        });
     }
 
     onChangedDerivCurrent() {
@@ -126,36 +183,6 @@ export class Spec {
 
     refreshIllustrations() {
         this.refreshImage(true);
-    }
-
-    get key(): string {
-        return this.info.key;
-    }
-
-    set key(v: string) {
-        if (_.isEmpty(v)) return;
-        this._changeKey.update(v, async (v) => {
-            await this.ctrl.onChanging.specKey(this, async () => {
-                if (_.isEqual(this.specGroup.info.value.initial, this.key)) {
-                    this.specGroup.info.value.initial = v;
-                }
-                const index = _.indexOf(this.specGroup.info.value.availables, this.key);
-                if (index) {
-                    this.specGroup.info.value.availables.splice(index, 1, v);
-                }
-                this.info.key = v;
-            });
-        });
-    }
-
-    get global(): boolean {
-        return this._global;
-    }
-
-    set global(v: boolean) {
-        this.ctrl.onChanging.specGlobal(this, async () => {
-            this._global = v;
-        });
     }
 
     private refreshImage(clear = false): CachedImage {
@@ -175,30 +202,20 @@ export class Spec {
     }
 
     getDeriv(key: string): DerivGroup {
-        return _.find(this.deriveGroups, {key: key});
+        return _.find(this.derivGroups, {key: key});
     }
 
     async removeDeriv(o: DerivGroup): Promise<void> {
         await this.ctrl.onRemoving.derivGroup(o, async () => {
-            _.remove(this.deriveGroups, {key: o.key});
-            _.remove(this.info.deriveGroups, {key: o.key});
+            _.remove(this.derivGroups, {key: o.key});
         });
     }
 
     async createDeriv(): Promise<DerivGroup> {
         const key = await this.ctrl.createNewKey("new_deriv", async (key) => this.getDeriv(key));
-        const one = new DerivGroup(this.ctrl, this, {
-            name: "新しい派生",
-            key: key,
-            value: {
-                initial: "",
-                availables: []
-            }
-        });
-        const initial = await one.createNew();
-        one.info.value.initial = initial.key;
-        this.deriveGroups.unshift(one);
-        this.info.deriveGroups.unshift(one.info);
+        const one = new DerivGroup(this.ctrl, this, key, "新しい派生", []);
+        await one.createNew();
+        this.derivGroups.unshift(one);
         return one;
     }
 }

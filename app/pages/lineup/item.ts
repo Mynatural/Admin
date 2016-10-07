@@ -20,16 +20,14 @@ const logger = new Logger("ItemPage");
 })
 export class ItemPage {
     item: Item;
-    specGroups: SpecGroup[];
     sides = ["FRONT", "BACK"];
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams, private lineupCtrl: LineupController) {
         this.item = params.get("item");
-        this.item.specGroups.then((v) => this.specGroups = v);
     }
 
     get title(): string {
-        return this.item.info.name;
+        return this.item.name;
     }
 
     get isReady(): boolean {

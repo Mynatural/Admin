@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 
-import * as Info from "./_info.d";
+import * as Json from "./_info.d";
 import {LineupController} from "./lineup";
 import {SpecGroup, Spec} from "./spec";
 import {Measure} from "./measure";
@@ -27,39 +27,53 @@ export class ItemGroup {
 
     async createNew(): Promise<Item> {
         const key = await this.ctrl.createNewKey("new_created", async (key) => _.find(this.availables, {key: key}));
-        const one = new Item(this.ctrl, key, {
-            name: "新しいラインナップ",
-            price: 500,
-            description: "",
-            specGroups: [],
-            specs: [],
-            measurements: []
-        });
+        const one = new Item(this.ctrl, key, "新しいラインナップ", "", 500, [], []);
         this.availables.unshift(one);
         return one;
     }
 }
 
 export class Item {
-    specGroups: Promise<SpecGroup[]>;
-    measurements: Measure[];
+    static async byJSON(ctrl: LineupController, key: string, json: Json.Item): Promise<Item> {
+        logger.info(() => `${key}: ${JSON.stringify(json, null, 4)}`);
+        const result = new Item(ctrl, key, json.name, json.description, json.price, [], []);
+
+        result.specGroups = await SpecGroup.byJSONs(ctrl, result, json.specGroups, json.specs);
+        result.measurements = await Promise.all(_.map(json.measurements, (j) => Measure.byJSON(ctrl, result, j)));
+
+        return result;
+    }
+
     private _titleImage: CachedImage;
     private _images: {[key: string]: CachedImage}; // SpecSide -> CachedImage
     private _changeKey: InputInterval<string> = new InputInterval<string>(1000);
 
-    constructor(private ctrl: LineupController, private _key: string, public info: Info.Item) {
-        logger.info(() => `${_key}: ${JSON.stringify(info, null, 4)}`);
-        this.specGroups = SpecGroup.createGroups(ctrl, this, info.specGroups);
-        this.measurements = _.map(info.measurements, (m) => new Measure(ctrl, this, m));
+    constructor(private ctrl: LineupController,
+            private _key: string,
+            public name: string,
+            public description: string,
+            public price: number,
+            public specGroups: SpecGroup[],
+            public measurements: Measure[]
+    ) { }
+
+    get asJSON() {
+        const localSpecs = _.uniqBy(_.filter(_.flatMap(this.specGroups,
+            (sg) => sg.availables), (s) => !s.isGlobal), "key"
+        );
+        return {
+            key: this.key,
+            name: this.name,
+            price: this.price,
+            description: this.description,
+            specGroups: _.map(this.specGroups, (o) => o.asJSON),
+            specs: _.map(localSpecs, (o) => o.asJSON),
+            measurements: _.map(this.measurements, (o) => o.asJSON)
+        };
     }
 
-    refreshIllustrations() {
-        this.refreshTiteImage(true);
-        this.refreshCurrentImages(true);
-    }
-
-    onChangedSpecCurrent() {
-        this.refreshCurrentImages(true);
+    async writeInfo(): Promise<void> {
+        await this.ctrl.write(this.key, this.asJSON);
     }
 
     get key(): string {
@@ -70,10 +84,18 @@ export class Item {
         if (_.isEmpty(v)) return;
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.itemKey(this, async () => {
-                logger.debug(() => `Changing lineup key: ${this._key} -> ${v}`);
                 this._key = v;
             });
         });
+    }
+
+    refreshIllustrations() {
+        this.refreshTiteImage(true);
+        this.refreshCurrentImages(true);
+    }
+
+    onChangedSpecCurrent() {
+        this.refreshCurrentImages(true);
     }
 
     private refreshTiteImage(clear = false): CachedImage {
@@ -102,57 +124,43 @@ export class Item {
         return this._images;
     }
 
-    getImage(side: Info.SpecSide): SafeUrl {
+    getImage(side: Json.SpecSide): SafeUrl {
         const safe = this.refreshCurrentImages()[side];
         return safe ? safe.url : null;
     }
 
-    async changeImage(side: Info.SpecSide, file: File): Promise<void> {
+    async changeImage(side: Json.SpecSide, file: File): Promise<void> {
         await this.ctrl.illust.uploadItemCurrent(this, side, file);
         this.refreshCurrentImages(true);
     }
 
-    async getTotalPrice(): Promise<number> {
-        var result = this.info.price;
-        _.forEach(await this.specGroups, (spec, key) => {
+    get totalPrice(): number {
+        var result = this.price;
+        _.forEach(this.specGroups, (spec, key) => {
             const v = spec.current;
             if (v) {
-                result = result + v.info.price;
+                result = result + v.price;
             }
         });
         return result;
     }
 
-    async writeInfo(): Promise<void> {
-        await this.ctrl.write(this);
-    }
-
-    async getSpec(key: string): Promise<SpecGroup> {
-        return _.find(await this.specGroups, {key: key});
+    getSpec(key: string): SpecGroup {
+        return _.find(this.specGroups, {key: key});
     }
 
     async removeSpec(o: SpecGroup): Promise<void> {
         await this.ctrl.onRemoving.specGroup(o, async () => {
-            _.remove(await this.specGroups, {key: o.key});
-            _.remove(this.info.specGroups, {key: o.key});
+            _.remove(this.specGroups, {key: o.key});
         });
     }
 
     async createSpec(): Promise<SpecGroup> {
         const key = await this.ctrl.createNewKey("new_spec", async (key) => this.getSpec(key));
-        const one = new SpecGroup(this.ctrl, this, {
-            name: "新しい仕様",
-            key: key,
-            side: "FRONT",
-            value: {
-                initial: "",
-                availables: []
-            }
-        }, []);
-        const initial = await one.createNew();
-        one.info.value.initial = initial.key;
-        (await this.specGroups).unshift(one);
-        this.info.specGroups.unshift(one.info);
+        const one = new SpecGroup(this.ctrl, this,
+            key, "新しい仕様", "FRONT", null, []);
+        await one.createNew();
+        this.specGroups.unshift(one);
         return one;
     }
 
@@ -163,25 +171,13 @@ export class Item {
     async removeMeasure(o: Measure): Promise<void> {
         await this.ctrl.onRemoving.measure(o, async () => {
             _.remove(this.measurements, {key: o.key});
-            _.remove(this.info.measurements, {key: o.key});
         });
     }
 
     async createMeasure(): Promise<Measure> {
         const key = await this.ctrl.createNewKey("new_measure", async (key) => this.getMeasure(key));
-        const one = new Measure(this.ctrl, this, {
-            name: "新しい寸法",
-            key: key,
-            description: "",
-            value: {
-                initial: 0,
-                min: 0,
-                max: 100,
-                step: 1
-            }
-        });
+        const one = new Measure(this.ctrl, this, key, "新しい寸法", "", 0, 0, 100, 1);
         this.measurements.unshift(one);
-        this.info.measurements.unshift(one.info);
         return one;
     }
 }
