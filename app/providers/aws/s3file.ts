@@ -144,7 +144,7 @@ export class S3File {
             }));
             return !_.isNil(res);
         } catch (ex) {
-            logger.warn(() => `Error on checking exists: ${bucketName}:${path}`);
+            logger.warn(() => `Error on checking exists: ${bucketName}:${path}: ${ex}`);
             return false;
         }
     }
@@ -174,22 +174,35 @@ export class S3Image {
     async getUrl(s3path: string): Promise<SafeUrl> {
         assert("Caching S3 path", s3path);
         const url = await this.getCached(s3path);
-        return this.sanitizer.bypassSecurityTrustUrl(url);
+        return _.isNil(url) ? null : this.sanitizer.bypassSecurityTrustUrl(url);
     }
 
     private async getCached(s3path: string): Promise<string> {
         try {
-            const data = await this.local.get(s3path);
-            if (!_.isNil(data) && await this.checkUrl(data)) {
-                return data;
+            if (await this.s3.exists(s3path)) {
+                try {
+                    const data = await this.local.get(s3path);
+                    if (!_.isNil(data) && await this.checkUrl(data)) {
+                        return data;
+                    }
+                } catch (ex) {
+                    logger.info(() => `Failed to get local data: ${s3path}: ${ex}`);
+                }
+                const blob = await this.s3.download(s3path);
+                const url = URL.createObjectURL(blob);
+                this.local.set(s3path, url);
+                return url;
+            } else {
+                logger.info(() => `No data on s3: ${s3path}, removing local cache...`);
+                this.local.remove(s3path).then(
+                    (ok) => logger.info(() => `Removed local data: ${s3path}`),
+                    (error) => logger.warn(() => `Error on removing local data: ${s3path}`)
+                );
             }
         } catch (ex) {
-            logger.info(() => `Failed to get local data: ${s3path}: ${ex}`);
+            logger.warn(() => `Failed to get url: ${s3path}`);
         }
-        const blob = await this.s3.download(s3path);
-        const url = URL.createObjectURL(blob);
-        this.local.set(s3path, url);
-        return url;
+        return null;
     }
 
     private async checkUrl(url: string): Promise<boolean> {
