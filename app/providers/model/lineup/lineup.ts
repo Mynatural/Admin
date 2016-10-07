@@ -145,7 +145,7 @@ class Path {
         return _.map(["svg", "png"], (sux) => Path.join(paths, `illustration.${sux}`));
     }
 
-    private static makeImageItem(o: Item, side: Info.SpecSide, keys: string[]): string {
+    private static makeImageItem(o: Item, side: Info.SpecSide, keys): string {
         return Path.join(Path.dirItem(o), "images", keys, `${side}.png`);
     }
 
@@ -354,15 +354,15 @@ class OnChanging {
 
     async derivKey(o: Deriv, go: DoThru) {
         const srcList = _.flatten([
-            Path.allImagesItem(o.derivGroup.spec.specGroup.item),
+            await Path.allImagesItem(o.derivGroup.spec.specGroup.item),
             Path.allImagesSpec(o.derivGroup.spec),
             Path.imagesDeriv(o)
         ]);
 
         await go();
 
-        const dstList _.flatten([
-            Path.allImagesItem(o.derivGroup.spec.specGroup.item),
+        const dstList = _.flatten([
+            await Path.allImagesItem(o.derivGroup.spec.specGroup.item),
             Path.allImagesSpec(o.derivGroup.spec),
             Path.imagesDeriv(o)
         ]);
