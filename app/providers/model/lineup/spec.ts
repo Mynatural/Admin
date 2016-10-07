@@ -38,10 +38,10 @@ export class SpecGroup {
                 return null;
             }
         }));
-        return _.map(infos, (info) => {
-            const availables = _.filter(_.map(info.value.availables, (a) => _.find(all, {key: a})));
-            return new SpecGroup(ctrl, item, info, availables);
-        });
+        return _.filter(_.map(infos, (info) => {
+            const availables = _.filter(_.map(_.uniq(info.value.availables), (a) => _.find(all, {key: a})));
+            return _.isEmpty(availables) ? null : new SpecGroup(ctrl, item, info, availables);
+        }));
     }
 
     availables: Spec[];
@@ -138,6 +138,10 @@ export class Spec {
             await this.ctrl.onChanging.specKey(this, async () => {
                 if (_.isEqual(this.specGroup.info.value.initial, this.key)) {
                     this.specGroup.info.value.initial = v;
+                }
+                const index = _.indexOf(this.specGroup.info.value.availables, this.key);
+                if (index) {
+                    this.specGroup.info.value.availables.splice(index, 1, v);
                 }
                 this.info.key = v;
             });

@@ -140,7 +140,7 @@ export class Item {
 
     async createSpec(): Promise<SpecGroup> {
         const key = await this.ctrl.createNewKey("new_spec", async (key) => this.getSpec(key));
-        const one = _.head(await SpecGroup.createGroups(this.ctrl, this, [{
+        const one = new SpecGroup(this.ctrl, this, {
             name: "新しい仕様",
             key: key,
             side: "FRONT",
@@ -148,7 +148,7 @@ export class Item {
                 initial: "",
                 availables: []
             }
-        }]));
+        }, []);
         const initial = await one.createNew();
         one.info.value.initial = initial.key;
         (await this.specGroups).unshift(one);
