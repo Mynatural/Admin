@@ -21,20 +21,25 @@ export class SpecGroup {
     static async createGroups(ctrl: LineupController, item: Item, infos: Info.SpecGroup[]): Promise<SpecGroup[]> {
         const allKeys = _.uniq(_.flatten(_.map(infos, (info) => info.value.availables)));
         const all = await Promise.all(_.map(allKeys, async (key) => {
-            let v = _.find(item.info.specs, {"key": key});
-            let global = false;
-            if (_.isNil(v)) {
-                v = await ctrl.loadSpec(key);
-                global = true;
+            try {
+                let v = _.find(item.info.specs, {key: key});
+                let global = false;
+                if (_.isNil(v)) {
+                    v = await ctrl.loadSpec(key);
+                    global = true;
+                }
+                return {
+                    key: key,
+                    info: v,
+                    global: global
+                };
+            } catch (ex) {
+                logger.warn(() => `Failed to load spec info: ${key}`);
+                return null;
             }
-            return {
-                key: key,
-                info: v,
-                global: global
-            };
         }));
         return _.map(infos, (info) => {
-            const availables = _.map(info.value.availables, (a) => _.find(all, {"key": a}));
+            const availables = _.filter(_.map(info.value.availables, (a) => _.find(all, {key: a})));
             return new SpecGroup(ctrl, item, info, availables);
         });
     }
