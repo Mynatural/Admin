@@ -17,7 +17,7 @@
 <ion-content padding class="lineup-pages" id="spec-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="main" *ngIf="isReady">
-        <div class="name_key">
+        <ion-row class="name_key">
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
@@ -30,21 +30,21 @@
                     <ion-input [(ngModel)]="spec.key"></ion-input>
                 </ion-item>
             </div>
-        </div>
+        </ion-row>
 
-        <div class="description">
+        <ion-row class="description">
             <ion-item>
                 <ion-label floating>Description</ion-label>
                 <ion-input [(ngModel)]="spec.description"></ion-input>
             </ion-item>
-        </div>
+        </ion-row>
 
-        <div class="price">
+        <ion-row class="price">
             <ion-item>
                 <ion-label floating>Price</ion-label>
                 <ion-input [(ngModel)]="spec.price" type="number"></ion-input>
             </ion-item>
-        </div>
+        </ion-row>
 
         <ion-list class="children">
             <ion-item-divider>
@@ -54,7 +54,7 @@
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let dg of spec.deriveGroups">
+            <ion-item *ngFor="let dg of spec.derivGroups">
                 <ion-label (click)="open(dg)">{{dg.name}} ({{dg.key}})</ion-label>
                 <ion-select [(ngModel)]="dg.current">
                     <ion-option *ngFor="let v of dg.availables" [value]="v" [selected]="v.key == dg.current.key">

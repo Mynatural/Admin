@@ -31,18 +31,21 @@
         @include noImage(45vw);
     }
 
-    .name_key {
-        display: flex;
-    }
-
-    .side {
+    .apply {
         margin: 2rem 0 2rem 0;
+        align-items: flex-start;
 
-        &>ion-item {
-            background-color: #f8f8f8;
-        }
-        &>ion-list {
+        .side {
             border: 2px solid lightgray;
+
+            &>ion-label {
+                margin: 0;
+                padding: 1rem;
+                background-color: #f8f8f8;
+            }
+            ion-list {
+                margin: 0;
+            }
         }
     }
 

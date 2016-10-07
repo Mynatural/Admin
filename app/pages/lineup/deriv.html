@@ -17,7 +17,7 @@
 <ion-content padding class="lineup-pages" id="deriv-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="main" *ngIf="isReady">
-        <div class="name_key">
+        <ion-row class="name_key">
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
@@ -30,14 +30,14 @@
                     <ion-input [(ngModel)]="deriv.key"></ion-input>
                 </ion-item>
             </div>
-        </div>
+        </ion-row>
 
-        <div class="description">
+        <ion-row class="description">
             <ion-item>
                 <ion-label floating>Description</ion-label>
                 <ion-input [(ngModel)]="deriv.description"></ion-input>
             </ion-item>
-        </div>
+        </ion-row>
 
         <ion-card class="image" (click)="uploadImage()">
             <img *ngIf="deriv.image" [src]="deriv.image">

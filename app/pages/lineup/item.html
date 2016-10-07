@@ -17,7 +17,7 @@
 <ion-content padding class="lineup-pages" id="item-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div *ngIf="isReady">
-        <div class="name_key">
+        <ion-row class="name_key">
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
@@ -30,21 +30,21 @@
                     <ion-input [(ngModel)]="item.key"></ion-input>
                 </ion-item>
             </div>
-        </div>
+        </ion-row>
 
-        <div class="description">
+        <ion-row class="description">
             <ion-item>
                 <ion-label floating>Description</ion-label>
                 <ion-input [(ngModel)]="item.description"></ion-input>
             </ion-item>
-        </div>
+        </ion-row>
 
-        <div class="price">
+        <ion-row class="price">
             <ion-item>
                 <ion-label floating>Price</ion-label>
                 <ion-input [(ngModel)]="item.price" type="number"></ion-input>
             </ion-item>
-        </div>
+        </ion-row>
 
         <ion-card class="image" (click)="uploadTitleImage()">
             <p>TITLE</p>

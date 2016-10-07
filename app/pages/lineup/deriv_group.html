@@ -17,7 +17,7 @@
 <ion-content padding class="lineup-pages" id="deriv_group-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="main" *ngIf="isReady">
-        <div class="name_key">
+        <ion-row class="name_key">
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
@@ -30,7 +30,7 @@
                     <ion-input [(ngModel)]="derivGroup.key"></ion-input>
                 </ion-item>
             </div>
-        </div>
+        </ion-row>
 
         <ion-list class="values">
             <ion-item-divider>

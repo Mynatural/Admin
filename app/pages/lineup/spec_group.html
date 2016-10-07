@@ -17,7 +17,7 @@
 <ion-content padding class="lineup-pages" id="spec_group-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="main" *ngIf="isReady">
-        <div class="name_key">
+        <ion-row class="name_key">
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
@@ -30,20 +30,20 @@
                     <ion-input [(ngModel)]="specGroup.key"></ion-input>
                 </ion-item>
             </div>
-        </div>
+        </ion-row>
 
-        <div class="side">
-            <ion-item>Side</ion-item>
-            <ion-list radio-group [(ngModel)]="specGroup.side">
-                <ion-item *ngFor="let v of sides">
-                    <ion-label>{{v}}</ion-label>
-                    <ion-radio [value]="v" [checked]="specGroup.side === v"></ion-radio>
-                </ion-item>
-            </ion-list>
-        </div>
+        <ion-row class="apply">
+            <div class="side">
+                <ion-label>Side</ion-label>
+                <ion-list radio-group [(ngModel)]="specGroup.side">
+                    <ion-item *ngFor="let v of sides">
+                        <ion-label>{{v}}</ion-label>
+                        <ion-radio [value]="v" [checked]="specGroup.side === v"></ion-radio>
+                    </ion-item>
+                </ion-list>
+            </div>
 
-        <div class="canSame">
-            <ion-item>
+            <ion-item class="canSame">
                 <ion-label>canSame</ion-label>
                 <ion-select [(ngModel)]="specGroup.canSame">
                     <ion-option [value]="null" [selected]="specGroup.canSame == null">
@@ -54,7 +54,7 @@
                     </ion-option>
                 </ion-select>
             </ion-item>
-        </div>
+        </ion-row>
 
         <ion-list class="values">
             <ion-item-divider>

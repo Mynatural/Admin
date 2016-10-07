@@ -176,7 +176,7 @@ export class Item {
 
     async createMeasure(): Promise<Measure> {
         const key = await this.ctrl.createNewKey("new_measure", async (key) => this.getMeasure(key));
-        const one = new Measure(this.ctrl, this, key, "新しい寸法", "", 0, 0, 100, 1);
+        const one = new Measure(this.ctrl, this, key, "新しい寸法", "", 10, 10, 100, 1);
         this.measurements.unshift(one);
         return one;
     }
