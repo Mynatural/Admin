@@ -17,6 +17,12 @@
 <ion-content padding class="lineup-pages" id="deriv-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="main" *ngIf="isReady">
+        <div class="path">
+            <div *ngFor="let line of path">
+                <span>{{line}}</span>
+            </div>
+        </div>
+
         <ion-row class="name_key">
             <div class="name">
                 <ion-item>

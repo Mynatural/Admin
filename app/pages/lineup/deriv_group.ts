@@ -23,6 +23,14 @@ export class DerivGroupPage {
         return this.derivGroup.name;
     }
 
+    get path(): string[] {
+        return [
+            `Item: ${this.derivGroup.spec.specGroup.item.name}`,
+            `Spec: ${this.derivGroup.spec.specGroup.name} > ${this.derivGroup.spec.name}`,
+            `Deriv: ${this.derivGroup.name}`
+        ];
+    }
+
     get isReady(): boolean {
         return !_.isNil(this.title);
     }

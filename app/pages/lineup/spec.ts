@@ -24,6 +24,13 @@ export class SpecPage {
         return this.spec.name;
     }
 
+    get path(): string[] {
+        return [
+            `Item: ${this.spec.specGroup.item.name}`,
+            `Spec: ${this.spec.specGroup.name} > ${this.spec.name}`
+        ];
+    }
+
     get isReady(): boolean {
         return !_.isNil(this.title);
     }

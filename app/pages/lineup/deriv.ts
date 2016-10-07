@@ -22,6 +22,14 @@ export class DerivPage {
         return this.deriv.name;
     }
 
+    get path(): string[] {
+        return [
+            `Item: ${this.deriv.derivGroup.spec.specGroup.item.name}`,
+            `Spec: ${this.deriv.derivGroup.spec.specGroup.name} > ${this.deriv.derivGroup.spec.name}`,
+            `Deriv: ${this.deriv.derivGroup.name} > ${this.deriv.name}`
+        ];
+    }
+
     get isReady(): boolean {
         return !_.isNil(this.title);
     }

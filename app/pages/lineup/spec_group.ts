@@ -24,6 +24,13 @@ export class SpecGroupPage {
         return this.specGroup.name;
     }
 
+    get path(): string[] {
+        return [
+            `Item: ${this.specGroup.item.name}`,
+            `Spec: ${this.specGroup.name}`
+        ];
+    }
+
     get isReady(): boolean {
         return !_.isNil(this.title);
     }

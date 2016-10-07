@@ -30,6 +30,12 @@ export class ItemPage {
         return this.item.name;
     }
 
+    get path(): string[] {
+        return [
+            `Item: ${this.item.name}`
+        ];
+    }
+
     get isReady(): boolean {
         return !_.isNil(this.title);
     }

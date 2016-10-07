@@ -22,6 +22,13 @@ export class MeasurePage {
         return this.measure.name;
     }
 
+    get path(): string[] {
+        return [
+            `Item: ${this.measure.item.name}`,
+            `Measure: ${this.measure.name}`
+        ];
+    }
+
     get isReady(): boolean {
         return !_.isNil(this.title);
     }

@@ -13,18 +13,38 @@
         font-size: $width / 10;
         color: red;
     }
-
-    &:first-child {
-        margin-top: 0;
-    }
 }
 
 .lineup-pages {
     .lineup-list {
-        display: flex;
         &>ion-card {
             @include noImage(30vw);
         }
+    }
+
+    .path {
+        font-size: 1rem;
+        font-style: italic;
+        color: #448;
+
+        &>div:nth-child(1) {
+            margin-left: 1rem;
+        }
+        &>div:nth-child(2) {
+            margin-left: 2rem;
+        }
+        &>div:nth-child(3) {
+            margin-left: 3rem;
+        }
+    }
+
+    ion-row>ion-card:first-child {
+        margin-top: 0;
+    }
+
+    .titleImage {
+        margin-top: 2rem;
+        justify-content: center;
     }
 
     .image {
