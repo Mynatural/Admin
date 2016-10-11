@@ -117,8 +117,8 @@ class Path {
         return [Path.join(Path.dirItem(o), "title.png")];
     }
 
-    static async imagesItem(o: Item, side: Info.SpecSide): Promise<string[]> {
-        const names = _.map(await o.specGroups, (specGroup) => {
+    static imagesItem(o: Item, side: Info.SpecSide): string[] {
+        const names = _.map(o.specGroups, (specGroup) => {
             const spec = specGroup.current;
             const keys = _.map(spec.derivGroups, (v) => v.current.key);
             keys.unshift(spec.key);
@@ -153,8 +153,8 @@ class Path {
         return Path.illustrations(Path.dirSpec(o), "images", keys);
     }
 
-    static async allImagesItem(o: Item): Promise<string[]> {
-        return _.flatMap(await Path.allKeysItem(o), (keys) =>
+    static allImagesItem(o: Item): string[] {
+        return _.flatMap(Path.allKeysItem(o), (keys) =>
             _.map(SIDES, (side) => Path.makeImageItem(o, side, keys))
         );
     }
@@ -165,8 +165,8 @@ class Path {
         );
     }
 
-    static async allKeysItem(o: Item): Promise<string[][]> {
-        const lists = _.map(await o.specGroups, (specGroup) =>
+    static allKeysItem(o: Item): string[][] {
+        const lists = _.map(o.specGroups, (specGroup) =>
             _.map(specGroup.availables, (spec) =>
                 _.map(Path.allKeysSpec(spec), (b) =>
                     _.flatten([spec.key, b])
@@ -219,14 +219,14 @@ class Illustration {
     }
 
     // SpecSide -> CachedImage
-    async itemCurrent(o: Item): Promise<{[key: string]: CachedImage}> {
-        return _.fromPairs(await Promise.all(_.map(SIDES, async (side) =>
-            [side, this.s3image.createCache(await Path.imagesItem(o, side))]
-        )));
+    itemCurrent(o: Item): {[key: string]: CachedImage} {
+        return _.fromPairs(_.map(SIDES, (side) =>
+            [side, this.s3image.createCache(Path.imagesItem(o, side))]
+        ));
     }
 
     async uploadItemCurrent(o: Item, side: Info.SpecSide, file: File): Promise<void> {
-        await this.upload(await Path.imagesItem(o, side), file);
+        await this.upload(Path.imagesItem(o, side), file);
     }
 
     specCurrent(o: Spec): CachedImage {
@@ -320,12 +320,12 @@ class OnChanging {
     }
 
     async specKey(o: Spec, go: DoThru) {
-        const srcList = await Path.allImagesItem(o.specGroup.item);
+        const srcList = Path.allImagesItem(o.specGroup.item);
         const srcDir = Path.dirSpec(o);
 
         await go();
 
-        const dstList = await Path.allImagesItem(o.specGroup.item);
+        const dstList = Path.allImagesItem(o.specGroup.item);
         const dstDir = Path.dirSpec(o);
 
         await Promise.all([
@@ -355,7 +355,7 @@ class OnChanging {
 
     async derivKey(o: Deriv, go: DoThru) {
         const srcList = _.flatten([
-            await Path.allImagesItem(o.derivGroup.spec.specGroup.item),
+            Path.allImagesItem(o.derivGroup.spec.specGroup.item),
             Path.allImagesSpec(o.derivGroup.spec),
             Path.imagesDeriv(o)
         ]);
@@ -363,7 +363,7 @@ class OnChanging {
         await go();
 
         const dstList = _.flatten([
-            await Path.allImagesItem(o.derivGroup.spec.specGroup.item),
+            Path.allImagesItem(o.derivGroup.spec.specGroup.item),
             Path.allImagesSpec(o.derivGroup.spec),
             Path.imagesDeriv(o)
         ]);

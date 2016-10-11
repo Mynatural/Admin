@@ -116,10 +116,7 @@ export class Item {
 
     private refreshCurrentImages(clear = false): {[key: string]: CachedImage} {
         if (clear || _.isEmpty(this._images)) {
-            this._images = {};
-            this.ctrl.illust.itemCurrent(this).then((m) => {
-                _.forEach(m, (value, key) => this._images[key] = value);
-            });
+            this._images = this.ctrl.illust.itemCurrent(this);
         }
         return this._images;
     }
