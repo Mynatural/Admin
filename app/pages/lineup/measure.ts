@@ -3,30 +3,29 @@ import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
 import {Prompt} from "../../providers/util_prompt";
-import {Deriv} from "../../providers/model/lineup/deriv";
+import {Measure} from "../../providers/model/lineup/measure";
 import {Logger} from "../../util/logging";
 
-const logger = new Logger("DerivPage");
+const logger = new Logger("MeasurePage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/deriv.html'
+    templateUrl: 'build/pages/lineup/measure.html'
 })
-export class DerivPage {
-    deriv: Deriv;
+export class MeasurePage {
+    measure: Measure;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
-        this.deriv = params.get("deriv");
+        this.measure = params.get("measure");
     }
 
     get title(): string {
-        return this.deriv.name;
+        return this.measure.name;
     }
 
     get path(): string[] {
         return [
-            `Item: ${this.deriv.derivGroup.spec.specGroup.item.name}`,
-            `Spec: ${this.deriv.derivGroup.spec.specGroup.name} > ${this.deriv.derivGroup.spec.name}`,
-            `Deriv: ${this.deriv.derivGroup.name} > ${this.deriv.name}`
+            `Item: ${this.measure.item.name}`,
+            `Measure: ${this.measure.name}`
         ];
     }
 
@@ -35,13 +34,9 @@ export class DerivPage {
     }
 
     async delete(): Promise<void> {
-        if (_.size(this.deriv.derivGroup.availables) > 1) {
-            if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-                await this.deriv.derivGroup.remove(this.deriv);
-                this.nav.pop();
-            }
-        } else {
-            await this.prompt.alert("最後の１つなので削除できません");
+        if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+            await this.measure.item.removeMeasure(this.measure);
+            this.nav.pop();
         }
     }
 
@@ -50,7 +45,7 @@ export class DerivPage {
             const file = await this.prompt.file("Illustration", "PNG/SVG file");
             if (!_.isNil(file)) {
                 await this.prompt.loading("Uploading...", async () => {
-                    await this.deriv.changeImage(file);
+                    await this.measure.changeImage(file);
                 });
             }
         } catch (ex) {

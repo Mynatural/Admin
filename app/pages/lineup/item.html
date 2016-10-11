@@ -17,11 +17,17 @@
 <ion-content padding class="lineup-pages" id="item-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div *ngIf="isReady">
-        <div class="name_key">
+        <div class="path">
+            <div *ngFor="let line of path">
+                <span>{{line}}</span>
+            </div>
+        </div>
+
+        <ion-row class="name_key">
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="item.info.name"></ion-input>
+                    <ion-input [(ngModel)]="item.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
@@ -30,33 +36,77 @@
                     <ion-input [(ngModel)]="item.key"></ion-input>
                 </ion-item>
             </div>
-        </div>
+        </ion-row>
 
-        <div class="description">
+        <ion-row class="description">
             <ion-item>
                 <ion-label floating>Description</ion-label>
-                <ion-input [(ngModel)]="item.info.description"></ion-input>
+                <ion-input [(ngModel)]="item.description"></ion-input>
             </ion-item>
-        </div>
+        </ion-row>
 
-        <div class="price">
+        <ion-row class="price">
             <ion-item>
                 <ion-label floating>Price</ion-label>
-                <ion-input [(ngModel)]="item.info.price" type="number"></ion-input>
+                <ion-input [(ngModel)]="item.price" type="number"></ion-input>
             </ion-item>
-        </div>
+        </ion-row>
 
-        <ion-list class="children">
+        <ion-row class="titleImage">
+            <ion-card class="image" (click)="uploadTitleImage()">
+                <ion-card-title>TITLE</ion-card-title>
+                <p>{{item.titleImagePath}}</p>
+                <div>
+                    <img *ngIf="item.titleImage" [src]="item.titleImage">
+                    <div class="no-image" *ngIf="!item.titleImage">
+                        NO IMAGE
+                    </div>
+                </div>
+            </ion-card>
+        </ion-row>
+
+        <ion-card class="children">
             <ion-item-divider>
-                <ion-label>Specs</ion-label>
-                <button item-right (click)="addNew()">
+                <ion-label>Measurements</ion-label>
+                <button item-right (click)="addNewMeasure()">
                     <ion-icon name="add"></ion-icon>
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let a of item.specs" (click)="open(a)">
-                <ion-label>{{a.info.name}} ({{a.info.key}})</ion-label>
+            <ion-item *ngFor="let a of item.measurements">
+                <ion-label (click)="openMeasure(a)">{{a.name}} ({{a.key}})</ion-label>
             </ion-item>
-        </ion-list>
+        </ion-card>
+
+        <ion-card class="children">
+            <ion-item-divider>
+                <ion-label>Specs</ion-label>
+                <button item-right (click)="addNewSpec()">
+                    <ion-icon name="add"></ion-icon>
+                    Add new
+                </button>
+            </ion-item-divider>
+            <ion-item *ngFor="let sg of item.specGroups">
+                <ion-label (click)="openSpec(sg)">{{sg.name}} ({{sg.key}})</ion-label>
+                <ion-select [(ngModel)]="sg.current">
+                    <ion-option *ngFor="let v of sg.availables" [value]="v" [selected]="v.key == sg.current.key">
+                        {{v.name}}
+                    </ion-option>
+                </ion-select>
+            </ion-item>
+        </ion-card>
+
+        <ion-row>
+            <ion-card class="image" *ngFor="let side of sides" (click)="uploadImage(side)">
+                <ion-card-title>{{ side }}</ion-card-title>
+                <p>{{ item.getImagePath(side) }}</p>
+                <div>
+                    <img *ngIf="item.getImage(side)" [src]="item.getImage(side)">
+                    <div class="no-image" *ngIf="!item.getImage(side)">
+                        NO IMAGE
+                    </div>
+                </div>
+            </ion-card>
+        </ion-row>
     </div>
 </ion-content>

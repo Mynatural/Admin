@@ -17,59 +17,74 @@
 <ion-content padding class="lineup-pages" id="spec-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="main" *ngIf="isReady">
-        <div class="name_key">
+        <div class="path">
+            <div *ngFor="let line of path">
+                <span>{{line}}</span>
+            </div>
+        </div>
+
+        <ion-row>
+            <ion-item class="global">
+                <ion-label>Global</ion-label>
+                <ion-checkbox [(ngModel)]="spec.isGlobal"></ion-checkbox>
+            </ion-item>
+        </ion-row>
+
+        <ion-row class="name_key">
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="spec.info.name"></ion-input>
+                    <ion-input [(ngModel)]="spec.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
                 <ion-item>
                     <ion-label floating>Key</ion-label>
-                    <ion-input [(ngModel)]="spec.info.key"></ion-input>
+                    <ion-input [(ngModel)]="spec.key"></ion-input>
                 </ion-item>
             </div>
-        </div>
+        </ion-row>
 
-        <div class="side">
-            <ion-item>Side</ion-item>
-            <ion-list radio-group [(ngModel)]="spec.info.side">
-                <ion-item *ngFor="let v of sides">
-                    <ion-label>{{v}}</ion-label>
-                    <ion-radio [value]="v" [checked]="spec.info.side === v"></ion-radio>
-                </ion-item>
-            </ion-list>
-        </div>
-
-        <div class="canSame">
-            <ion-item>
-                <ion-label>canSame</ion-label>
-                <ion-select [(ngModel)]="spec.info.canSame">
-                    <ion-option [value]="null" [selected]="spec.info.canSame == null">
-                        None
-                    </ion-option>
-                    <ion-option *ngFor="let v of spec.item.specs" [value]="v" [selected]="v.info.key == spec.info.canSame">
-                        {{v.info.name}}
-                    </ion-option>
-                </ion-select>
+        <ion-row>
+            <ion-item class="description">
+                <ion-label floating>Description</ion-label>
+                <ion-input [(ngModel)]="spec.description"></ion-input>
             </ion-item>
-        </div>
+        </ion-row>
 
-        <ion-list class="values">
+        <ion-row>
+            <ion-item class="price">
+                <ion-label floating>Price</ion-label>
+                <ion-input [(ngModel)]="spec.price" type="number"></ion-input>
+            </ion-item>
+        </ion-row>
+
+        <ion-card class="children">
             <ion-item-divider>
-                <ion-label>Values</ion-label>
+                <ion-label>Derives</ion-label>
                 <button item-right (click)="addNew()">
                     <ion-icon name="add"></ion-icon>
                     Add new
                 </button>
             </ion-item-divider>
-            <ion-item *ngFor="let a of spec.availables">
-                <ion-label (click)="open(a)">{{a.info.name}} ({{a.info.key}})</ion-label>
-                <button item-right clear (click)="spec.info.value.initial = a.info.key">
-                    <ion-icon [name]="a.info.key === spec.info.value.initial ? 'checkbox-outline' : 'square-outline'"></ion-icon>
-                </button>
+            <ion-item *ngFor="let dg of spec.derivGroups">
+                <ion-label (click)="open(dg)">{{dg.name}} ({{dg.key}})</ion-label>
+                <ion-select [(ngModel)]="dg.current">
+                    <ion-option *ngFor="let v of dg.availables" [value]="v" [selected]="v.key == dg.current.key">
+                        {{v.name}}
+                    </ion-option>
+                </ion-select>
             </ion-item>
-        </ion-list>
+        </ion-card>
+
+        <ion-card class="image" (click)="uploadImage()">
+            <p>{{ spec.imagePath }}</p>
+            <div>
+                <img *ngIf="spec.image" [src]="spec.image">
+                <div class="no-image" *ngIf="!spec.image">
+                    NO IMAGE
+                </div>
+            </div>
+        </ion-card>
     </div>
 </ion-content>

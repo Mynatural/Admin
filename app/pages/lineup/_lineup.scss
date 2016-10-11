@@ -1,33 +1,96 @@
-.lineup-pages {
-    .lineup-list {
-        display: flex;
-        &>ion-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+@mixin imageCard($width) {
+    width: $width;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-            &:first-child {
-                margin-top: 0;
+    &>ion-card-title {
+        font-size: $width / 10;
+    }
+
+    &>p {
+        word-break:break-all;
+        margin: 0 1rem 0 1rem;
+        font-size: $width / 12;
+    }
+
+    &>div {
+        max-width: $width;
+        max-height: $width;
+
+        .no-image {
+            width: 100%;
+            margin: 40% 0 40% 0;
+            font-size: $width / 10;
+            color: red;
+        }
+    }
+}
+
+.lineup-pages {
+
+    .path {
+        font-size: 1rem;
+        font-style: italic;
+        color: #448;
+        border-bottom: 2px solid #448;
+
+        &>div:nth-child(1) {
+            margin-left: 1rem;
+        }
+        &>div:nth-child(2) {
+            margin-left: 2rem;
+        }
+        &>div:nth-child(3) {
+            margin-left: 3rem;
+        }
+    }
+
+    ion-row>ion-card:first-child {
+        margin-top: 0;
+    }
+
+    .titleImage {
+        margin-top: 2rem;
+        justify-content: center;
+    }
+
+    .image {
+        @include imageCard(45vw);
+        &.small {
+            @include imageCard(30vw);
+        }
+    }
+
+    .apply {
+        margin: 2rem 0 2rem 0;
+        align-items: flex-start;
+
+        .side {
+            border: 2px solid lightgray;
+
+            &>ion-label {
+                margin: 0;
+                padding: 1rem;
+                background-color: #f8f8f8;
+            }
+            ion-list {
+                margin: 0;
             }
         }
     }
 
-    .name_key {
-        display: flex;
-    }
-
-    .side {
-        margin: 2rem 0 2rem 0;
+    .children, .values {
+        &>ion-item-divider {
+            background-color: #faffff;
+        }
 
         &>ion-item {
-            background-color: #f8f8f8;
+            ion-label {
+                color: #444;
+                background-color: lightcyan;
+                font-size: 1.5rem;
+            }
         }
-        &>ion-list {
-            border: 2px solid lightgray;
-        }
-    }
-
-    .children, .values {
-        margin-top: 2rem;
     }
 }

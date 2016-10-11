@@ -14,7 +14,7 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content padding class="lineup-pages" id="deriv-page">
+<ion-content padding class="lineup-pages" id="measure-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <div class="main" *ngIf="isReady">
         <div class="path">
@@ -27,29 +27,48 @@
             <div class="name">
                 <ion-item>
                     <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="deriv.name"></ion-input>
+                    <ion-input [(ngModel)]="measure.name"></ion-input>
                 </ion-item>
             </div>
             <div class="key">
                 <ion-item>
                     <ion-label floating>Key</ion-label>
-                    <ion-input [(ngModel)]="deriv.key"></ion-input>
+                    <ion-input [(ngModel)]="measure.key"></ion-input>
                 </ion-item>
             </div>
+        </ion-row>
+
+        <ion-row class="numbers">
+            <ion-item>
+                <ion-label floating>Initial Value</ion-label>
+                <ion-input [(ngModel)]="measure.initial" type="number"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label floating>MIN</ion-label>
+                <ion-input [(ngModel)]="measure.min" type="number"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label floating>MAX</ion-label>
+                <ion-input [(ngModel)]="measure.max" type="number"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label floating>STEP</ion-label>
+                <ion-input [(ngModel)]="measure.step" type="number"></ion-input>
+            </ion-item>
         </ion-row>
 
         <ion-row class="description">
             <ion-item>
                 <ion-label floating>Description</ion-label>
-                <ion-input [(ngModel)]="deriv.description"></ion-input>
+                <ion-input [(ngModel)]="measure.description"></ion-input>
             </ion-item>
         </ion-row>
 
         <ion-card class="image" (click)="uploadImage()">
-            <p>{{ deriv.imagePath }}</p>
+            <p>{{ measure.imagePath }}</p>
             <div>
-                <img *ngIf="deriv.image" [src]="deriv.image">
-                <div class="no-image" *ngIf="!deriv.image">
+                <img *ngIf="measure.image" [src]="measure.image">
+                <div class="no-image" *ngIf="!measure.image">
                     NO IMAGE
                 </div>
             </div>

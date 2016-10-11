@@ -1,0 +1,78 @@
+<ion-header>
+    <ion-navbar>
+        <button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+        <ion-buttons end>
+            <button (click)="delete()">
+                <ion-icon name="trash"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+</ion-header>
+
+<ion-content padding class="lineup-pages" id="spec_group-page">
+    <ion-spinner *ngIf="!isReady"></ion-spinner>
+    <div class="main" *ngIf="isReady">
+        <div class="path">
+            <div *ngFor="let line of path">
+                <span>{{line}}</span>
+            </div>
+        </div>
+
+        <ion-row class="name_key">
+            <div class="name">
+                <ion-item>
+                    <ion-label floating>Name</ion-label>
+                    <ion-input [(ngModel)]="specGroup.name"></ion-input>
+                </ion-item>
+            </div>
+            <div class="key">
+                <ion-item>
+                    <ion-label floating>Key</ion-label>
+                    <ion-input [(ngModel)]="specGroup.key"></ion-input>
+                </ion-item>
+            </div>
+        </ion-row>
+
+        <ion-row class="apply">
+            <div class="side">
+                <ion-label>Side</ion-label>
+                <ion-list radio-group [(ngModel)]="specGroup.side">
+                    <ion-item *ngFor="let v of sides">
+                        <ion-label>{{v}}</ion-label>
+                        <ion-radio [value]="v" [checked]="specGroup.side === v"></ion-radio>
+                    </ion-item>
+                </ion-list>
+            </div>
+
+            <ion-item class="canSame">
+                <ion-label>canSame</ion-label>
+                <ion-select [(ngModel)]="specGroup.canSame">
+                    <ion-option [value]="null" [selected]="specGroup.canSame == null">
+                        None
+                    </ion-option>
+                    <ion-option *ngFor="let v of specGroup.item.specGroups" [value]="v" [selected]="v.key == specGroup.canSame">
+                        {{v.name}}
+                    </ion-option>
+                </ion-select>
+            </ion-item>
+        </ion-row>
+
+        <ion-card class="values">
+            <ion-item-divider>
+                <ion-label>Values</ion-label>
+                <button item-right (click)="addNew()">
+                    <ion-icon name="add"></ion-icon>
+                    Add new
+                </button>
+            </ion-item-divider>
+            <ion-item *ngFor="let a of specGroup.availables">
+                <ion-label (click)="open(a)">{{a.name}} ({{a.key}})</ion-label>
+            </ion-item>
+        </ion-card>
+    </div>
+</ion-content>

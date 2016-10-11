@@ -2,26 +2,33 @@ import {Component} from "@angular/core";
 import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
-import {SpecValuePage} from "./spec_value";
+import {DerivGroupPage} from "./deriv_group";
 import {Prompt} from "../../providers/util_prompt";
-import * as Lineup from "../../providers/model/lineup";
+import {Spec} from "../../providers/model/lineup/spec";
+import {DerivGroup} from "../../providers/model/lineup/deriv";
 import {Logger} from "../../util/logging";
 
-const logger = new Logger("DerivPage");
+const logger = new Logger("SpecPage");
 
 @Component({
     templateUrl: 'build/pages/lineup/spec.html'
 })
 export class SpecPage {
-    spec: Lineup.ItemSpec;
-    sides = ["FRONT", "BACK"];
+    spec: Spec;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.spec = params.get("spec");
     }
 
     get title(): string {
-        return this.spec.info.name;
+        return this.spec.name;
+    }
+
+    get path(): string[] {
+        return [
+            `Item: ${this.spec.specGroup.item.name}`,
+            `Spec: ${this.spec.specGroup.name} > ${this.spec.name}`
+        ];
     }
 
     get isReady(): boolean {
@@ -29,19 +36,36 @@ export class SpecPage {
     }
 
     async delete(): Promise<void> {
-        if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-            await this.spec.item.removeSpec(this.spec);
-            this.nav.pop();
+        if (_.size(this.spec.specGroup.availables) > 1) {
+            if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+                await this.spec.specGroup.remove(this.spec);
+                this.nav.pop();
+            }
+        } else {
+            await this.prompt.alert("最後の１つなので削除できません");
         }
     }
 
-    open(sv: Lineup.ItemSpecValue) {
-        this.nav.push(SpecValuePage, {
-            specValue: sv
+    open(v: DerivGroup) {
+        this.nav.push(DerivGroupPage, {
+            derivGroup: v
         });
     }
 
-    addNew() {
-        this.open(this.spec.createNew());
+    async addNew() {
+        this.open(await this.spec.createDeriv());
+    }
+
+    async uploadImage() {
+        try {
+            const file = await this.prompt.file("Illustration", "PNG/SVG file");
+            if (!_.isNil(file)) {
+                await this.prompt.loading("Uploading...", async () => {
+                    await this.spec.changeImage(file);
+                });
+            }
+        } catch (ex) {
+            logger.warn(() => `Failed to load image: ${ex}`);
+        }
     }
 }
