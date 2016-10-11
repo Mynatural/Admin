@@ -109,6 +109,10 @@ export class Item {
         return this.refreshTiteImage().url;
     }
 
+    get titleImagePath(): string[] {
+        return this.refreshTiteImage().listPath;
+    }
+
     async changeTitleImage(file: File): Promise<void> {
         await this.ctrl.illust.uploadItemTitle(this, file);
         this.refreshTiteImage(true);
@@ -124,6 +128,11 @@ export class Item {
     getImage(side: Json.SpecSide): SafeUrl {
         const safe = this.refreshCurrentImages()[side];
         return safe ? safe.url : null;
+    }
+
+    getImagePath(side: Json.SpecSide): string[] {
+        const safe = this.refreshCurrentImages()[side];
+        return safe ? safe.listPath : null;
     }
 
     async changeImage(side: Json.SpecSide, file: File): Promise<void> {

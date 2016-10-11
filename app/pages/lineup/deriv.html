@@ -46,9 +46,12 @@
         </ion-row>
 
         <ion-card class="image" (click)="uploadImage()">
-            <img *ngIf="deriv.image" [src]="deriv.image">
-            <div class="no-image" *ngIf="!deriv.image">
-                NO IMAGE
+            <p>{{ deriv.imagePath }}</p>
+            <div>
+                <img *ngIf="deriv.image" [src]="deriv.image">
+                <div class="no-image" *ngIf="!deriv.image">
+                    NO IMAGE
+                </div>
             </div>
         </ion-card>
     </div>

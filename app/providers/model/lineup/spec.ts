@@ -201,6 +201,10 @@ export class Spec {
         return this.refreshImage().url;
     }
 
+    get imagePath(): string[] {
+        return this.refreshImage().listPath
+    }
+
     getDeriv(key: string): DerivGroup {
         return _.find(this.derivGroups, {key: key});
     }

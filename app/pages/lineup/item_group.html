@@ -20,11 +20,13 @@
 <ion-content padding class="lineup-pages" id="item_group-page">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <ion-row class="lineup-list" *ngIf="isReady">
-        <ion-card *ngFor="let item of itemGroup.availables" (click)="open(item)">
+        <ion-card class="image small" *ngFor="let item of itemGroup.availables" (click)="open(item)">
             <p>{{item.name}}</p>
-            <img *ngIf="item.titleImage" [src]="item.titleImage">
-            <div class="no-image" *ngIf="!item.titleImage">
-                NO IMAGE
+            <div>
+                <img *ngIf="item.titleImage" [src]="item.titleImage">
+                <div class="no-image" *ngIf="!item.titleImage">
+                    NO IMAGE
+                </div>
             </div>
         </ion-card>
     </ion-row>

@@ -145,4 +145,8 @@ export class Deriv {
     get image(): SafeUrl {
         return this.refreshImage().url;
     }
+
+    get imagePath(): string[] {
+        return this.refreshImage().listPath;
+    }
 }

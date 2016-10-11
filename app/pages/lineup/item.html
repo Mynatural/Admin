@@ -54,10 +54,13 @@
 
         <ion-row class="titleImage">
             <ion-card class="image" (click)="uploadTitleImage()">
-                <p>TITLE</p>
-                <img *ngIf="item.titleImage" [src]="item.titleImage">
-                <div class="no-image" *ngIf="!item.titleImage">
-                    NO IMAGE
+                <ion-card-title>TITLE</ion-card-title>
+                <p>{{item.titleImagePath}}</p>
+                <div>
+                    <img *ngIf="item.titleImage" [src]="item.titleImage">
+                    <div class="no-image" *ngIf="!item.titleImage">
+                        NO IMAGE
+                    </div>
                 </div>
             </ion-card>
         </ion-row>
@@ -95,10 +98,13 @@
 
         <ion-row>
             <ion-card class="image" *ngFor="let side of sides" (click)="uploadImage(side)">
-                <p>{{side}}</p>
-                <img *ngIf="item.getImage(side)" [src]="item.getImage(side)">
-                <div class="no-image" *ngIf="!item.getImage(side)">
-                    NO IMAGE
+                <ion-card-title>{{ side }}</ion-card-title>
+                <p>{{ item.getImagePath(side) }}</p>
+                <div>
+                    <img *ngIf="item.getImage(side)" [src]="item.getImage(side)">
+                    <div class="no-image" *ngIf="!item.getImage(side)">
+                        NO IMAGE
+                    </div>
                 </div>
             </ion-card>
         </ion-row>

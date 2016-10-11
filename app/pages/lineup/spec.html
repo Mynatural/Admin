@@ -38,15 +38,15 @@
             </div>
         </ion-row>
 
-        <ion-row class="description">
-            <ion-item>
+        <ion-row>
+            <ion-item class="description">
                 <ion-label floating>Description</ion-label>
                 <ion-input [(ngModel)]="spec.description"></ion-input>
             </ion-item>
         </ion-row>
 
-        <ion-row class="price">
-            <ion-item>
+        <ion-row>
+            <ion-item class="price">
                 <ion-label floating>Price</ion-label>
                 <ion-input [(ngModel)]="spec.price" type="number"></ion-input>
             </ion-item>
@@ -71,9 +71,12 @@
         </ion-card>
 
         <ion-card class="image" (click)="uploadImage()">
-            <img *ngIf="spec.image" [src]="spec.image">
-            <div class="no-image" *ngIf="!spec.image">
-                NO IMAGE
+            <p>{{ spec.imagePath }}</p>
+            <div>
+                <img *ngIf="spec.image" [src]="spec.image">
+                <div class="no-image" *ngIf="!spec.image">
+                    NO IMAGE
+                </div>
             </div>
         </ion-card>
     </div>

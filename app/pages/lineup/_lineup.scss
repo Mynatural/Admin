@@ -1,26 +1,33 @@
-@mixin noImage($width) {
-    max-width: $width;
-    min-height: $width;
+@mixin imageCard($width) {
+    width: $width;
     display: flex;
     flex-direction: column;
     align-items: center;
 
-    .no-image {
-        width: 100%;
-        margin-top: 40%;
-        display: flex;
-        justify-content: center;
+    &>ion-card-title {
         font-size: $width / 10;
-        color: red;
+    }
+
+    &>p {
+        word-break:break-all;
+        margin: 0 1rem 0 1rem;
+        font-size: $width / 12;
+    }
+
+    &>div {
+        max-width: $width;
+        max-height: $width;
+
+        .no-image {
+            width: 100%;
+            margin: 40% 0 40% 0;
+            font-size: $width / 10;
+            color: red;
+        }
     }
 }
 
 .lineup-pages {
-    .lineup-list {
-        &>ion-card {
-            @include noImage(30vw);
-        }
-    }
 
     .path {
         font-size: 1rem;
@@ -49,7 +56,10 @@
     }
 
     .image {
-        @include noImage(45vw);
+        @include imageCard(45vw);
+        &.small {
+            @include imageCard(30vw);
+        }
     }
 
     .apply {

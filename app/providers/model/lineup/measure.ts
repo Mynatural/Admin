@@ -79,6 +79,10 @@ export class Measure {
         return this.refreshImage().url;
     }
 
+    get imagePath(): string[] {
+        return this.refreshImage().listPath;
+    }
+
     get range(): number[] {
         return _.range(this.min, this.max + this.step, this.step);
     }
