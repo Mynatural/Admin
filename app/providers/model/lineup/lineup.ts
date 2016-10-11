@@ -167,7 +167,7 @@ class Path {
 
     static allKeysItem(o: Item): string[][] {
         const lists = _.map(o.specGroups, (specGroup) =>
-            _.map(specGroup.availables, (spec) =>
+            _.flatMap(specGroup.availables, (spec) =>
                 _.map(Path.allKeysSpec(spec), (b) =>
                     _.flatten([spec.key, b])
                 )
