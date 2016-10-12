@@ -4,6 +4,7 @@ import {NavController, NavParams} from "ionic-angular";
 
 import {SpecPage} from "./spec";
 import {Prompt} from "../../providers/util_prompt";
+import {SPEC_SIDES} from "../../providers/model/lineup/lineup";
 import {SpecGroup, Spec} from "../../providers/model/lineup/spec";
 import {Logger} from "../../util/logging";
 
@@ -14,7 +15,7 @@ const logger = new Logger("SpecGroupPage");
 })
 export class SpecGroupPage {
     specGroup: SpecGroup;
-    sides = ["FRONT", "BACK"];
+    sides = SPEC_SIDES;
     keyError: string;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {

@@ -75,7 +75,7 @@ const SPEC_KEY_PREFIX = "spec#";
 const IMAGES = "images";
 const INFO_JSON = "info.json.encoded";
 
-const SIDES: Info.SpecSide[] = ["FRONT", "BACK"];
+export const SPEC_SIDES: Info.SpecSide[] = ["FRONT", "BACK"];
 
 class Path {
     private static join(...list): string {
@@ -148,7 +148,7 @@ class Path {
 
     static allImagesItem(o: Item): string[] {
         return _.flatMap(Path.allKeysItem(o), (keys) =>
-            _.map(SIDES, (side) => Path.makeImageItem(o, side, keys))
+            _.map(SPEC_SIDES, (side) => Path.makeImageItem(o, side, keys))
         );
     }
 
@@ -213,7 +213,7 @@ class Illustration {
 
     // SpecSide -> CachedImage
     itemCurrent(o: Item): {[key: string]: CachedImage} {
-        return _.fromPairs(_.map(SIDES, (side) =>
+        return _.fromPairs(_.map(SPEC_SIDES, (side) =>
             [side, this.s3image.createCache(Path.imagesItem(o, side))]
         ));
     }

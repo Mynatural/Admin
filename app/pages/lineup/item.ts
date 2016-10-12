@@ -7,6 +7,7 @@ import {MeasurePage} from "./measure";
 import {Prompt} from "../../providers/util_prompt";
 
 import * as Info from "../../providers/model/lineup/_info";
+import {SPEC_SIDES} from "../../providers/model/lineup/lineup";
 import {Item} from "../../providers/model/lineup/item";
 import {SpecGroup} from "../../providers/model/lineup/spec";
 import {Measure} from "../../providers/model/lineup/measure";
@@ -19,7 +20,7 @@ const logger = new Logger("ItemPage");
 })
 export class ItemPage {
     item: Item;
-    sides = ["FRONT", "BACK"];
+    sides = SPEC_SIDES;
     keyError: string;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
