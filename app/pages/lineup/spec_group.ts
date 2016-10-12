@@ -4,6 +4,7 @@ import {NavController, NavParams} from "ionic-angular";
 
 import {SpecPage} from "./spec";
 import {Prompt} from "../../providers/util_prompt";
+import {SPEC_SIDES} from "../../providers/model/lineup/lineup";
 import {SpecGroup, Spec} from "../../providers/model/lineup/spec";
 import {Logger} from "../../util/logging";
 
@@ -14,7 +15,8 @@ const logger = new Logger("SpecGroupPage");
 })
 export class SpecGroupPage {
     specGroup: SpecGroup;
-    sides = ["FRONT", "BACK"];
+    sides = SPEC_SIDES.toArray();
+    keyError: string;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.specGroup = params.get("specGroup");
@@ -33,6 +35,25 @@ export class SpecGroupPage {
 
     get isReady(): boolean {
         return !_.isNil(this.title);
+    }
+
+    get key(): string {
+        return this.specGroup.key;
+    }
+
+    set key(v: string) {
+        try {
+            this.specGroup.key = v;
+            this.keyError = null;
+        } catch (ex) {
+            logger.debug(() => `Failed to update key: ${ex}`);
+            this.keyError = `${ex}`;
+        }
+    }
+
+    get otherGroups(): SpecGroup[] {
+        return _.filter(this.specGroup.item.specGroups,
+            (sg) => !_.isEqual(sg.key, this.specGroup.key));
     }
 
     async delete(): Promise<void> {

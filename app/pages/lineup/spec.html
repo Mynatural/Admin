@@ -31,18 +31,15 @@
         </ion-row>
 
         <ion-row class="name_key">
-            <div class="name">
-                <ion-item>
-                    <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="spec.name"></ion-input>
-                </ion-item>
-            </div>
-            <div class="key">
-                <ion-item>
-                    <ion-label floating>Key</ion-label>
-                    <ion-input [(ngModel)]="spec.key"></ion-input>
-                </ion-item>
-            </div>
+            <ion-item class="name">
+                <ion-label floating>Name</ion-label>
+                <ion-input [(ngModel)]="spec.name"></ion-input>
+            </ion-item>
+            <ion-item class="key">
+                <ion-label floating>Key</ion-label>
+                <ion-input [(ngModel)]="key"></ion-input>
+                <div item-left class="error" *ngIf="keyError">{{ keyError }}</div>
+            </ion-item>
         </ion-row>
 
         <ion-row>
@@ -69,7 +66,7 @@
             </ion-item-divider>
             <ion-item *ngFor="let dg of spec.derivGroups">
                 <ion-label (click)="open(dg)">{{dg.name}} ({{dg.key}})</ion-label>
-                <ion-select [(ngModel)]="dg.current">
+                <ion-select [(ngModel)]="dg.current" [selectedText]="dg.current.name">
                     <ion-option *ngFor="let v of dg.availables" [value]="v" [selected]="v.key == dg.current.key">
                         {{v.name}}
                     </ion-option>

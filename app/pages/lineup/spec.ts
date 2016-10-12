@@ -15,6 +15,7 @@ const logger = new Logger("SpecPage");
 })
 export class SpecPage {
     spec: Spec;
+    keyError: string;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.spec = params.get("spec");
@@ -33,6 +34,20 @@ export class SpecPage {
 
     get isReady(): boolean {
         return !_.isNil(this.title);
+    }
+
+    get key(): string {
+        return this.spec.key;
+    }
+
+    set key(v: string) {
+        try {
+            this.spec.key = v;
+            this.keyError = null;
+        } catch (ex) {
+            logger.debug(() => `Failed to update key: ${ex}`);
+            this.keyError = `${ex}`;
+        }
     }
 
     async delete(): Promise<void> {

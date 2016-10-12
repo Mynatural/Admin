@@ -1,4 +1,5 @@
 import {Injectable} from "@angular/core";
+import {List} from "immutable";
 
 import * as Info from "./_info.d";
 import {ItemGroup, Item} from "./item";
@@ -17,15 +18,17 @@ export class LineupController {
     onChanging: OnChanging;
     onRemoving: OnRemoving;
     illust: Illustration;
-    itemGroup: Promise<ItemGroup>;
 
     constructor(private s3image: S3Image) {
         this.onChanging = new OnChanging(s3image.s3);
         this.onRemoving = new OnRemoving(s3image.s3);
         this.illust = new Illustration(s3image);
-        this.itemGroup = this.getAll().then((list) => {
-            return new ItemGroup(this, list);
-        });
+    }
+
+    checkKey(v: string) {
+        if (_.isEmpty(v)) throw "Empty key";
+        const removed = v.replace(/[a-z0-9_]/gi, "");
+        if (!_.isEmpty(removed)) throw `Illegal charactor: ${removed}`;
     }
 
     async createNewKey(prefix: string, find: (v: string) => Promise<any>): Promise<string> {
@@ -37,33 +40,22 @@ export class LineupController {
         return key;
     }
 
-    private async getAll(): Promise<Item[]> {
+    async findItems(): Promise<string[]> {
         const rootDir = Path.itemDir("");
         const finds = await this.s3image.s3.list(rootDir);
         logger.debug(() => `Finds: ${JSON.stringify(finds, null, 4)}`);
-        const keys = _.filter(finds.map((path) => {
+        return _.filter(finds.map((path) => {
             if (path.endsWith(`/${INFO_JSON}`)) {
                 const l = _.split(path, "/");
                 return l[l.length - 2];
             }
             return null;
         }));
-        logger.debug(() => `Keys: ${JSON.stringify(keys, null, 4)}`);
-        const list = keys.map(async (key) => {
-            try {
-                return await this.load(key);
-            } catch (ex) {
-                logger.warn(() => `Failed to load '${key}': ${ex}`);
-                return null;
-            }
-        });
-        return _.filter(await Promise.all(list));
     }
 
-    private async load(key: string): Promise<Item> {
+    async loadItem(key: string): Promise<Info.Item> {
         const text = await this.s3image.s3.read(Path.infoItem(key));
-        const info = Base64.decodeJson(text) as Info.Item;
-        return await Item.byJSON(this, key, info);
+        return Base64.decodeJson(text) as Info.Item;
     }
 
     async write(key: string, json: Info.Item): Promise<void> {
@@ -84,7 +76,7 @@ const SPEC_KEY_PREFIX = "spec#";
 const IMAGES = "images";
 const INFO_JSON = "info.json.encoded";
 
-const SIDES: Info.SpecSide[] = ["FRONT", "BACK"];
+export const SPEC_SIDES = List.of<Info.SpecSide>("FRONT", "BACK");
 
 class Path {
     private static join(...list): string {
@@ -157,7 +149,7 @@ class Path {
 
     static allImagesItem(o: Item): string[] {
         return _.flatMap(Path.allKeysItem(o), (keys) =>
-            _.map(SIDES, (side) => Path.makeImageItem(o, side, keys))
+            _.map(SPEC_SIDES.toArray(), (side) => Path.makeImageItem(o, side, keys))
         );
     }
 
@@ -222,7 +214,7 @@ class Illustration {
 
     // SpecSide -> CachedImage
     itemCurrent(o: Item): {[key: string]: CachedImage} {
-        return _.fromPairs(_.map(SIDES, (side) =>
+        return _.fromPairs(_.map(SPEC_SIDES.toArray(), (side) =>
             [side, this.s3image.createCache(Path.imagesItem(o, side))]
         ));
     }
@@ -278,30 +270,26 @@ async function refresh(item: Item): Promise<void> {
 class OnChanging {
     constructor(private s3: S3File) { }
 
-    private async moveFiles(srcList: string[], dstList: string[]): Promise<void> {
-        logger.debug(() => `Moving files: ${JSON.stringify(srcList, null, 4)}`);
-        await Promise.all(_.map(_.zip(srcList, dstList),
+    private async moveFiles(srcList: string[], dstList: string[]): Promise<boolean> {
+        const pairs = _.filter(_.zip(srcList, dstList), (pair) => !_.isEqual(pair[0], pair[1]));
+        logger.debug(() => `Moving files: ${JSON.stringify(pairs, null, 4)}`);
+        return !_.isEmpty(await Promise.all(_.map(pairs,
             async (pair) => {
-                const src = pair[0];
-                const dst = pair[1];
-                if (!_.isEqual(src, dst) && await this.s3.exists(src)) {
-                    await this.s3.move(src, dst);
+                if (await this.s3.exists(pair[0])) {
+                    await this.s3.move(pair[0], pair[1]);
                 }
             }
-        ));
+        )));
     }
 
-    private async moveDirs(srcList: string[], dstList: string[]): Promise<void> {
-        logger.debug(() => `Moving dirs: ${JSON.stringify(srcList, null, 4)}`);
-        await Promise.all(_.map(_.zip(srcList, dstList),
+    private async moveDirs(srcList: string[], dstList: string[]): Promise<boolean> {
+        const pairs = _.filter(_.zip(srcList, dstList), (pair) => !_.isEqual(pair[0], pair[1]));
+        logger.debug(() => `Moving dirs: ${JSON.stringify(pairs, null, 4)}`);
+        return !_.isEmpty(await Promise.all(_.map(pairs,
             async (pair) => {
-                const src = pair[0];
-                const dst = pair[1];
-                if (!_.isEqual(src, dst)) {
-                    await this.s3.moveDir(src, dst);
-                }
+                await this.s3.moveDir(pair[0], pair[1]);
             }
-        ));
+        )));
     }
 
     async itemKey(o: Item, go: DoThru) {
@@ -309,8 +297,9 @@ class OnChanging {
         await go();
         const dst = Path.dirItem(o);
 
-        await this.moveDirs([src], [dst]);
-        await refresh(o);
+        if (await this.moveDirs([src], [dst])) {
+            await refresh(o);
+        }
     }
 
     async specGroupKey(o: SpecGroup, go: DoThru) {
@@ -318,8 +307,9 @@ class OnChanging {
         await go();
         const dstList = _.map(o.availables, (v) => Path.dirSpec(v));
 
-        await this.moveDirs(srcList, dstList);
-        await refresh(o.item);
+        if (await this.moveDirs(srcList, dstList)) {
+            await refresh(o.item);
+        }
     }
 
     async specKey(o: Spec, go: DoThru) {
@@ -331,11 +321,13 @@ class OnChanging {
         const dstList = Path.allImagesItem(o.specGroup.item);
         const dstDir = Path.dirSpec(o);
 
-        await Promise.all([
+        const changed = await Promise.all([
             this.moveFiles(srcList, dstList),
             this.moveDirs([srcDir], [dstDir])
         ]);
-        await refresh(o.specGroup.item);
+        if (_.some(changed)) {
+            await refresh(o.specGroup.item);
+        }
     }
 
     async specGlobal(o: Spec, go: DoThru) {
@@ -343,8 +335,9 @@ class OnChanging {
         await go();
         const dstDir = Path.dirSpec(o);
 
-        await this.moveDirs([srcDir], [dstDir]);
-        await refresh(o.specGroup.item);
+        if (await this.moveDirs([srcDir], [dstDir])) {
+            await refresh(o.specGroup.item);
+        }
     }
 
     async derivGroupKey(o: DerivGroup, go: DoThru) {
@@ -352,8 +345,9 @@ class OnChanging {
         await go();
         const dstList = _.flatMap(o.availables, (v) => Path.imagesDeriv(v));
 
-        await this.moveFiles(srcList, dstList);
-        await refresh(o.spec.specGroup.item);
+        if (await this.moveFiles(srcList, dstList)) {
+            await refresh(o.spec.specGroup.item);
+        }
     }
 
     async derivKey(o: Deriv, go: DoThru) {
@@ -367,8 +361,9 @@ class OnChanging {
         await go();
         const dstList = listup();
 
-        await this.moveFiles(srcList, dstList);
-        await refresh(o.derivGroup.spec.specGroup.item);
+        if (await this.moveFiles(srcList, dstList)) {
+            await refresh(o.derivGroup.spec.specGroup.item);
+        }
     }
 
     async measureKey(o: Measure, go: DoThru) {
@@ -376,8 +371,9 @@ class OnChanging {
         await go();
         const dstList = Path.imagesMeasure(o);
 
-        await this.moveFiles(srcList, dstList);
-        await o.refreshIllustrations();
+        if (await this.moveFiles(srcList, dstList)) {
+            await o.refreshIllustrations();
+        }
     }
 }
 

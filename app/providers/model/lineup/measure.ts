@@ -51,7 +51,9 @@ export class Measure {
     }
 
     set key(v: string) {
-        if (_.isEmpty(v)) return;
+        this.ctrl.checkKey(v);
+        if (!_.isEqual(this.key, v) && !_.isNil(this.item.getMeasure(v))) throw "Exist key";
+
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.measureKey(this, async () => {
                 this._key = v;

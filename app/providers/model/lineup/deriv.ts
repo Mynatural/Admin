@@ -49,7 +49,9 @@ export class DerivGroup {
     }
 
     set key(v: string) {
-        if (_.isEmpty(v)) return;
+        this.ctrl.checkKey(v);
+        if (!_.isEqual(this.key, v) && !_.isNil(this.spec.getDeriv(v))) throw "Exist key";
+
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.derivGroupKey(this, async () => {
                 this._key = v;
@@ -79,6 +81,7 @@ export class DerivGroup {
         if (_.size(this.availables) < 2) return;
         await this.ctrl.onRemoving.deriv(o, async () => {
             _.remove(this.availables, {key: o.key});
+            this._current = null;
         });
     }
 
@@ -118,7 +121,9 @@ export class Deriv {
     }
 
     set key(v: string) {
-        if (_.isEmpty(v)) return;
+        this.ctrl.checkKey(v);
+        if (!_.isEqual(this.key, v) && !_.isNil(this.derivGroup.get(v))) throw "Exist key";
+
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.derivKey(this, async () => {
                 this._key = v;

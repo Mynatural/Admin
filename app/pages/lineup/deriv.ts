@@ -13,6 +13,7 @@ const logger = new Logger("DerivPage");
 })
 export class DerivPage {
     deriv: Deriv;
+    keyError: string;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.deriv = params.get("deriv");
@@ -32,6 +33,20 @@ export class DerivPage {
 
     get isReady(): boolean {
         return !_.isNil(this.title);
+    }
+
+    get key(): string {
+        return this.deriv.key;
+    }
+
+    set key(v: string) {
+        try {
+            this.deriv.key = v;
+            this.keyError = null;
+        } catch (ex) {
+            logger.debug(() => `Failed to update key: ${ex}`);
+            this.keyError = `${ex}`;
+        }
     }
 
     async delete(): Promise<void> {
