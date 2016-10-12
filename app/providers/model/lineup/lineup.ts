@@ -17,15 +17,11 @@ export class LineupController {
     onChanging: OnChanging;
     onRemoving: OnRemoving;
     illust: Illustration;
-    itemGroup: Promise<ItemGroup>;
 
     constructor(private s3image: S3Image) {
         this.onChanging = new OnChanging(s3image.s3);
         this.onRemoving = new OnRemoving(s3image.s3);
         this.illust = new Illustration(s3image);
-        this.itemGroup = this.getAll().then((list) => {
-            return new ItemGroup(this, list);
-        });
     }
 
     async createNewKey(prefix: string, find: (v: string) => Promise<any>): Promise<string> {
@@ -37,33 +33,22 @@ export class LineupController {
         return key;
     }
 
-    private async getAll(): Promise<Item[]> {
+    async findItems(): Promise<string[]> {
         const rootDir = Path.itemDir("");
         const finds = await this.s3image.s3.list(rootDir);
         logger.debug(() => `Finds: ${JSON.stringify(finds, null, 4)}`);
-        const keys = _.filter(finds.map((path) => {
+        return _.filter(finds.map((path) => {
             if (path.endsWith(`/${INFO_JSON}`)) {
                 const l = _.split(path, "/");
                 return l[l.length - 2];
             }
             return null;
         }));
-        logger.debug(() => `Keys: ${JSON.stringify(keys, null, 4)}`);
-        const list = keys.map(async (key) => {
-            try {
-                return await this.load(key);
-            } catch (ex) {
-                logger.warn(() => `Failed to load '${key}': ${ex}`);
-                return null;
-            }
-        });
-        return _.filter(await Promise.all(list));
     }
 
-    private async load(key: string): Promise<Item> {
+    async loadItem(key: string): Promise<Info.Item> {
         const text = await this.s3image.s3.read(Path.infoItem(key));
-        const info = Base64.decodeJson(text) as Info.Item;
-        return await Item.byJSON(this, key, info);
+        return Base64.decodeJson(text) as Info.Item;
     }
 
     async write(key: string, json: Info.Item): Promise<void> {

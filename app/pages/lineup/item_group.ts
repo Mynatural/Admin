@@ -19,7 +19,7 @@ export class ItemGroupPage {
     itemGroup: ItemGroup;
 
     constructor(private nav: NavController, lineupCtrl: LineupController) {
-        lineupCtrl.itemGroup.then((v) => {
+        ItemGroup.byAll(lineupCtrl).then((v) => {
             this.itemGroup = v;
         });
     }
