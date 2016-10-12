@@ -79,6 +79,7 @@ export class DerivGroup {
         if (_.size(this.availables) < 2) return;
         await this.ctrl.onRemoving.deriv(o, async () => {
             _.remove(this.availables, {key: o.key});
+            this._current = null;
         });
     }
 

@@ -110,6 +110,7 @@ export class SpecGroup {
         if (_.size(this.availables) < 2) return;
         await this.ctrl.onRemoving.spec(o, async () => {
             _.remove(this.availables, {key: o.key});
+            this._current = null;
         });
     }
 
