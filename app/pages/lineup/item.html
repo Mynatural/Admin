@@ -88,7 +88,7 @@
             </ion-item-divider>
             <ion-item *ngFor="let sg of item.specGroups">
                 <ion-label (click)="openSpec(sg)">{{sg.name}} ({{sg.key}})</ion-label>
-                <ion-select [(ngModel)]="sg.current">
+                <ion-select [(ngModel)]="sg.current" [selectedText]="sg.current.name">
                     <ion-option *ngFor="let v of sg.availables" [value]="v" [selected]="v.key == sg.current.key">
                         {{v.name}}
                     </ion-option>

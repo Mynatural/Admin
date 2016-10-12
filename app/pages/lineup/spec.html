@@ -69,7 +69,7 @@
             </ion-item-divider>
             <ion-item *ngFor="let dg of spec.derivGroups">
                 <ion-label (click)="open(dg)">{{dg.name}} ({{dg.key}})</ion-label>
-                <ion-select [(ngModel)]="dg.current">
+                <ion-select [(ngModel)]="dg.current" [selectedText]="dg.current.name">
                     <ion-option *ngFor="let v of dg.availables" [value]="v" [selected]="v.key == dg.current.key">
                         {{v.name}}
                     </ion-option>
