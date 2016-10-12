@@ -92,7 +92,7 @@ export class Item {
     }
 
     async writeInfo(): Promise<void> {
-        await this.ctrl.write(this.key, this.asJSON);
+        await this.ctrl.writeItem(this.key, this.asJSON);
     }
 
     get key(): string {
