@@ -1,4 +1,5 @@
 import {Injectable} from "@angular/core";
+import {List} from "immutable";
 
 import * as Info from "./_info.d";
 import {ItemGroup, Item} from "./item";
@@ -75,7 +76,7 @@ const SPEC_KEY_PREFIX = "spec#";
 const IMAGES = "images";
 const INFO_JSON = "info.json.encoded";
 
-export const SPEC_SIDES: Info.SpecSide[] = ["FRONT", "BACK"];
+export const SPEC_SIDES = List.of<Info.SpecSide>("FRONT", "BACK");
 
 class Path {
     private static join(...list): string {
@@ -148,7 +149,7 @@ class Path {
 
     static allImagesItem(o: Item): string[] {
         return _.flatMap(Path.allKeysItem(o), (keys) =>
-            _.map(SPEC_SIDES, (side) => Path.makeImageItem(o, side, keys))
+            _.map(SPEC_SIDES.toArray(), (side) => Path.makeImageItem(o, side, keys))
         );
     }
 
@@ -213,7 +214,7 @@ class Illustration {
 
     // SpecSide -> CachedImage
     itemCurrent(o: Item): {[key: string]: CachedImage} {
-        return _.fromPairs(_.map(SPEC_SIDES, (side) =>
+        return _.fromPairs(_.map(SPEC_SIDES.toArray(), (side) =>
             [side, this.s3image.createCache(Path.imagesItem(o, side))]
         ));
     }

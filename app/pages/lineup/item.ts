@@ -20,7 +20,7 @@ const logger = new Logger("ItemPage");
 })
 export class ItemPage {
     item: Item;
-    sides = SPEC_SIDES;
+    sides = SPEC_SIDES.toArray();
     keyError: string;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {

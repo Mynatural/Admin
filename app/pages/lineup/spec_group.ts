@@ -15,7 +15,7 @@ const logger = new Logger("SpecGroupPage");
 })
 export class SpecGroupPage {
     specGroup: SpecGroup;
-    sides = SPEC_SIDES;
+    sides = SPEC_SIDES.toArray();
     keyError: string;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
