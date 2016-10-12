@@ -66,7 +66,7 @@ export class FBJSSDK implements FBConnectPlugin {
             const args = ["public_profile"];
             if (arg) args.push(arg);
             fb.login((res) => {
-                callback(res.authResponse.accessToken);
+                callback(res.authResponse ? res.authResponse.accessToken : null);
             }, { scope: args.join(",") });
         });
     }
