@@ -61,14 +61,6 @@
             </ion-item>
         </ion-row>
 
-        <ion-card class="image" (click)="uploadImage()">
-            <p>{{ measure.imagePath }}</p>
-            <div>
-                <img *ngIf="measure.image" [src]="measure.image">
-                <div class="no-image" *ngIf="!measure.image">
-                    NO IMAGE
-                </div>
-            </div>
-        </ion-card>
+        <fathens-image-card (click)="uploadImage()" [target]="measure.image" [showPath]="true"></fathens-image-card>
     </div>
 </ion-content>

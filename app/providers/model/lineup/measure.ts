@@ -1,5 +1,3 @@
-import {SafeUrl} from '@angular/platform-browser';
-
 import * as Json from "./_info.d";
 import {LineupController} from "./lineup";
 import {Item} from "./item";
@@ -77,12 +75,8 @@ export class Measure {
         this.refreshImage(true);
     }
 
-    get image(): SafeUrl {
-        return this.refreshImage().url;
-    }
-
-    get imagePath(): string[] {
-        return this.refreshImage().listPath;
+    get image(): CachedImage {
+        return this.refreshImage();
     }
 
     get range(): number[] {

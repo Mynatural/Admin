@@ -1,5 +1,4 @@
 import {Component} from "@angular/core";
-import {SafeUrl} from '@angular/platform-browser';
 import {NavController, NavParams} from "ionic-angular";
 
 import {Prompt} from "../../providers/util_prompt";

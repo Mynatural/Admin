@@ -1,5 +1,3 @@
-import {SafeUrl} from '@angular/platform-browser';
-
 import * as Json from "./_info.d";
 import {LineupController} from "./lineup";
 import {ItemGroup, Item} from "./item";
@@ -147,11 +145,7 @@ export class Deriv {
         this.refreshImage(true);
     }
 
-    get image(): SafeUrl {
-        return this.refreshImage().url;
-    }
-
-    get imagePath(): string[] {
-        return this.refreshImage().listPath;
+    get image(): CachedImage {
+        return this.refreshImage();
     }
 }

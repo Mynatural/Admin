@@ -1,5 +1,4 @@
 import {Injectable} from "@angular/core";
-import {SafeUrl} from '@angular/platform-browser';
 
 import * as Json from "./_info.d";
 import {LineupController} from "./lineup";
@@ -126,12 +125,8 @@ export class Item {
         return this._titleImage;
     }
 
-    get titleImage(): SafeUrl {
-        return this.refreshTiteImage().url;
-    }
-
-    get titleImagePath(): string[] {
-        return this.refreshTiteImage().listPath;
+    get titleImage(): CachedImage {
+        return this.refreshTiteImage();
     }
 
     async changeTitleImage(file: File): Promise<void> {
@@ -146,14 +141,8 @@ export class Item {
         return this._images;
     }
 
-    getImage(side: Json.SpecSide): SafeUrl {
-        const safe = this.refreshCurrentImages()[side];
-        return safe ? safe.url : null;
-    }
-
-    getImagePath(side: Json.SpecSide): string[] {
-        const safe = this.refreshCurrentImages()[side];
-        return safe ? safe.listPath : null;
+    getImage(side: Json.SpecSide): CachedImage {
+        return this.refreshCurrentImages()[side];
     }
 
     async changeImage(side: Json.SpecSide, file: File): Promise<void> {

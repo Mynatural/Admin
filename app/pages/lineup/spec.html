@@ -74,14 +74,6 @@
             </ion-item>
         </ion-card>
 
-        <ion-card class="image" (click)="uploadImage()">
-            <p>{{ spec.imagePath }}</p>
-            <div>
-                <img *ngIf="spec.image" [src]="spec.image">
-                <div class="no-image" *ngIf="!spec.image">
-                    NO IMAGE
-                </div>
-            </div>
-        </ion-card>
+        <fathens-image-card (click)="uploadImage()" [target]="spec.image" [showPath]="true"></fathens-image-card>
     </div>
 </ion-content>
