@@ -226,10 +226,15 @@ export class S3Image {
 }
 
 export class CachedImage {
+    private loading = true;
     private _url: SafeUrl;
 
     constructor(private s3image: S3Image, private _pathList: string[], refreshRate: number) {
-        this.refresh(refreshRate);
+        this.refresh(refreshRate).then(() => this.loading = false);
+    }
+
+    get isLoading(): boolean {
+        return this.loading;
     }
 
     get listPath(): string[] {

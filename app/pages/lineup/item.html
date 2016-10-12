@@ -50,16 +50,7 @@
         </ion-row>
 
         <ion-row class="titleImage">
-            <ion-card class="image" (click)="uploadTitleImage()">
-                <ion-card-title>TITLE</ion-card-title>
-                <p>{{item.titleImagePath}}</p>
-                <div>
-                    <img *ngIf="item.titleImage" [src]="item.titleImage">
-                    <div class="no-image" *ngIf="!item.titleImage">
-                        NO IMAGE
-                    </div>
-                </div>
-            </ion-card>
+            <fathens-image-card (click)="uploadTitleImage()" [target]="item.titleImage" [showPath]="true"></fathens-image-card>
         </ion-row>
 
         <ion-card class="children">
@@ -94,16 +85,7 @@
         </ion-card>
 
         <ion-row>
-            <ion-card class="image" *ngFor="let side of sides" (click)="uploadImage(side)">
-                <ion-card-title>{{ side }}</ion-card-title>
-                <p>{{ item.getImagePath(side) }}</p>
-                <div>
-                    <img *ngIf="item.getImage(side)" [src]="item.getImage(side)">
-                    <div class="no-image" *ngIf="!item.getImage(side)">
-                        NO IMAGE
-                    </div>
-                </div>
-            </ion-card>
+            <fathens-image-card *ngFor="let side of sides" (click)="uploadImage(side)" [target]="item.getImage(side)" [title]="side" [showPath]="true"></fathens-image-card>
         </ion-row>
     </div>
 </ion-content>

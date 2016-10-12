@@ -42,14 +42,6 @@
             </ion-item>
         </ion-row>
 
-        <ion-card class="image" (click)="uploadImage()">
-            <p>{{ deriv.imagePath }}</p>
-            <div>
-                <img *ngIf="deriv.image" [src]="deriv.image">
-                <div class="no-image" *ngIf="!deriv.image">
-                    NO IMAGE
-                </div>
-            </div>
-        </ion-card>
+        <fathens-image-card (click)="uploadImage()" [target]="deriv.image" [showPath]="true"></fathens-image-card>
     </div>
 </ion-content>

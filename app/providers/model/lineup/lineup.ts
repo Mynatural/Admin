@@ -58,7 +58,7 @@ export class LineupController {
         return Base64.decodeJson(text) as Info.Item;
     }
 
-    async write(key: string, json: Info.Item): Promise<void> {
+    async writeItem(key: string, json: Info.Item): Promise<void> {
         const path = Path.infoItem(key)
         await this.s3image.s3.write(path, Base64.encodeJson(json));
     }
