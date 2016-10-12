@@ -1,11 +1,15 @@
-import { Component, ViewChild, PLATFORM_DIRECTIVES } from '@angular/core';
-import { App, ionicBootstrap, Platform, Nav } from 'ionic-angular';
+import {Component, ViewChild, PLATFORM_DIRECTIVES} from '@angular/core';
+import {App, ionicBootstrap, Platform, Nav} from 'ionic-angular';
 import {CUSTOM_ICON_DIRECTIVES} from 'ionic2-custom-icons';
 
 import {FATHENS_DIRECTIVES} from "./components/all";
 import {FATHENS_PROVIDERS} from "./providers/all";
-import { HomePage } from './pages/home/home';
-import { Logger } from "./util/logging";
+import {Credentials} from "./providers/config/credentials";
+import {HomePage} from './pages/home/home';
+import {ItemGroupPage} from './pages/lineup/item_group';
+import {Logger} from "./util/logging";
+
+const logger = new Logger("App");
 
 @Component({
     templateUrl: "build/app.html"
@@ -14,14 +18,19 @@ export class MyApp {
     @ViewChild(Nav) nav: Nav;
 
     rootPage: any = HomePage;
-    pages = [HomePage];
+    pages = [HomePage, ItemGroupPage];
     menuTitle = "もくじ";
 
     isDevel: boolean = false;
 
-    constructor(private app: App, platform: Platform) {
+    constructor(private app: App, private cred: Credentials, platform: Platform) {
         platform.ready().then(async () => {
+            logger.info(() => `Launched.`);
         });
+    }
+
+    get username(): string {
+        return this.cred.username;
     }
 
     openPage(page) {

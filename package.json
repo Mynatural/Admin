@@ -1,4 +1,10 @@
 {
+  "name": "mynatural",
+  "version": "0.1.0",
+  "description": "Mynatural: An Ionic project",
+  "engines": {
+    "node": "4.4.0"
+  },
   "dependencies": {
     "@angular/common": "2.0.0-rc.4",
     "@angular/compiler": "2.0.0-rc.4",
@@ -20,6 +26,7 @@
     "gulp-typings": "^2.0.3",
     "gulp-util": "^3.0.7",
     "gulp-watch": "4.3.5",
+    "immutable": "^3.8.1",
     "ionic": "2.0.0",
     "ionic-angular": "2.0.0-beta.11",
     "ionic-gulp-fonts-copy": "^1.0.0",
@@ -42,14 +49,8 @@
     "typescript": "1.8.7",
     "zone.js": "0.6.12"
   },
-  "engines": {
-    "node": "4.4.0"
-  },
   "scripts": {
     "postinstall": "gulp build",
     "start": "node server.js"
-  },
-  "name": "mynatural",
-  "version": "0.0.2",
-  "description": "Mynatural: An Ionic project"
+  }
 }

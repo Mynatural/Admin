@@ -43,6 +43,16 @@ export class S3File {
         return String.fromCharCode.apply(null, res.Body);
     }
 
+    async write(path: string, text: string): Promise<void> {
+        const bucketName = await this.settings.s3Bucket;
+        logger.debug(() => `Write file: ${bucketName}:${path}`);
+        await this.invoke((s3) => s3.putObject({
+            Bucket: bucketName,
+            Key: path,
+            Body: text
+        }));
+    }
+
     async upload(path: string, blob: Blob): Promise<void> {
         const bucketName = await this.settings.s3Bucket;
         logger.debug(() => `Uploading file: ${bucketName}:${path}`);
@@ -63,6 +73,32 @@ export class S3File {
         }));
     }
 
+    async removeFiles(pathList: string[]): Promise<void> {
+        const bucketName = await this.settings.s3Bucket;
+        logger.debug(() => `Removing files in bucket[${bucketName}]: ${JSON.stringify(pathList, null, 4)}`);
+        const lists = _.chunk(pathList, 1000);
+        await Promise.all(_.map(lists, (list) =>
+            this.invoke((s3) => s3.deleteObjects({
+                Bucket: bucketName,
+                Delete: {
+                    Objects: _.map(list, (path) => {
+                        return {
+                            Key: path
+                        }
+                    })
+                }
+            }))
+        ));
+    }
+
+    async removeDir(path: string): Promise<void> {
+        const bucketName = await this.settings.s3Bucket;
+        logger.debug(() => `Removing dir: ${bucketName}:${path}`);
+        const dir = `${path}/`;
+        const list = await this.list(dir);
+        this.removeFiles(list);
+    }
+
     async copy(src: string, dst: string): Promise<void> {
         const bucketName = await this.settings.s3Bucket;
         logger.debug(() => `Copying file: ${bucketName}:${src}=>${dst}`);
@@ -76,6 +112,17 @@ export class S3File {
     async move(src: string, dst: string): Promise<void> {
         await this.copy(src, dst);
         await this.remove(src);
+    }
+
+    async moveDir(src: string, dst: string): Promise<void> {
+        const files = _.filter(await this.list(`${src}/`), (path) => {
+            return !path.endsWith("/");
+        });
+        await Promise.all(_.map(files, (srcPath) => {
+            const dstPath = srcPath.replace(src, dst);
+            return this.move(srcPath, dstPath);
+        }));
+        await this.removeDir(src);
     }
 
     async list(path: string): Promise<Array<string>> {
@@ -97,7 +144,7 @@ export class S3File {
             }));
             return !_.isNil(res);
         } catch (ex) {
-            logger.warn(() => `Error on checking exists: ${bucketName}:${path}`);
+            logger.warn(() => `Error on checking exists: ${bucketName}:${path}: ${ex}`);
             return false;
         }
     }
@@ -122,27 +169,40 @@ export class S3File {
 export class S3Image {
     private local: Storage = new Storage(LocalStorage);
 
-    constructor(private s3: S3File, private sanitizer: DomSanitizationService) { }
+    constructor(public s3: S3File, private sanitizer: DomSanitizationService) { }
 
     async getUrl(s3path: string): Promise<SafeUrl> {
         assert("Caching S3 path", s3path);
         const url = await this.getCached(s3path);
-        return this.sanitizer.bypassSecurityTrustUrl(url);
+        return _.isNil(url) ? null : this.sanitizer.bypassSecurityTrustUrl(url);
     }
 
     private async getCached(s3path: string): Promise<string> {
         try {
-            const data = await this.local.get(s3path);
-            if (!_.isNil(data) && await this.checkUrl(data)) {
-                return data;
+            if (await this.s3.exists(s3path)) {
+                try {
+                    const data = await this.local.get(s3path);
+                    if (!_.isNil(data) && await this.checkUrl(data)) {
+                        return data;
+                    }
+                } catch (ex) {
+                    logger.info(() => `Failed to get local data: ${s3path}: ${ex}`);
+                }
+                const blob = await this.s3.download(s3path);
+                const url = URL.createObjectURL(blob);
+                this.local.set(s3path, url);
+                return url;
+            } else {
+                logger.info(() => `No data on s3: ${s3path}, removing local cache...`);
+                this.local.remove(s3path).then(
+                    (ok) => logger.info(() => `Removed local data: ${s3path}`),
+                    (error) => logger.warn(() => `Error on removing local data: ${s3path}`)
+                );
             }
         } catch (ex) {
-            logger.info(() => `Failed to get local data: ${s3path}: ${ex}`);
+            logger.warn(() => `Failed to get url: ${s3path}`);
         }
-        const blob = await this.s3.download(s3path);
-        const url = URL.createObjectURL(blob);
-        this.local.set(s3path, url);
-        return url;
+        return null;
     }
 
     private async checkUrl(url: string): Promise<boolean> {
@@ -158,5 +218,58 @@ export class S3Image {
             http.open('GET', url);
             http.send();
         });
+    }
+
+    createCache(pathList: string[], refreshRate = 1000 * 60 * 10): CachedImage {
+        return new CachedImage(this, pathList, refreshRate);
+    }
+}
+
+export class CachedImage {
+    private loading = true;
+    private _url: SafeUrl;
+
+    constructor(private s3image: S3Image, private _pathList: string[], refreshRate: number) {
+        this.refresh(refreshRate).then(() => this.loading = false);
+    }
+
+    get isLoading(): boolean {
+        return this.loading;
+    }
+
+    get listPath(): string[] {
+        return _.map(this._pathList, (a) => a);
+    }
+
+    private async load(path: string): Promise<SafeUrl> {
+        try {
+            return await this.s3image.getUrl(path);
+        } catch (ex) {
+            logger.warn(() => `Failed to load s3image: ${path}: ${ex}`);
+        }
+        return null;
+    }
+
+    private async refresh(limit: number) {
+        try {
+            var url;
+            var i = 0;
+            while (_.isNil(url) && i < this._pathList.length) {
+                url = await this.load(this._pathList[i++]);
+            }
+            this._url = url;
+        } finally {
+            setTimeout(() => {
+                this.refresh(limit);
+            }, limit);
+        }
+    }
+
+    isSamePath(pathList: string[]): boolean {
+        return _.isEmpty(_.difference(this._pathList, pathList));
+    }
+
+    get url(): SafeUrl {
+        return this._url;
     }
 }

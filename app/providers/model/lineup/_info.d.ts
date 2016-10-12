@@ -1,51 +1,51 @@
 
-export type Lineup = {
+export type Item = {
     name: string,
     price: number,
+    description: string,
+    specGroups: SpecGroup[],
     specs: Spec[],
-    specValues: SpecValue[],
     measurements: Measurement[]
 }
 
-export type Spec = {
+export type SpecGroup = {
     name: string,
     key: string,
-    sides: SpecSide,
+    side: SpecSide,
     canSame?: string, // key of other Spec
     value: {
-        initial: string,
-        availables: string[] // keys of SpecValue
+        availables: string[] // keys of Spec
     }
 }
 
 export type SpecSide = "FRONT" | "BACK";
 
-export type SpecValue = {
+export type Spec = {
     name: string,
     key: string,
     description: string,
-    options: SpecOption[],
+    derivGroups: DerivGroup[],
     price: number
 }
 
-export type SpecOption = {
+export type DerivGroup = {
     name: string,
     key: string,
     value: {
-        initial: string,
-        availables: SpecOptionValue[]
+        availables: Deriv[]
     }
 }
 
-export type SpecOptionValue = {
+export type Deriv = {
     name: string,
     key: string,
-    description?: string
+    description: string
 }
 
 export type Measurement = {
     name: string,
     key: string,
+    description: string,
     value: {
         initial: number,
         min: number,

@@ -1,4 +1,4 @@
-.home {
+#home-page {
     .top-message {
         display: flex;
         flex-direction: column;
@@ -17,13 +17,18 @@
         }
     }
     .main {
-        height: 70%;
         display: flex;
         justify-content: center;
         align-items: center;
 
-        .slide-zoom {
-            height: 100%;
+        .login {
+            .logins {
+                padding: 2rem;
+            }
+        }
+
+        .username {
+            font-size: 1.8rem;
         }
     }
 }

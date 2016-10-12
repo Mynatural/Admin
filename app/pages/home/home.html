@@ -9,11 +9,23 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content padding class="home">
+<ion-content padding id="home-page">
     <div class="top-message">
         <p *ngFor="let msg of topMessages; let i = index" class="m{{i}}">{{msg}}</p>
     </div>
     <div class="main">
         <ion-spinner *ngIf="!isReady"></ion-spinner>
+        <div *ngIf="isReady">
+            <div class="login" *ngIf="!username">
+                <ion-title>Login</ion-title>
+                <div class="logins">
+                    <button (click)="loginFacebook()">Facebook</button>
+                </div>
+            </div>
+            <div class="logged" *ngIf="username">
+                <p>User</p>
+                <p class="username">{{username}}</p>
+            </div>
+        </div>
     </div>
 </ion-content>

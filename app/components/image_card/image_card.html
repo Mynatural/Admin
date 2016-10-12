@@ -1,0 +1,13 @@
+<ion-card>
+    <ion-card-title *ngIf="title">{{ title }}</ion-card-title>
+    <p *ngIf="imagePath && showPath">{{ imagePath }}</p>
+    <div>
+        <ion-spinner *ngIf="!target || target.isLoading"></ion-spinner>
+        <div *ngIf="target && !target.isLoading">
+            <img *ngIf="target.url" [src]="target.url">
+            <p class="no-image" *ngIf="!target.url">
+                NO IMAGE
+            </p>
+        </div>
+    </div>
+</ion-card>

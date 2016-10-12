@@ -2,20 +2,24 @@ import {Injectable} from "@angular/core";
 import {Http} from "@angular/http";
 
 import {FBConnectPlugin, FBConnectToken} from "./fb.d";
+import {BootSettings} from "../config/boot_settings";
 import {toPromise} from "../../util/promising";
 import {Logger} from "../../util/logging";
 
 const logger = new Logger("FBJSSDK");
 
+const invokeInterval = 1000; // 1 second;
+var lastInvoked: Promise<void>;
+
 @Injectable()
 export class FBJSSDK implements FBConnectPlugin {
-    constructor(private http: Http) { }
+    constructor(private http: Http, private settings: BootSettings) { }
 
     private async initialize(): Promise<void> {
         const scriptId = "facebook-jssdk";
         if (!_.isNil(document.getElementById(scriptId))) return;
 
-        const appId = (await toPromise(this.http.get("facebook_app_id"))).text().trim();
+        const appId = await this.settings.facebookAppId;
         logger.debug(() => `Setting browser facebook app id: ${appId}`);
 
         const script = document.createElement("script") as HTMLScriptElement;
@@ -41,6 +45,16 @@ export class FBJSSDK implements FBConnectPlugin {
     }
 
     private async invoke<T>(proc: (fb: FBJSSDKPlugin, callback: (result: T) => void) => void) {
+        if (!_.isNil(lastInvoked)) {
+            logger.debug(() => `Waiting previous invoke...`);
+            await lastInvoked;
+            logger.debug(() => `Release from previous invoke.`);
+        }
+        lastInvoked = new Promise<void>((resolve, reject) => {
+            setTimeout(resolve, invokeInterval);
+            logger.debug(() => `Release this invoke`);
+        });
+
         await this.initialize();
         return new Promise<T>((resolve, reject) => {
             proc((window as any).FB, resolve);
@@ -64,7 +78,12 @@ export class FBJSSDK implements FBConnectPlugin {
     }
 
     getName(): Promise<string> {
-        throw "Unsupported oparation: getName";
+        return this.invoke<string>((fb, callback) => {
+            fb.api("/me", "get", (res) => {
+                logger.debug(() => `UserInfo: ${JSON.stringify(res, null, 4)}`);
+                callback(res["name"]);
+            });
+        });
     }
 
     getToken(): Promise<FBConnectToken> {
@@ -89,6 +108,7 @@ interface FBJSSDKPlugin {
     login(callback: FBJSCallback<LoginResponse>, param): void;
     logout(callback: FBJSCallback<void>): void;
     getLoginStatus(callback: FBJSCallback<LoginResponse>): void;
+    api(path: string, method: "get" | "post" | "delete", callback: FBJSCallback<LoginResponse>): void;
 }
 
 interface LoginResponse {

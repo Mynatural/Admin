@@ -1,0 +1,91 @@
+<ion-header>
+    <ion-navbar>
+        <button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+        <ion-buttons end>
+            <button (click)="delete()">
+                <ion-icon name="trash"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+</ion-header>
+
+<ion-content padding class="lineup-pages" id="item-page">
+    <ion-spinner *ngIf="!isReady"></ion-spinner>
+    <div *ngIf="isReady">
+        <div class="path">
+            <div *ngFor="let line of path">
+                <span>{{line}}</span>
+            </div>
+        </div>
+
+        <ion-row class="name_key">
+            <ion-item class="name">
+                <ion-label floating>Name</ion-label>
+                <ion-input [(ngModel)]="item.name"></ion-input>
+            </ion-item>
+            <ion-item class="key">
+                <ion-label floating>Key</ion-label>
+                <ion-input [(ngModel)]="key"></ion-input>
+                <div item-left class="error" *ngIf="keyError">{{ keyError }}</div>
+            </ion-item>
+        </ion-row>
+
+        <ion-row class="description">
+            <ion-item>
+                <ion-label floating>Description</ion-label>
+                <ion-input [(ngModel)]="item.description"></ion-input>
+            </ion-item>
+        </ion-row>
+
+        <ion-row class="price">
+            <ion-item>
+                <ion-label floating>Price</ion-label>
+                <ion-input [(ngModel)]="item.price" type="number"></ion-input>
+            </ion-item>
+        </ion-row>
+
+        <ion-row class="titleImage">
+            <fathens-image-card (click)="uploadTitleImage()" [target]="item.titleImage" [showPath]="true"></fathens-image-card>
+        </ion-row>
+
+        <ion-card class="children">
+            <ion-item-divider>
+                <ion-label>Measurements</ion-label>
+                <button item-right (click)="addNewMeasure()">
+                    <ion-icon name="add"></ion-icon>
+                    Add new
+                </button>
+            </ion-item-divider>
+            <ion-item *ngFor="let a of item.measurements">
+                <ion-label (click)="openMeasure(a)">{{a.name}} ({{a.key}})</ion-label>
+            </ion-item>
+        </ion-card>
+
+        <ion-card class="children">
+            <ion-item-divider>
+                <ion-label>Specs</ion-label>
+                <button item-right (click)="addNewSpec()">
+                    <ion-icon name="add"></ion-icon>
+                    Add new
+                </button>
+            </ion-item-divider>
+            <ion-item *ngFor="let sg of item.specGroups">
+                <ion-label (click)="openSpec(sg)">{{sg.name}} ({{sg.key}})</ion-label>
+                <ion-select [(ngModel)]="sg.current" [selectedText]="sg.current.name">
+                    <ion-option *ngFor="let v of sg.availables" [value]="v" [selected]="v.key == sg.current.key">
+                        {{v.name}}
+                    </ion-option>
+                </ion-select>
+            </ion-item>
+        </ion-card>
+
+        <ion-row>
+            <fathens-image-card *ngFor="let side of sides" (click)="uploadImage(side)" [target]="item.getImage(side)" [title]="side" [showPath]="true"></fathens-image-card>
+        </ion-row>
+    </div>
+</ion-content>
