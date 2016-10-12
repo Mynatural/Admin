@@ -46,6 +46,15 @@
         }
     }
 
+    .key {
+        .error {
+            position: absolute;
+            top: 2rem;
+            font-size: 1rem;
+            color: red;
+        }
+    }
+
     ion-row>ion-card:first-child {
         margin-top: 0;
     }

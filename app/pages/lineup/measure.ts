@@ -13,6 +13,7 @@ const logger = new Logger("MeasurePage");
 })
 export class MeasurePage {
     measure: Measure;
+    keyError: string;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.measure = params.get("measure");
@@ -27,6 +28,20 @@ export class MeasurePage {
             `Item: ${this.measure.item.name}`,
             `Measure: ${this.measure.name}`
         ];
+    }
+
+    get key(): string {
+        return this.measure.key;
+    }
+
+    set key(v: string) {
+        try {
+            this.measure.key = v;
+            this.keyError = null;
+        } catch (ex) {
+            logger.debug(() => `Failed to update key: ${ex}`);
+            this.keyError = `${ex}`;
+        }
     }
 
     get isReady(): boolean {

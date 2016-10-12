@@ -7,7 +7,6 @@ import {MeasurePage} from "./measure";
 import {Prompt} from "../../providers/util_prompt";
 
 import * as Info from "../../providers/model/lineup/_info";
-import {LineupController} from "../../providers/model/lineup/lineup";
 import {Item} from "../../providers/model/lineup/item";
 import {SpecGroup} from "../../providers/model/lineup/spec";
 import {Measure} from "../../providers/model/lineup/measure";
@@ -21,8 +20,9 @@ const logger = new Logger("ItemPage");
 export class ItemPage {
     item: Item;
     sides = ["FRONT", "BACK"];
+    keyError: string;
 
-    constructor(private nav: NavController, private prompt: Prompt, params: NavParams, private lineupCtrl: LineupController) {
+    constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.item = params.get("item");
     }
 
@@ -38,6 +38,20 @@ export class ItemPage {
 
     get isReady(): boolean {
         return !_.isNil(this.title);
+    }
+
+    get key(): string {
+        return this.item.key;
+    }
+
+    set key(v: string) {
+        try {
+            this.item.key = v;
+            this.keyError = null;
+        } catch (ex) {
+            logger.debug(() => `Failed to update key: ${ex}`);
+            this.keyError = `${ex}`;
+        }
     }
 
     async uploadTitleImage() {
@@ -68,8 +82,7 @@ export class ItemPage {
 
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
-            const itemGroup = await this.lineupCtrl.itemGroup;
-            await itemGroup.remove(this.item);
+            await this.item.itemGroup.remove(this.item);
             this.nav.pop();
         }
     }

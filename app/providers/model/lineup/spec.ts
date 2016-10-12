@@ -80,7 +80,9 @@ export class SpecGroup {
     }
 
     set key(v: string) {
-        if (_.isEmpty(v)) return;
+        this.ctrl.checkKey(v);
+        if (!_.isEqual(this.key, v) && !_.isNil(this.item.getSpec(v))) throw "Exist key";
+
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.specGroupKey(this, async () => {
                 this._key = v;
@@ -159,7 +161,9 @@ export class Spec {
     }
 
     set key(v: string) {
-        if (_.isEmpty(v)) return;
+        this.ctrl.checkKey(v);
+        if (!_.isEqual(this.key, v) && !_.isNil(this.specGroup.get(v))) throw "Exist key";
+
         this._changeKey.update(v, async (v) => {
             await this.ctrl.onChanging.specKey(this, async () => {
                 this._key = v;

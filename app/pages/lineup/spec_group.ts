@@ -15,6 +15,7 @@ const logger = new Logger("SpecGroupPage");
 export class SpecGroupPage {
     specGroup: SpecGroup;
     sides = ["FRONT", "BACK"];
+    keyError: string;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.specGroup = params.get("specGroup");
@@ -33,6 +34,20 @@ export class SpecGroupPage {
 
     get isReady(): boolean {
         return !_.isNil(this.title);
+    }
+
+    get key(): string {
+        return this.specGroup.key;
+    }
+
+    set key(v: string) {
+        try {
+            this.specGroup.key = v;
+            this.keyError = null;
+        } catch (ex) {
+            logger.debug(() => `Failed to update key: ${ex}`);
+            this.keyError = `${ex}`;
+        }
     }
 
     get otherGroups(): SpecGroup[] {

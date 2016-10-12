@@ -24,6 +24,12 @@ export class LineupController {
         this.illust = new Illustration(s3image);
     }
 
+    checkKey(v: string) {
+        if (_.isEmpty(v)) throw "Empty key";
+        const removed = v.replace(/[a-z0-9_]/gi, "");
+        if (!_.isEmpty(removed)) throw `Illegal charactor: ${removed}`;
+    }
+
     async createNewKey(prefix: string, find: (v: string) => Promise<any>): Promise<string> {
         let index = 0;
         let key;

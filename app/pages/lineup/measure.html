@@ -24,18 +24,15 @@
         </div>
 
         <ion-row class="name_key">
-            <div class="name">
-                <ion-item>
-                    <ion-label floating>Name</ion-label>
-                    <ion-input [(ngModel)]="measure.name"></ion-input>
-                </ion-item>
-            </div>
-            <div class="key">
-                <ion-item>
-                    <ion-label floating>Key</ion-label>
-                    <ion-input [(ngModel)]="measure.key"></ion-input>
-                </ion-item>
-            </div>
+            <ion-item class="name">
+                <ion-label floating>Name</ion-label>
+                <ion-input [(ngModel)]="measure.name"></ion-input>
+            </ion-item>
+            <ion-item class="key">
+                <ion-label floating>Key</ion-label>
+                <ion-input [(ngModel)]="key"></ion-input>
+                <div item-left class="error" *ngIf="keyError">{{ keyError }}</div>
+            </ion-item>
         </ion-row>
 
         <ion-row class="numbers">

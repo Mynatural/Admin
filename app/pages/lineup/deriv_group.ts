@@ -14,6 +14,7 @@ const logger = new Logger("DerivGroupPage");
 })
 export class DerivGroupPage {
     derivGroup: DerivGroup;
+    keyError: string;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.derivGroup = params.get("derivGroup");
@@ -33,6 +34,20 @@ export class DerivGroupPage {
 
     get isReady(): boolean {
         return !_.isNil(this.title);
+    }
+
+    get key(): string {
+        return this.derivGroup.key;
+    }
+
+    set key(v: string) {
+        try {
+            this.derivGroup.key = v;
+            this.keyError = null;
+        } catch (ex) {
+            logger.debug(() => `Failed to update key: ${ex}`);
+            this.keyError = `${ex}`;
+        }
     }
 
     async delete(): Promise<void> {
