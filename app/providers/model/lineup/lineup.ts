@@ -269,30 +269,26 @@ async function refresh(item: Item): Promise<void> {
 class OnChanging {
     constructor(private s3: S3File) { }
 
-    private async moveFiles(srcList: string[], dstList: string[]): Promise<void> {
-        logger.debug(() => `Moving files: ${JSON.stringify(srcList, null, 4)}`);
-        await Promise.all(_.map(_.zip(srcList, dstList),
+    private async moveFiles(srcList: string[], dstList: string[]): Promise<boolean> {
+        const pairs = _.filter(_.zip(srcList, dstList), (pair) => !_.isEqual(pair[0], pair[1]));
+        logger.debug(() => `Moving files: ${JSON.stringify(pairs, null, 4)}`);
+        return !_.isEmpty(await Promise.all(_.map(pairs,
             async (pair) => {
-                const src = pair[0];
-                const dst = pair[1];
-                if (!_.isEqual(src, dst) && await this.s3.exists(src)) {
-                    await this.s3.move(src, dst);
+                if (await this.s3.exists(pair[0])) {
+                    await this.s3.move(pair[0], pair[1]);
                 }
             }
-        ));
+        )));
     }
 
-    private async moveDirs(srcList: string[], dstList: string[]): Promise<void> {
-        logger.debug(() => `Moving dirs: ${JSON.stringify(srcList, null, 4)}`);
-        await Promise.all(_.map(_.zip(srcList, dstList),
+    private async moveDirs(srcList: string[], dstList: string[]): Promise<boolean> {
+        const pairs = _.filter(_.zip(srcList, dstList), (pair) => !_.isEqual(pair[0], pair[1]));
+        logger.debug(() => `Moving dirs: ${JSON.stringify(pairs, null, 4)}`);
+        return !_.isEmpty(await Promise.all(_.map(pairs,
             async (pair) => {
-                const src = pair[0];
-                const dst = pair[1];
-                if (!_.isEqual(src, dst)) {
-                    await this.s3.moveDir(src, dst);
-                }
+                await this.s3.moveDir(pair[0], pair[1]);
             }
-        ));
+        )));
     }
 
     async itemKey(o: Item, go: DoThru) {
@@ -300,8 +296,9 @@ class OnChanging {
         await go();
         const dst = Path.dirItem(o);
 
-        await this.moveDirs([src], [dst]);
-        await refresh(o);
+        if (await this.moveDirs([src], [dst])) {
+            await refresh(o);
+        }
     }
 
     async specGroupKey(o: SpecGroup, go: DoThru) {
@@ -309,8 +306,9 @@ class OnChanging {
         await go();
         const dstList = _.map(o.availables, (v) => Path.dirSpec(v));
 
-        await this.moveDirs(srcList, dstList);
-        await refresh(o.item);
+        if (await this.moveDirs(srcList, dstList)) {
+            await refresh(o.item);
+        }
     }
 
     async specKey(o: Spec, go: DoThru) {
@@ -322,11 +320,13 @@ class OnChanging {
         const dstList = Path.allImagesItem(o.specGroup.item);
         const dstDir = Path.dirSpec(o);
 
-        await Promise.all([
+        const changed = await Promise.all([
             this.moveFiles(srcList, dstList),
             this.moveDirs([srcDir], [dstDir])
         ]);
-        await refresh(o.specGroup.item);
+        if (_.some(changed)) {
+            await refresh(o.specGroup.item);
+        }
     }
 
     async specGlobal(o: Spec, go: DoThru) {
@@ -334,8 +334,9 @@ class OnChanging {
         await go();
         const dstDir = Path.dirSpec(o);
 
-        await this.moveDirs([srcDir], [dstDir]);
-        await refresh(o.specGroup.item);
+        if (await this.moveDirs([srcDir], [dstDir])) {
+            await refresh(o.specGroup.item);
+        }
     }
 
     async derivGroupKey(o: DerivGroup, go: DoThru) {
@@ -343,8 +344,9 @@ class OnChanging {
         await go();
         const dstList = _.flatMap(o.availables, (v) => Path.imagesDeriv(v));
 
-        await this.moveFiles(srcList, dstList);
-        await refresh(o.spec.specGroup.item);
+        if (await this.moveFiles(srcList, dstList)) {
+            await refresh(o.spec.specGroup.item);
+        }
     }
 
     async derivKey(o: Deriv, go: DoThru) {
@@ -358,8 +360,9 @@ class OnChanging {
         await go();
         const dstList = listup();
 
-        await this.moveFiles(srcList, dstList);
-        await refresh(o.derivGroup.spec.specGroup.item);
+        if (await this.moveFiles(srcList, dstList)) {
+            await refresh(o.derivGroup.spec.specGroup.item);
+        }
     }
 
     async measureKey(o: Measure, go: DoThru) {
@@ -367,8 +370,9 @@ class OnChanging {
         await go();
         const dstList = Path.imagesMeasure(o);
 
-        await this.moveFiles(srcList, dstList);
-        await o.refreshIllustrations();
+        if (await this.moveFiles(srcList, dstList)) {
+            await o.refreshIllustrations();
+        }
     }
 }
 
