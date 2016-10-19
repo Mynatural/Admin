@@ -190,7 +190,7 @@ export class S3Image {
         return _.isNil(url) ? null : this.sanitizer.bypassSecurityTrustUrl(url);
     }
 
-    private async getLocal(s3path: string): Promise<{ url: string, lastModified: Date}> {
+    private async getLocal(s3path: string): Promise<{ url: string, lastModified: Date }> {
         const data = await this.local.get(s3path);
         if (!data) return null;
         const result = JSON.parse(data);
@@ -198,8 +198,12 @@ export class S3Image {
     }
 
     private async setLocal(s3path: string, url: string, lastModified: Date): Promise<void> {
-        const data = JSON.stringify({ url: url, lastModified: lastModified });
-        await this.local.set(s3path, data);
+        try {
+            const data = { url: url, lastModified: lastModified };
+            await this.local.set(s3path, JSON.stringify(data));
+        } catch (ex) {
+            logger.warn(() => `Error on setting local data: ${s3path}: ${ex}`);
+        }
     }
 
     private async removeLocal(s3path: string): Promise<void> {
