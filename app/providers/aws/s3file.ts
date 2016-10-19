@@ -155,7 +155,7 @@ export class S3File {
         try {
             const res = await this.head(path);
             logger.debug(() => `Head of ${path}: ${JSON.stringify(res)}`);
-            return res && res.LastModified;
+            return !_.isNil(res.LastModified);
         } catch (ex) {
             logger.debug(() => `Failed to get head of ${path}: ${ex}`);
             return false;
