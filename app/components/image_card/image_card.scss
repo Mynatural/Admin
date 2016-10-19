@@ -35,13 +35,13 @@
 }
 
 fathens-image-card {
-    @include imageCard(45vw);
+    @include imageCard(40vw);
 
     &[small] {
         @include imageCard(26vw);
     }
 
     &[large] {
-        @include imageCard(90vw);
+        @include imageCard(80vw);
     }
 }
