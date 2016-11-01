@@ -1,8 +1,8 @@
-import {Device} from "ionic-native";
-import {Injectable} from "@angular/core";
+import { Device } from "ionic-native";
+import { Injectable } from "@angular/core";
 
-import {S3File} from "../aws/s3file";
-import {Logger} from "../../util/logging";
+import { S3File } from "../aws/s3file";
+import { Logger } from "../util/logging";
 
 const logger = new Logger("Configuration");
 
@@ -35,7 +35,7 @@ export class Configuration {
     }
 }
 
-class Unauthorized {
+export class Unauthorized {
     constructor(private src: { [key: string]: any }) { }
 
     get appName(): string {
@@ -68,7 +68,7 @@ class Unauthorized {
     }
 }
 
-class Photo {
+export class Photo {
     constructor(private src: { [key: string]: any }) { }
 
     /**
@@ -79,7 +79,7 @@ class Photo {
     }
 }
 
-class Advertisement {
+export class Advertisement {
     constructor(private src: { [key: string]: any }) { }
 
     get admob(): { [key: string]: any } {
@@ -89,7 +89,7 @@ class Advertisement {
     }
 }
 
-class ServerApiMap {
+export class ServerApiMap {
     constructor(private src: { [key: string]: any }) { }
 
     private makeInfo(name: string): ApiInfo {
@@ -113,7 +113,7 @@ export type ApiInfo = {
     retryDuration: number // in Milliseconds
 }
 
-class Authorized {
+export class Authorized {
     constructor(private src: { [key: string]: any }) { }
 
     get facebook(): FBConfig {
@@ -121,7 +121,7 @@ class Authorized {
     }
 }
 
-class FBConfig {
+export class FBConfig {
     constructor(private src: { [key: string]: string }) { }
 
     get hostname(): string {

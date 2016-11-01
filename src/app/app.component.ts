@@ -3,6 +3,7 @@ import { Platform, Nav } from "ionic-angular";
 
 import { HomePage } from "../pages/home/home";
 import { ItemGroupPage } from '../pages/lineup/item_group';
+import { Credentials } from '../providers/config/credentials';
 import { Logger } from "../providers/util/logging";
 
 const logger = new Logger("MyApp");
@@ -19,7 +20,7 @@ export class MyApp {
 
     isDevel: boolean = false;
 
-    constructor(platform: Platform) {
+    constructor(private cred: Credentials, platform: Platform) {
         platform.ready().then(async () => {
             logger.info(() => `Launched.`);
         });
@@ -33,12 +34,3 @@ export class MyApp {
         this.nav.setRoot(page);
     }
 }
-
-ionicBootstrap(MyApp, [
-    FATHENS_PROVIDERS,
-    {
-        provide: PLATFORM_DIRECTIVES,
-        useValue: [CUSTOM_ICON_DIRECTIVES, FATHENS_DIRECTIVES],
-        multi: true
-    }
-]);

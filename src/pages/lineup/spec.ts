@@ -2,7 +2,7 @@ import {Component} from "@angular/core";
 import {NavController, NavParams} from "ionic-angular";
 
 import {DerivGroupPage} from "./deriv_group";
-import {Prompt} from "../../providers/util_prompt";
+import {Prompt} from "../../providers/util/prompt";
 import {Spec} from "../../providers/model/lineup/spec";
 import {DerivGroup} from "../../providers/model/lineup/deriv";
 import {Logger} from "../../util/logging";

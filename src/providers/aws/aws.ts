@@ -1,7 +1,4 @@
-import SDK = require("aws-sdk");
-import {Logger} from "../../util/logging";
-
-console.log(`aws-sdk = ${SDK}`);
+import { Logger } from "../util/logging";
 
 export * from "aws-sdk";
 export const AWS = (window as any).AWS;

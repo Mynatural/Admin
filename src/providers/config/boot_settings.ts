@@ -1,24 +1,29 @@
-import {Injectable} from "@angular/core";
-import {Http} from "@angular/http";
+import { Injectable } from "@angular/core";
+import { Http } from "@angular/http";
+import Im from "immutable";
 
-import {toPromise} from "../../util/promising";
-import {Logger} from "../../util/logging";
+import { toPromise } from "../util/promising";
+import { Logger } from "../util/logging";
 
 const logger = new Logger("BootSettings");
 
 @Injectable()
 export class BootSettings {
-    private static src: { [key: string]: string; } = null;
+    private static src: Promise<Im.Map<string, string>>;
 
     constructor(private http: Http) { }
 
+    private async load(): Promise<Im.Map<string, string>> {
+        logger.debug(() => `Loading settings.json...`);
+        const res = await toPromise(this.http.get("settings.json"));
+        return Im.Map<string, string>(JSON.parse(res.text()));
+    }
+
     private async get(key: string): Promise<string> {
         if (_.isNil(BootSettings.src)) {
-            logger.debug(() => `Loading settings.yaml ...`);
-            const res = await toPromise(this.http.get("settings.json"));
-            BootSettings.src = JSON.parse(res.text());
+            BootSettings.src = this.load();
         }
-        return BootSettings.src[key];
+        return (await BootSettings.src).get(key);
     }
 
     get facebookAppId(): Promise<string> {

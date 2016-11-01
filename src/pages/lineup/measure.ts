@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {NavController, NavParams} from "ionic-angular";
 
-import {Prompt} from "../../providers/util_prompt";
+import {Prompt} from "../../providers/util/prompt";
 import {Measure} from "../../providers/model/lineup/measure";
 import {Logger} from "../../util/logging";
 

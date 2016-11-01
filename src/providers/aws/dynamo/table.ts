@@ -1,15 +1,15 @@
-import {Storage, LocalStorage} from "ionic-angular";
+import { Storage } from "@ionic/storage";
 
-import * as Base64 from "../../../util/base64";
-import {Pager} from "../../../util/pager";
-import {Logger} from "../../../util/logging";
+import * as Base64 from "../../util/base64";
+import { Pager } from "../../util/pager";
+import { Logger } from "../../util/logging";
 
-import {Cognito} from "../cognito";
+import { Cognito } from "../cognito";
 
 import * as DC from "./document_client.d";
-import {DBRecord, RecordReader, RecordWriter, COGNITO_ID_COLUMN, LAST_MODIFIED_COLUMN, toPromise} from "./dynamo";
-import {Expression, ExpressionMap} from "./expression";
-import {PagingScan, PagingQuery, LastEvaluatedKey} from "./pagination";
+import { DBRecord, RecordReader, RecordWriter, COGNITO_ID_COLUMN, LAST_MODIFIED_COLUMN, toPromise } from "./dynamo";
+import { Expression, ExpressionMap } from "./expression";
+import { PagingScan, PagingQuery, LastEvaluatedKey } from "./pagination";
 
 const logger = new Logger("DynamoTable");
 
@@ -23,6 +23,7 @@ function setLastModified<R extends DC.Item>(obj: R): R {
 
 export class DynamoTable<R extends DC.Item, T extends DBRecord<T>> {
     constructor(
+        storage: Storage,
         private cognito: Cognito,
         private client: DC.DocumentClient,
         private tableName: string,
@@ -30,11 +31,10 @@ export class DynamoTable<R extends DC.Item, T extends DBRecord<T>> {
         private _reader: RecordReader<R, T>,
         private _writer: RecordWriter<R, T>
     ) {
-        this.cache = new Storage(LocalStorage, { name: `${_.snakeCase(tableName)}_${tableName}` });
-        logger.debug(() => `Initialized DynamoDB Table: ${this.tableName}`);
+        this.cache = new TableCache(storage, tableName);
     }
 
-    private cache: Storage;
+    private cache: TableCache;
 
     toString(): string {
         return `DynamoTable[${this.tableName}]`;
@@ -211,5 +211,25 @@ export class DynamoTable<R extends DC.Item, T extends DBRecord<T>> {
 
     scanPager(exp: Expression): Pager<T> {
         return new PagingScan(this, exp);
+    }
+}
+
+class TableCache {
+    constructor(private storage: Storage, private tableName: string) { }
+
+    private key(id: string) {
+        return `${this.tableName}.${id}`;
+    }
+
+    async get(id: string): Promise<string> {
+        return await this.storage.get(this.key(id));
+    }
+
+    async set(id: string, v: string) {
+        await this.storage.set(this.key(id), v);
+    }
+
+    async remove(id: string) {
+        await this.storage.remove(this.key(id));
     }
 }
