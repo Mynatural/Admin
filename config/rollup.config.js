@@ -4,7 +4,6 @@ var globals = require('rollup-plugin-node-globals');
 var builtins = require('rollup-plugin-node-builtins');
 var json = require('rollup-plugin-json');
 var babel = require('rollup-plugin-babel');
-var inject = require('rollup-plugin-inject');
 
 // https://github.com/rollup/rollup/wiki/JavaScript-API
 
@@ -52,9 +51,6 @@ var rollupConfig = {
       extensions: ['.js']
     }),
     globals(),
-    inject({
-      _: 'lodash'
-    }),
     babel({ exclude: 'node_modules/**' }),
     json()
   ]
