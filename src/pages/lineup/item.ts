@@ -15,7 +15,7 @@ import {Logger} from "../../util/logging";
 const logger = new Logger("ItemPage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/item.html'
+    templateUrl: 'item.html'
 })
 export class ItemPage {
     item: Item;

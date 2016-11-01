@@ -2,8 +2,6 @@
   "name": "mynatural",
   "description": "Mynatural: An Ionic project",
   "scripts": {
-    "prebuild": "ionic2-custom-icons",
-    "prewatch": "ionic2-custom-icons",
     "build": "ionic-app-scripts build",
     "watch": "ionic-app-scripts watch",
     "serve:before": "watch",
@@ -13,9 +11,6 @@
     "run:before": "build"
   },
   "config": {
-    "ionic_copy": "config/copy.config.js",
-    "ionic_sass": "config/sass.config.js",
-    "custom_icons": "config/custom-icons.config.js",
     "ionic_rollup": "config/rollup.config.js"
   },
   "dependencies": {
@@ -32,7 +27,6 @@
     "immutable": "^3.8.1",
     "ionic-angular": "^2.0.0-rc.1",
     "ionic-native": "^2.0.3",
-    "ionic2-custom-icons": "^0.3.0",
     "ionicons": "^3.0.0",
     "lodash": "^4.16.4",
     "rxjs": "^5.0.0-beta.12",

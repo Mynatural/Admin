@@ -1,10 +1,9 @@
 import * as Json from "./_info.d";
-import {LineupController} from "./lineup";
-import {Item} from "./item";
-import {CachedImage} from "../../aws/s3file";
-import {InputInterval} from "../../../util/input_interval";
-import * as Base64 from "../../../util/base64";
-import {Logger} from "../../../util/logging";
+import { LineupController } from "./lineup";
+import { Item } from "./item";
+import { CachedImage } from "../../aws/s3file";
+import { InputInterval } from "../../util/input_interval";
+import { Logger } from "../../util/logging";
 
 const logger = new Logger("Lineup.Measure");
 
@@ -65,6 +64,7 @@ export class Measure {
 
     refreshImage(clear = false): CachedImage {
         if (clear || _.isNil(this._image)) {
+            logger.debug(() => `Refreshing image: force=${clear}`);
             this._image = this.ctrl.illust.measure(this);
         }
         return this._image;

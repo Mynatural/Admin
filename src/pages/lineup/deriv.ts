@@ -8,7 +8,7 @@ import {Logger} from "../../util/logging";
 const logger = new Logger("DerivPage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/deriv.html'
+    templateUrl: 'deriv.html'
 })
 export class DerivPage {
     deriv: Deriv;

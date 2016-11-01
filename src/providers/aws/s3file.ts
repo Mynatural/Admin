@@ -1,23 +1,15 @@
-import {Injectable} from "@angular/core";
-import {Http} from "@angular/http";
-import {SafeUrl, DomSanitizationService} from '@angular/platform-browser';
-import {Storage, LocalStorage} from 'ionic-angular';
+import { Injectable } from "@angular/core";
+import { SafeUrl, DomSanitizer } from "@angular/platform-browser";
+import { Storage } from "@ionic/storage";
 
-import {BootSettings} from "../config/boot_settings";
-import {assert} from "../../util/assertion";
-import {Logger} from "../../util/logging";
-import {Cognito} from "./cognito";
+import { BootSettings } from "../config/boot_settings";
+import { assert } from "../util/assertion";
+import { Logger } from "../util/logging";
+import { Cognito } from "./cognito";
 
-import {AWS, S3, AWSRequest, requestToPromise} from "./aws";
+import { AWS, S3, AWSRequest, requestToPromise } from "./aws";
 
 const logger = new Logger("S3File");
-
-export type S3FileHead = {
-    ContentLength?: number,
-    ContentType: string,
-    LastModified: Date,
-    Metadata: {[key: string]: string}
-}
 
 @Injectable()
 export class S3File {
@@ -141,23 +133,17 @@ export class S3File {
         return res.Contents.map((x) => x.Key);
     }
 
-    async head(path: string): Promise<S3FileHead> {
-        const bucketName = await this.settings.s3Bucket;
-        logger.debug(() => `Getting header: ${bucketName}:${path}`);
-        const res = await this.invoke<S3FileHead>((s3) => s3.headObject({
-            Bucket: bucketName,
-            Key: path
-        }));
-        return res;
-    }
-
     async exists(path: string): Promise<boolean> {
+        const bucketName = await this.settings.s3Bucket;
+        logger.debug(() => `Checking exists: ${bucketName}:${path}`);
         try {
-            const res = await this.head(path);
-            logger.debug(() => `Head of ${path}: ${JSON.stringify(res)}`);
-            return !_.isNil(res.LastModified);
+            const res = await this.invoke<{ ContentLength: number }>((s3) => s3.headObject({
+                Bucket: bucketName,
+                Key: path
+            }));
+            return !_.isNil(res);
         } catch (ex) {
-            logger.debug(() => `Failed to get head of ${path}: ${ex}`);
+            logger.warn(() => `Error on checking exists: ${bucketName}:${path}: ${ex}`);
             return false;
         }
     }
@@ -180,9 +166,7 @@ export class S3File {
 
 @Injectable()
 export class S3Image {
-    private local: Storage = new Storage(LocalStorage);
-
-    constructor(public s3: S3File, private sanitizer: DomSanitizationService) { }
+    constructor(public s3: S3File, private local: Storage, private sanitizer: DomSanitizer) { }
 
     async getUrl(s3path: string): Promise<SafeUrl> {
         assert("Caching S3 path", s3path);
@@ -190,61 +174,27 @@ export class S3Image {
         return _.isNil(url) ? null : this.sanitizer.bypassSecurityTrustUrl(url);
     }
 
-    private async getLocal(s3path: string): Promise<{ url: string, lastModified: Date }> {
-        const data = await this.local.get(s3path);
-        if (!data) return null;
-        const result = JSON.parse(data);
-        return result.url && result.lastModified ? result : null;
-    }
-
-    private async setLocal(s3path: string, url: string, lastModified: Date): Promise<void> {
-        try {
-            const data = { url: url, lastModified: lastModified };
-            await this.local.set(s3path, JSON.stringify(data));
-        } catch (ex) {
-            logger.warn(() => `Error on setting local data: ${s3path}: ${ex}`);
-        }
-    }
-
-    private async removeLocal(s3path: string): Promise<void> {
-        try {
-            await this.local.remove(s3path);
-            logger.debug(() => `Removed local data: ${s3path}`);
-        } catch (ex) {
-            logger.warn(() => `Error on removing local data: ${s3path}: ${ex}`);
-        }
-    }
-
     private async getCached(s3path: string): Promise<string> {
         try {
-            const head = await this.s3.head(s3path);
-            if (head) {
+            if (await this.s3.exists(s3path)) {
                 try {
-                    const data = await this.getLocal(s3path);
-                    if (data) {
-                        if (head.LastModified <= data.lastModified) {
-                            if (await this.checkUrl(data.url)) {
-                                logger.debug(() => `Using cached url for ${s3path}, ${data.url}`);
-                                return data.url;
-                            } else {
-                                logger.debug(() => `Cached url is not valid: ${s3path}, ${data.url}`);
-                            }
-                        } else {
-                            logger.debug(() => `Cached url is old: ${s3path}, ${data.lastModified}`);
-                        }
-                    } else {
-                        logger.debug(() => `No cached url for ${s3path}`);
+                    const data = await this.local.get(s3path);
+                    if (!_.isNil(data) && await this.checkUrl(data)) {
+                        return data;
                     }
                 } catch (ex) {
                     logger.info(() => `Failed to get local data: ${s3path}: ${ex}`);
                 }
                 const blob = await this.s3.download(s3path);
                 const url = URL.createObjectURL(blob);
-                this.setLocal(s3path, url, head.LastModified);
+                this.local.set(s3path, url);
                 return url;
             } else {
                 logger.info(() => `No data on s3: ${s3path}, removing local cache...`);
-                this.removeLocal(s3path);
+                this.local.remove(s3path).then(
+                    (ok) => logger.info(() => `Removed local data: ${s3path}`),
+                    (error) => logger.warn(() => `Error on removing local data: ${s3path}`)
+                );
             }
         } catch (ex) {
             logger.warn(() => `Failed to get url: ${s3path}`);

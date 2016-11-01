@@ -1,5 +1,4 @@
 import {Component} from "@angular/core";
-import {SafeUrl} from '@angular/platform-browser';
 import {NavController} from "ionic-angular";
 
 import {Credentials} from "../../providers/config/credentials";
@@ -8,7 +7,7 @@ import {Logger} from "../../util/logging";
 const logger = new Logger("HomePage");
 
 @Component({
-    templateUrl: 'build/pages/home/home.html'
+    templateUrl: 'home.html'
 })
 export class HomePage {
     static title = "ホーム";

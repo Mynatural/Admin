@@ -1,7 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Storage } from "@ionic/storage";
 import { IonicApp, IonicModule } from "ionic-angular";
-import { CustomIconsModule } from "ionic2-custom-icons";
 
 import { MyApp } from "./app.component";
 
@@ -32,25 +31,30 @@ import { Prompt } from "../providers/util/prompt";
     declarations: [
         MyApp,
         ImageCardComponent,
-        CustomPage,
-        SpecDialog,
-        HelpPage,
         HomePage,
-        TermsPage
+        ItemGroupPage,
+        ItemPage,
+        SpecGroupPage,
+        SpecPage,
+        DerivGroupPage,
+        DerivPage,
+        MeasurePage
     ],
     imports: [
-        IonicModule.forRoot(MyApp),
-        CustomIconsModule
+        IonicModule.forRoot(MyApp)
     ],
     bootstrap: [IonicApp],
     entryComponents: [
         MyApp,
         ImageCardComponent,
-        CustomPage,
-        SpecDialog,
-        HelpPage,
         HomePage,
-        TermsPage
+        ItemGroupPage,
+        ItemPage,
+        SpecGroupPage,
+        SpecPage,
+        DerivGroupPage,
+        DerivPage,
+        MeasurePage
     ],
     providers: [
         Storage,

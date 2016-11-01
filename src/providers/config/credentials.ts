@@ -21,6 +21,7 @@ export class Credentials {
         const id = await this.cognito.identity;
         if (id.isJoinFacebook) {
             this._username = await this.fb.getName();
+            logger.debug(() => `Username: ${this._username}`);
         }
     }
 

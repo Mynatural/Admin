@@ -1,11 +1,7 @@
 import {Injectable} from "@angular/core";
 
-import {Logger} from "../../util/logging";
-
 import {FBConnectPlugin, FBConnectToken} from "./fb.d";
 import {FBJSSDK} from "./fb_jssdk";
-
-const logger = new Logger("FBConnect");
 
 @Injectable()
 export class FBConnect {

@@ -1,12 +1,12 @@
-import {Storage, SqlStorage} from "ionic-angular";
-import {Injectable} from "@angular/core";
+import { Injectable } from "@angular/core";
 
-import {BootSettings} from "../config/boot_settings";
-import {FBConnect} from "../facebook/fb_connect";
-import {Preferences} from "../config/preferences";
-import {Logger} from "../../util/logging";
+import { BootSettings } from "../config/boot_settings";
+import { FBConnect } from "../facebook/fb_connect";
+import { Preferences } from "../config/preferences";
+import { withFabric } from "../util/fabric";
+import { Logger } from "../util/logging";
 
-import {AWS, ClientConfig} from "./aws";
+import { AWS, ClientConfig } from "./aws";
 
 const logger = new Logger("Cognito");
 
@@ -29,6 +29,8 @@ interface CognitoIdentityCredentials {
         Logins: { [key: string]: string; }
     };
 }
+
+export type ChangedCognitoIdHook = (oldId: string, newId: string) => Promise<void>;
 
 @Injectable()
 export class Cognito {
@@ -67,9 +69,11 @@ export class Cognito {
                     getCredentials().params.IdentityId = null;
                     await this.refresh();
                 }
+                withFabric((fabric) => fabric.Answers.eventLogin({ method: "Cognito" }));
             }
         } catch (ex) {
             logger.fatal(() => `Failed to initialize: ${JSON.stringify(ex, null, 4)}`);
+            withFabric((fabric) => fabric.Crashlytics.crash(JSON.stringify(ex)));
         }
     }
 
@@ -128,6 +132,9 @@ export class Cognito {
             p.IdentityId = null;
             const id = await this.refresh();
             await this.pref.setSocial(service, id.isJoin(service));
+            if (id.isJoin(service)) {
+                withFabric((fabric) => fabric.Answers.eventLogin({ method: service }));
+            }
         }
     }
 
@@ -145,9 +152,7 @@ export class Cognito {
     }
 }
 
-declare type ChangedCognitoIdHook = (oldId: string, newId: string) => Promise<void>;
-
-class CognitoIdentity {
+export class CognitoIdentity {
     constructor() {
         this.id = getCredentials().identityId;
         this.map = _.merge({}, getCredentials().params.Logins);

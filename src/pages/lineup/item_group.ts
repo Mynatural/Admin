@@ -9,7 +9,7 @@ import {Logger} from "../../util/logging";
 const logger = new Logger("ItemGroupPage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/item_group.html'
+    templateUrl: 'item_group.html'
 })
 export class ItemGroupPage {
     static title = "ラインナップ";

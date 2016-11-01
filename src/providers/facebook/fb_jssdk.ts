@@ -3,7 +3,6 @@ import {Http} from "@angular/http";
 
 import {FBConnectPlugin, FBConnectToken} from "./fb.d";
 import {BootSettings} from "../config/boot_settings";
-import {toPromise} from "../../util/promising";
 import {Logger} from "../../util/logging";
 
 const logger = new Logger("FBJSSDK");

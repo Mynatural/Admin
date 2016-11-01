@@ -9,7 +9,7 @@ import {Logger} from "../../util/logging";
 const logger = new Logger("DerivGroupPage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/deriv_group.html'
+    templateUrl: 'deriv_group.html'
 })
 export class DerivGroupPage {
     derivGroup: DerivGroup;

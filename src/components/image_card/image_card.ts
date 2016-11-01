@@ -4,7 +4,7 @@ import {CachedImage} from "../../providers/aws/s3file";
 
 @Component({
     selector: "fathens-image-card",
-    templateUrl: "build/components/image_card/image_card.html"
+    templateUrl: "image_card.html"
 })
 export class ImageCardComponent {
 

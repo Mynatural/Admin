@@ -10,7 +10,7 @@ import {Logger} from "../../util/logging";
 const logger = new Logger("SpecGroupPage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/spec_group.html'
+    templateUrl: 'spec_group.html'
 })
 export class SpecGroupPage {
     specGroup: SpecGroup;

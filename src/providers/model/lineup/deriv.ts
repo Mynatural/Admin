@@ -1,11 +1,9 @@
 import * as Json from "./_info.d";
-import {LineupController} from "./lineup";
-import {ItemGroup, Item} from "./item";
-import {SpecGroup, Spec} from "./spec";
-import {S3File, S3Image, CachedImage} from "../../aws/s3file";
-import {InputInterval} from "../../../util/input_interval";
-import * as Base64 from "../../../util/base64";
-import {Logger} from "../../../util/logging";
+import { LineupController } from "./lineup";
+import { Spec } from "./spec";
+import { CachedImage } from "../../aws/s3file";
+import { InputInterval } from "../../util/input_interval";
+import { Logger } from "../../util/logging";
 
 const logger = new Logger("Lineup.Deriv");
 
@@ -17,6 +15,7 @@ export class DerivGroup {
             result.availables = _.filter(await Promise.all(_.map(json.value.availables, (a) =>
                 Deriv.byJSON(ctrl, result, a)
             )));
+            logger.debug(() => `Building DerivGroup: ${_.size(result.availables)}`);
 
             return _.isEmpty(result.availables) ? null : result;
         })));

@@ -8,7 +8,7 @@ import {Logger} from "../../util/logging";
 const logger = new Logger("MeasurePage");
 
 @Component({
-    templateUrl: 'build/pages/lineup/measure.html'
+    templateUrl: 'measure.html'
 })
 export class MeasurePage {
     measure: Measure;

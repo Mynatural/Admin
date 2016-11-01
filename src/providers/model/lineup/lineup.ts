@@ -1,15 +1,15 @@
-import {Injectable} from "@angular/core";
-import {List} from "immutable";
+import { Injectable } from "@angular/core";
+import Im from "immutable";
 
 import * as Info from "./_info.d";
-import {ItemGroup, Item} from "./item";
-import {SpecGroup, Spec} from "./spec";
-import {DerivGroup, Deriv} from "./deriv";
-import {Measure} from "./measure";
+import { Item } from "./item";
+import { SpecGroup, Spec } from "./spec";
+import { DerivGroup, Deriv } from "./deriv";
+import { Measure } from "./measure";
 
-import {S3File, S3Image, CachedImage} from "../../aws/s3file";
-import * as Base64 from "../../../util/base64";
-import {Logger} from "../../../util/logging";
+import { S3File, S3Image, CachedImage } from "../../aws/s3file";
+import * as Base64 from "../../util/base64";
+import { Logger } from "../../util/logging";
 
 const logger = new Logger("Lineup");
 
@@ -76,7 +76,7 @@ const SPEC_KEY_PREFIX = "spec#";
 const IMAGES = "images";
 const INFO_JSON = "info.json.encoded";
 
-export const SPEC_SIDES = List.of<Info.SpecSide>("FRONT", "BACK");
+export const SPEC_SIDES = Im.List.of<Info.SpecSide>("FRONT", "BACK");
 
 class Path {
     private static join(...list): string {
@@ -192,7 +192,7 @@ function combinations(lists: any[][]): any[][] {
     }
 }
 
-class Illustration {
+export class Illustration {
     constructor(private s3image: S3Image) { }
 
     private async upload(pathList: string[], file: File): Promise<void> {
@@ -248,7 +248,7 @@ class Illustration {
     }
 }
 
-type DoThru = () => Promise<void>;
+export type DoThru = () => Promise<void>;
 
 async function refresh(item: Item): Promise<void> {
     await item.writeInfo();
@@ -267,7 +267,7 @@ async function refresh(item: Item): Promise<void> {
     });
 }
 
-class OnChanging {
+export class OnChanging {
     constructor(private s3: S3File) { }
 
     private async moveFiles(srcList: string[], dstList: string[]): Promise<boolean> {
@@ -377,7 +377,7 @@ class OnChanging {
     }
 }
 
-class OnRemoving {
+export class OnRemoving {
     constructor(private s3: S3File) { }
 
     async removeFiles(list: string[]): Promise<void> {

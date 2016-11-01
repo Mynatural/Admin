@@ -1,8 +1,6 @@
 import {Device} from "ionic-native";
 import {Injectable} from "@angular/core";
-import * as yaml from "js-yaml";
 
-import {BootSettings} from "./boot_settings";
 import {S3File} from "../aws/s3file";
 import {Logger} from "../../util/logging";
 
@@ -16,12 +14,13 @@ export class Configuration {
     constructor(private s3: S3File) { }
 
     private async loadS3(path: string): Promise<{ [key: string]: any }> {
-        return yaml.load(await this.s3.read(path));
+        logger.info(() => `Loading settings file: ${path}`);
+        return JSON.parse(await this.s3.read(path));
     }
 
     get server(): Promise<Unauthorized> {
         if (_.isNil(Configuration.unauthorized)) {
-            const p = this.loadS3("unauthorized/client.yaml");
+            const p = this.loadS3("unauthorized/client.json");
             Configuration.unauthorized = p.then((m) => new Unauthorized(m));
         }
         return Configuration.unauthorized;
@@ -29,7 +28,7 @@ export class Configuration {
 
     get authorized(): Promise<Authorized> {
         if (_.isNil(Configuration.authorized)) {
-            const p = this.loadS3("authorized/settings.yaml");
+            const p = this.loadS3("authorized/settings.json");
             Configuration.authorized = p.then((m) => new Authorized(m));
         }
         return Configuration.authorized;
