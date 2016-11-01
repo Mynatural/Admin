@@ -6,3 +6,4 @@ plugins/
 .*
 resources/*/
 typings/
+*.log
