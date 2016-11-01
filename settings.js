@@ -1,13 +1,13 @@
-var gulp = require('gulp'),
-    fs = require('fs'),
-    _ = require('lodash');
+const fs = require('fs');
+const _ = require('lodash');
 
-const target = './www/settings.json';
-const src = require(target);
+const src = require('./src/settings.json');
 console.log("Settings SRC: " + JSON.stringify(src, null, 4));
+
 const dst = _.mapValues(src, (line) => {
     const cmd = _.template(line);
     return cmd(process.env);
 });
+
 console.log("Settings DST: " + JSON.stringify(dst, null, 4));
-fs.writeFileSync(target, JSON.stringify(dst));
+fs.writeFileSync('./www/settings.json', JSON.stringify(dst));

@@ -2,6 +2,8 @@
   "name": "mynatural",
   "description": "Mynatural: An Ionic project",
   "scripts": {
+    "prebuild": "node settings.js",
+    "prewatch": "node settings.js",
     "build": "ionic-app-scripts build",
     "watch": "ionic-app-scripts watch",
     "serve:before": "watch",
