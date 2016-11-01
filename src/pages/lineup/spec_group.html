@@ -1,13 +1,13 @@
 <ion-header>
     <ion-navbar>
-        <button menuToggle>
+        <button ion-button menuToggle>
             <ion-icon name="menu"></ion-icon>
         </button>
         <ion-title>
             {{title}}
         </ion-title>
         <ion-buttons end>
-            <button (click)="delete()">
+            <button ion-button (click)="delete()">
                 <ion-icon name="trash"></ion-icon>
             </button>
         </ion-buttons>
@@ -62,7 +62,7 @@
         <ion-card class="values">
             <ion-item-divider>
                 <ion-label>Values</ion-label>
-                <button item-right (click)="addNew()">
+                <button ion-button item-right (click)="addNew()">
                     <ion-icon name="add"></ion-icon>
                     Add new
                 </button>

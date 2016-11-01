@@ -1,13 +1,13 @@
 <ion-header>
     <ion-navbar>
-        <button menuToggle>
+        <button ion-button menuToggle>
             <ion-icon name="menu"></ion-icon>
         </button>
         <ion-title>
             {{title}}
         </ion-title>
         <ion-buttons end>
-            <button (click)="delete()">
+            <button ion-button (click)="delete()">
                 <ion-icon name="trash"></ion-icon>
             </button>
         </ion-buttons>
@@ -56,7 +56,7 @@
         <ion-card class="children">
             <ion-item-divider>
                 <ion-label>Measurements</ion-label>
-                <button item-right (click)="addNewMeasure()">
+                <button ion-button item-right (click)="addNewMeasure()">
                     <ion-icon name="add"></ion-icon>
                     Add new
                 </button>
@@ -69,7 +69,7 @@
         <ion-card class="children">
             <ion-item-divider>
                 <ion-label>Specs</ion-label>
-                <button item-right (click)="addNewSpec()">
+                <button ion-button item-right (click)="addNewSpec()">
                     <ion-icon name="add"></ion-icon>
                     Add new
                 </button>

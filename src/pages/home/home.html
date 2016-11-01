@@ -1,6 +1,6 @@
 <ion-header>
     <ion-navbar>
-        <button menuToggle>
+        <button ion-button menuToggle>
             <ion-icon name="menu"></ion-icon>
         </button>
         <ion-title>
@@ -19,7 +19,7 @@
             <div class="login" *ngIf="!username">
                 <ion-title>Login</ion-title>
                 <div class="logins">
-                    <button (click)="loginFacebook()">Facebook</button>
+                    <button ion-button (click)="loginFacebook()">Facebook</button>
                 </div>
             </div>
             <div class="logged" *ngIf="username">

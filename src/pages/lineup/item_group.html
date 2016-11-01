@@ -1,16 +1,16 @@
 <ion-header>
     <ion-navbar>
-        <button menuToggle>
+        <button ion-button menuToggle>
             <ion-icon name="menu"></ion-icon>
         </button>
         <ion-title>
             {{title}}
         </ion-title>
         <ion-buttons end *ngIf="isReady">
-            <button (click)="addNew()">
+            <button ion-button (click)="addNew()">
                 <ion-icon name="add"></ion-icon>
             </button>
-            <button (click)="write()">
+            <button ion-button (click)="write()">
                 <ion-icon name="cloud-upload"></ion-icon>
             </button>
         </ion-buttons>
