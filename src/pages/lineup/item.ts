@@ -11,7 +11,7 @@ import {SPEC_SIDES} from "../../providers/model/lineup/lineup";
 import {Item} from "../../providers/model/lineup/item";
 import {SpecGroup} from "../../providers/model/lineup/spec";
 import {Measure} from "../../providers/model/lineup/measure";
-import {Logger} from "../../util/logging";
+import {Logger} from "../../providers/util/logging";
 
 const logger = new Logger("ItemPage");
 

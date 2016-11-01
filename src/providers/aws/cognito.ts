@@ -4,7 +4,6 @@ import { Injectable } from "@angular/core";
 import { BootSettings } from "../config/boot_settings";
 import { FBConnect } from "../facebook/fb_connect";
 import { Preferences } from "../config/preferences";
-import { withFabric } from "../util/fabric";
 import { Logger } from "../util/logging";
 
 import { AWS, ClientConfig } from "./aws";
@@ -70,11 +69,9 @@ export class Cognito {
                     getCredentials().params.IdentityId = null;
                     await this.refresh();
                 }
-                withFabric((fabric) => fabric.Answers.eventLogin({ method: "Cognito" }));
             }
         } catch (ex) {
             logger.fatal(() => `Failed to initialize: ${JSON.stringify(ex, null, 4)}`);
-            withFabric((fabric) => fabric.Crashlytics.crash(JSON.stringify(ex)));
         }
     }
 
@@ -133,9 +130,6 @@ export class Cognito {
             p.IdentityId = null;
             const id = await this.refresh();
             await this.pref.setSocial(service, id.isJoin(service));
-            if (id.isJoin(service)) {
-                withFabric((fabric) => fabric.Answers.eventLogin({ method: service }));
-            }
         }
     }
 

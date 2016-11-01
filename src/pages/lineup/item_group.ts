@@ -5,7 +5,7 @@ import {NavController} from "ionic-angular";
 import {ItemPage} from "./item";
 import {LineupController} from "../../providers/model/lineup/lineup";
 import {ItemGroup, Item} from "../../providers/model/lineup/item";
-import {Logger} from "../../util/logging";
+import {Logger} from "../../providers/util/logging";
 
 const logger = new Logger("ItemGroupPage");
 

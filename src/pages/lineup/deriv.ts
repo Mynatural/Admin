@@ -4,7 +4,7 @@ import {NavController, NavParams} from "ionic-angular";
 
 import {Prompt} from "../../providers/util/prompt";
 import {Deriv} from "../../providers/model/lineup/deriv";
-import {Logger} from "../../util/logging";
+import {Logger} from "../../providers/util/logging";
 
 const logger = new Logger("DerivPage");
 

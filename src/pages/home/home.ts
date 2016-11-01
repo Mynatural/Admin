@@ -3,7 +3,7 @@ import {Component} from "@angular/core";
 import {NavController} from "ionic-angular";
 
 import {Credentials} from "../../providers/config/credentials";
-import {Logger} from "../../util/logging";
+import {Logger} from "../../providers/util/logging";
 
 const logger = new Logger("HomePage");
 
