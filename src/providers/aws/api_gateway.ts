@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { Http, Headers } from "@angular/http";
 
 import { ApiInfo } from "../config/configuration";

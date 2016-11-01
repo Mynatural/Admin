@@ -1,4 +1,3 @@
-import _ from "lodash";
 import {Injectable} from "@angular/core";
 import {AlertController, LoadingController} from "ionic-angular";
 

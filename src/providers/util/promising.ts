@@ -1,4 +1,3 @@
-import _ from "lodash";
 import {Observable} from "rxjs/Rx";
 
 export function toPromise<T>(o: Observable<T>): Promise<T> {
