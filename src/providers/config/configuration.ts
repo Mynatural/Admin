@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { Device } from "ionic-native";
 import { Injectable } from "@angular/core";
 

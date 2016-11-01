@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { Logger } from "../util/logging";
 
 export * from "aws-sdk";

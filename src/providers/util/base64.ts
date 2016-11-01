@@ -1,3 +1,4 @@
+import _ from "lodash";
 
 export function decodeBase64(text: string, opt?: { sliceSize?: number, contentType?: string }): Blob {
     let sliceSize = 512;

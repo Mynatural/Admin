@@ -1,3 +1,4 @@
+import _ from "lodash";
 import * as Json from "./_info.d";
 import { LineupController } from "./lineup";
 import { Spec } from "./spec";

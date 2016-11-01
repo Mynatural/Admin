@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {Injectable} from "@angular/core";
 
 import {FBConnectPlugin, FBConnectToken} from "./fb.d";

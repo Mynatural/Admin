@@ -1,3 +1,4 @@
+import _ from "lodash";
 import * as DC from "./document_client.d";
 
 export type Expression = {

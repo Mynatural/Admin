@@ -1,3 +1,4 @@
+import _ from "lodash";
 
 export class InputInterval<T> {
     constructor(private interval: number) { }
