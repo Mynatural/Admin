@@ -1,14 +1,14 @@
 {
   "name": "mynatural",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Mynatural: An Ionic project",
   "engines": {
     "node": "6.7.0"
   },
   "scripts": {
     "start": "node server.js",
+    "preinstall": "node settings.js",
     "postinstall": "npm run build",
-    "prebuild": "node settings.js",
     "prewatch": "node settings.js",
     "build": "ionic-app-scripts build",
     "watch": "ionic-app-scripts watch",
