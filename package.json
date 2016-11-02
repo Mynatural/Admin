@@ -10,7 +10,6 @@
     "prebuild": "node settings.js",
     "prewatch": "node settings.js",
     "build": "ionic-app-scripts build",
-    "postinstall": "build",
     "watch": "ionic-app-scripts watch",
     "serve:before": "watch",
     "emulate:before": "build",
