@@ -1,7 +1,10 @@
 {
   "name": "mynatural",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Mynatural: An Ionic project",
+  "engines": {
+    "node": "6.7.0"
+  },
   "scripts": {
     "start": "node server.js",
     "postinstall": "build",
