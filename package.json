@@ -4,6 +4,7 @@
   "description": "Mynatural: An Ionic project",
   "scripts": {
     "start": "node server.js",
+    "postinstall": "build",
     "prebuild": "node settings.js",
     "prewatch": "node settings.js",
     "build": "ionic-app-scripts build",
