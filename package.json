@@ -1,6 +1,6 @@
 {
   "name": "mynatural",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Mynatural: An Ionic project",
   "scripts": {
     "start": "node server.js",
