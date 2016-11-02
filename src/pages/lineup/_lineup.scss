@@ -54,6 +54,16 @@
         }
     }
 
+    .flags {
+        margin-top: 1rem;
+        padding-bottom: 1rem;
+        border: 1px solid gray;
+
+        &>ion-item-divider {
+            background: #fafafa;
+        }
+    }
+
     .children, .values {
         &>ion-item-divider {
             background-color: #faffff;
