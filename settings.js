@@ -10,4 +10,7 @@ const dst = _.mapValues(src, (line) => {
 });
 
 console.log("Settings DST: " + JSON.stringify(dst, null, 4));
+if (!fs.existsSync('./www')) {
+    fs.mkdirSync('./www');
+}
 fs.writeFileSync('./www/settings.json', JSON.stringify(dst));
