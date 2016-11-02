@@ -49,6 +49,28 @@
             </ion-item>
         </ion-row>
 
+        <ion-list class="flags">
+            <ion-item-divider>
+                Flags
+                <button ion-button item-right icon-only clear (click)="flags.add()">
+                    <ion-icon name="add-circle"></ion-icon>
+                </button>
+            </ion-item-divider>
+            <ion-row *ngFor="let flag of flags.list">
+                <ion-item>
+                    <ion-label floating>Name</ion-label>
+                    <ion-input [(ngModel)]="flag.name"></ion-input>
+                </ion-item>
+                <ion-item>
+                    <ion-label floating>Value</ion-label>
+                    <ion-input [(ngModel)]="flag.value"></ion-input>
+                    <button ion-button item-right icon-only clear color="danger" (click)="flags.remove(flag)">
+                        <ion-icon name="remove-circle"></ion-icon>
+                    </button>
+                </ion-item>
+            </ion-row>
+        </ion-list>
+
         <ion-row class="titleImage">
             <fathens-image-card large (click)="uploadTitleImage()" [target]="item.titleImage" [showPath]="true"></fathens-image-card>
         </ion-row>
