@@ -54,3 +54,13 @@ export type Measurement = {
         step: number
     }
 }
+
+export type Categories = {
+    [key: string]: Category
+}
+
+export type Category = {
+    title: string,
+    message: string,
+    flags: {[key: string]: string}
+}
