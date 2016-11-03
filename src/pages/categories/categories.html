@@ -1,0 +1,26 @@
+<ion-header>
+    <ion-navbar>
+        <button ion-button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+    </ion-navbar>
+</ion-header>
+
+<ion-content>
+    <div class="news">
+        <fathens-category [category]="news"></fathens-category>
+    </div>
+    <div class="categories">
+        <ion-item>
+            <button ion-button icon-only (click)="addCategory()">
+                <ion-icon name="add"></ion-icon>
+            </button>
+        </ion-item>
+        <div *ngFor="let key of categoryKeys; let category = categories[key]">
+            <fathens-category [key]="key" [category]="category"></fathens-category>
+        </div>
+    </div>
+</ion-content>

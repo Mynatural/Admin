@@ -5,6 +5,7 @@ import { IonicApp, IonicModule } from "ionic-angular";
 import { MyApp } from "./app.component";
 
 import { HomePage } from "../pages/home/home";
+import { CategoriesPage } from "../pages/categories/categories";
 import { ItemGroupPage } from "../pages/lineup/item_group";
 import { ItemPage } from "../pages/lineup/item";
 import { SpecGroupPage } from "../pages/lineup/spec_group";
@@ -13,6 +14,7 @@ import { DerivGroupPage } from "../pages/lineup/deriv_group";
 import { DerivPage } from "../pages/lineup/deriv";
 import { MeasurePage } from "../pages/lineup/measure";
 
+import { CategoryComponent } from "../components/category/category";
 import { ImageCardComponent } from "../components/image_card/image_card";
 
 import { BootSettings } from "../providers/config/boot_settings";
@@ -30,8 +32,10 @@ import { Prompt } from "../providers/util/prompt";
 @NgModule({
     declarations: [
         MyApp,
+        CategoryComponent,
         ImageCardComponent,
         HomePage,
+        CategoriesPage,
         ItemGroupPage,
         ItemPage,
         SpecGroupPage,
@@ -46,8 +50,8 @@ import { Prompt } from "../providers/util/prompt";
     bootstrap: [IonicApp],
     entryComponents: [
         MyApp,
-        ImageCardComponent,
         HomePage,
+        CategoriesPage,
         ItemGroupPage,
         ItemPage,
         SpecGroupPage,

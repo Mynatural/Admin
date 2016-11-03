@@ -1,5 +1,9 @@
 import _ from "lodash";
 
+import { Logger } from "./logging";
+
+const logger = new Logger("ItemFlags");
+
 export class ItemFlags {
     constructor(private src: {[key: string]: string}) {
         this.list = _.map(src, (v, k) => new ItemFlag(src, k));

@@ -1,0 +1,36 @@
+<ion-item *ngIf="key" class="key">
+    <ion-label>Key</ion-label>
+    <ion-input [ngModel]="key" (ngModelChange)="keyChange.emit($event.taret.value)"></ion-input>
+</ion-item>
+
+<ion-item class="title">
+    <ion-label>Title</ion-label>
+    <ion-input [(ngModel)]="category.title"></ion-input>
+</ion-item>
+
+<ion-item class="message">
+    <ion-label>Message</ion-label>
+    <ion-input [(ngModel)]="category.message"></ion-input>
+</ion-item>
+
+<ion-list class="flags">
+    <ion-item-divider>
+        Flags
+        <button ion-button item-right icon-only clear (click)="flags.add()">
+            <ion-icon name="add-circle"></ion-icon>
+        </button>
+    </ion-item-divider>
+    <ion-row *ngFor="let flag of flags.list">
+        <ion-item>
+            <ion-label floating>Name</ion-label>
+            <ion-input [(ngModel)]="flag.name"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label floating>Value</ion-label>
+            <ion-input [(ngModel)]="flag.value"></ion-input>
+            <button ion-button item-right icon-only clear color="danger" (click)="flags.remove(flag)">
+                <ion-icon name="remove-circle"></ion-icon>
+            </button>
+        </ion-item>
+    </ion-row>
+</ion-list>
