@@ -2,6 +2,7 @@ import { Component, ViewChild } from "@angular/core";
 import { Platform, Nav } from "ionic-angular";
 
 import { HomePage } from "../pages/home/home";
+import { CategoriesPage } from "../pages/categories/categories";
 import { ItemGroupPage } from '../pages/lineup/item_group';
 import { Credentials } from '../providers/config/credentials';
 import { Logger } from "../providers/util/logging";
@@ -15,7 +16,7 @@ export class MyApp {
     @ViewChild(Nav) nav: Nav;
 
     rootPage: any = HomePage;
-    pages = [HomePage, ItemGroupPage];
+    pages = [HomePage, ItemGroupPage, CategoriesPage];
     menuTitle = "もくじ";
 
     isDevel: boolean = false;
