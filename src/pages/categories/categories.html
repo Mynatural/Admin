@@ -11,9 +11,9 @@
 
 <ion-content>
     <div *ngIf="news" class="news">
-        <div>
+        <ion-item>
             News
-        </div>
+        </ion-item>
         <fathens-category [category]="news"></fathens-category>
     </div>
     <div *ngIf="categories" class="categories">

@@ -1,3 +1,13 @@
 categories-page {
+    .news {
+        &>ion-item {
+            background: lightgray;
+        }
+    }
 
+    .categories {
+        &>ion-item {
+            background: lightgray;
+        }
+    }
 }
