@@ -51,7 +51,11 @@ var rollupConfig = {
       extensions: ['.js']
     }),
     globals(),
-    babel({ exclude: 'node_modules/**' }),
+    babel({
+      plugins: ['lodash'],
+      presets: ['es2015-rollup'],
+      exclude: 'node_modules/**'
+    }),
     json()
   ]
 
