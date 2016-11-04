@@ -10,12 +10,16 @@
 </ion-header>
 
 <ion-content>
-    <div class="news">
+    <div *ngIf="news" class="news">
+        <div>
+            News
+        </div>
         <fathens-category [category]="news"></fathens-category>
     </div>
-    <div class="categories">
+    <div *ngIf="categories" class="categories">
         <ion-item>
-            <button ion-button icon-only (click)="categories.add()">
+            Categories
+            <button ion-button item-right clear icon-only (click)="categories.add()">
                 <ion-icon name="add"></ion-icon>
             </button>
         </ion-item>
