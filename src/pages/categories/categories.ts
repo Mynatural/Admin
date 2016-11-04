@@ -25,21 +25,41 @@ export class CategoriesPage {
     categories: EditableMap<Info.Category>;
 
     constructor(private nav: NavController, private s3file: S3File) {
-        this.init();
+        this.loadAll().then((all) => {
+            this.categories = new EditableMap<Info.Category>(all, () => {
+                return {
+                    title: "新カテゴリー",
+                    message: "",
+                    flags: {}
+                }
+            });
+            logger.debug(() => `Load ${_.size(this.categories.list)} categories`);
+        });
+
+        this.loadNews().then((obj) => {
+            this.news = obj;
+        });
     }
 
-    private async init() {
-        const map = await Category.loadAll(this.s3file);
-        const obj = _.mapValues(map.toObject(), (x) => x.asJSON());
-        this.categories = new EditableMap<Info.Category>(obj, () => {
+    private async loadNews(): Promise<Info.Category> {
+        try {
+            const v = await Category.loadNews(this.s3file);
+            return v.asJSON();
+        } catch (ex) {
             return {
-                title: "新カテゴリー",
+                title: "新作ニュース",
                 message: "",
                 flags: {}
             }
-        });
-        logger.debug(() => `Load ${_.size(this.categories.list)} categories`);
+        }
+    }
 
-        this.news = (await Category.loadNews(this.s3file)).asJSON();
+    private async loadAll(): Promise<Info.Categories> {
+        try {
+            const map = await Category.loadAll(this.s3file);
+            return _.mapValues(map.toObject(), (x) => x.asJSON());
+        } catch (ex) {
+            return {};
+        }
     }
 }
