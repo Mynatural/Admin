@@ -15,7 +15,7 @@ const logger = new Logger("CategoryComponent");
 export class CategoryComponent {
     @Input() category: Info.Category;
     @Input() key: string;
-    @Output() keyChange: EventEmitter<string> = new EventEmitter();
+    @Output() keyChange: EventEmitter<string> = new EventEmitter<string>();
 
     private _flags: EditableMap<string>;
     get flags(): EditableMap<string> {
