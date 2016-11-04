@@ -32,12 +32,12 @@ export class Category {
 
     static async loadNews(s3file: S3File, srcList: Im.List<Item> = Im.List<Item>()): Promise<Category> {
         const v = (await Category.load(s3file, newsJson)) as Info.Category;
-        return new Category(srcList, v);
+        return new Category(v, srcList);
     }
 
     static async loadAll(s3file: S3File, srcList: Im.List<Item> = Im.List<Item>()): Promise<Im.Map<string, Category>> {
         const json = (await Category.load(s3file, categoriesJson)) as Info.Categories;
-        const map = _.mapValues(json, (v) => new Category(srcList, v));
+        const map = _.mapValues(json, (v) => new Category(v, srcList));
         return Im.Map(map);
     }
 
@@ -49,7 +49,7 @@ export class Category {
         await Category.save(s3file, categoriesJson, obj);
     }
 
-    constructor(public readonly srcList: Im.List<Item>, private json: Info.Category) {
+    constructor(private json: Info.Category, public readonly srcList: Im.List<Item> = Im.List<Item>()) {
         this._flags = Im.Map(json.flags);
     }
 

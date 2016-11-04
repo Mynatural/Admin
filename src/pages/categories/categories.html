@@ -15,12 +15,12 @@
     </div>
     <div class="categories">
         <ion-item>
-            <button ion-button icon-only (click)="addCategory()">
+            <button ion-button icon-only (click)="categories.add()">
                 <ion-icon name="add"></ion-icon>
             </button>
         </ion-item>
-        <div *ngFor="let key of categoryKeys; let category = categories[key]">
-            <fathens-category [key]="key" [category]="category"></fathens-category>
+        <div *ngFor="let item of categories.list">
+            <fathens-category [key]="item.key" [category]="item.value"></fathens-category>
         </div>
     </div>
 </ion-content>

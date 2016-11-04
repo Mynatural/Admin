@@ -11,7 +11,7 @@ import { SPEC_SIDES } from "../../providers/model/lineup/lineup";
 import { Item } from "../../providers/model/lineup/item";
 import { SpecGroup } from "../../providers/model/lineup/spec";
 import { Measure } from "../../providers/model/lineup/measure";
-import { ItemFlags } from "../../providers/util/flags";
+import { EditableMap } from "../../providers/util/editable_map";
 import { Logger } from "../../providers/util/logging";
 
 const logger = new Logger("ItemPage");
@@ -56,10 +56,10 @@ export class ItemPage {
         }
     }
 
-    private _flags: ItemFlags;
-    get flags(): ItemFlags {
+    private _flags: EditableMap<string>;
+    get flags(): EditableMap<string> {
         if (_.isNil(this._flags)) {
-            this._flags = new ItemFlags(this.item.flags);
+            this._flags = new EditableMap<string>(this.item.flags, () => "new_value");
         }
         return this._flags;
     }
