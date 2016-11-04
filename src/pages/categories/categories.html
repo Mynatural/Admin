@@ -20,7 +20,7 @@
             </button>
         </ion-item>
         <div *ngFor="let item of categories.list">
-            <fathens-category [key]="item.key" [category]="item.value"></fathens-category>
+            <fathens-category [(key)]="item.key" [category]="item.value"></fathens-category>
         </div>
     </div>
 </ion-content>
