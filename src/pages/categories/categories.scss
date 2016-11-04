@@ -9,5 +9,14 @@ categories-page {
         &>ion-item {
             background: lightgray;
         }
+        &>div {
+            position: relative;
+
+            &>button {
+                position: absolute;
+                top: 0;
+                right: 0;
+            }
+        }
     }
 }

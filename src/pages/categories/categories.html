@@ -25,6 +25,9 @@
         </ion-item>
         <div *ngFor="let item of categories.list">
             <fathens-category [key]="item.key" (keyChange)="item.key = $event" [category]="item.value"></fathens-category>
+            <button ion-button clear icon-only color="danger" (click)="categories.remove(item)">
+                <ion-icon name="remove"></ion-icon>
+            </button>
         </div>
     </div>
 </ion-content>
