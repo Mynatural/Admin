@@ -62,4 +62,9 @@ export class CategoriesPage {
             return {};
         }
     }
+
+    write() {
+        Category.saveAll(this.s3file, this.categories.src);
+        Category.saveNews(this.s3file, this.news);
+    }
 }
