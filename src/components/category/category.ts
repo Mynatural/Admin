@@ -2,7 +2,7 @@ import _ from "lodash";
 
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 
-import Info from "../../providers/model/lineup/_info.d";
+import { Category } from "../../providers/model/lineup/_info.d";
 import { EditableMap } from "../../providers/util/editable_map";
 import { Logger } from "../../providers/util/logging";
 
@@ -13,7 +13,7 @@ const logger = new Logger("CategoryComponent");
     templateUrl: 'category.html'
 })
 export class CategoryComponent {
-    @Input() category: Info.Category;
+    @Input() category: Category;
     @Input() key: string;
     @Output() keyChange: EventEmitter<string> = new EventEmitter<string>();
 
