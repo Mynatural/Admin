@@ -1,18 +1,18 @@
 import _ from "lodash";
-import {Component} from "@angular/core";
-import {NavController, NavParams} from "ionic-angular";
+import { Component } from "@angular/core";
+import { NavController, NavParams } from "ionic-angular";
 
-import {SpecGroupPage} from "./spec_group";
-import {MeasurePage} from "./measure";
-import {Prompt} from "../../providers/util/prompt";
+import { SpecGroupPage } from "./spec_group";
+import { MeasurePage } from "./measure";
+import { Prompt } from "../../providers/util/prompt";
 
 import * as Info from "../../providers/model/lineup/_info";
-import {SPEC_SIDES} from "../../providers/model/lineup/lineup";
-import {Item} from "../../providers/model/lineup/item";
-import {SpecGroup} from "../../providers/model/lineup/spec";
-import {Measure} from "../../providers/model/lineup/measure";
-import {ItemFlags} from "../../providers/util/flags";
-import {Logger} from "../../providers/util/logging";
+import { SPEC_SIDES } from "../../providers/model/lineup/lineup";
+import { Item } from "../../providers/model/lineup/item";
+import { SpecGroup } from "../../providers/model/lineup/spec";
+import { Measure } from "../../providers/model/lineup/measure";
+import { ItemFlags } from "../../providers/util/flags";
+import { Logger } from "../../providers/util/logging";
 
 const logger = new Logger("ItemPage");
 

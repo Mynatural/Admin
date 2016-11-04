@@ -1,10 +1,10 @@
 import _ from "lodash";
-import {Injectable} from "@angular/core";
-import {Http} from "@angular/http";
+import { Injectable } from "@angular/core";
+import { Http } from "@angular/http";
 
-import {FBConnectPlugin, FBConnectToken} from "./fb.d";
-import {BootSettings} from "../config/boot_settings";
-import {Logger} from "../util/logging";
+import { FBConnectPlugin, FBConnectToken } from "./fb.d";
+import { BootSettings } from "../config/boot_settings";
+import { Logger } from "../util/logging";
 
 const logger = new Logger("FBJSSDK");
 
