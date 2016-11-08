@@ -1,9 +1,11 @@
 import _ from "lodash";
 import Im from "immutable";
 
+import { Injectable } from "@angular/core";
+
 import Info from "./_info.d";
-import { ROOT, LINEUP } from "./lineup";
-import { Item } from "./item";
+import { ROOT, LINEUP, LineupController } from "./lineup";
+import { ItemGroup, Item } from "./item";
 import { S3File } from "../../aws/s3file";
 import { Logger } from "../../util/logging";
 import * as Base64 from "../../util/base64";
@@ -12,44 +14,77 @@ const logger = new Logger("Lineup.Category");
 
 const newsJson = "news.json";
 const categoriesJson = "categories.json";
+const gendersJson = "genders.json";
 
 function pathJson(key: string): string {
     return _.join([ROOT, LINEUP, key], "/");
 }
 
-export class Category {
-    private static async load(s3file: S3File, key: string): Promise<any> {
+@Injectable()
+export class CategoryController {
+    constructor(private s3file: S3File, private lineup: LineupController) { }
+
+    private _srcList: Promise<Im.List<Item>>;
+
+    get srcList(): Promise<Im.List<Item>> {
+        if (_.isNil(this._srcList)) {
+            this._srcList = ItemGroup.byAll(this.lineup).then((g) => Im.List(g.availables));
+        }
+        return this._srcList;
+    }
+
+    private async load(key: string): Promise<any> {
         const path = pathJson(key);
-        const text = await s3file.read(path);
+        const text = await this.s3file.read(path);
         return Base64.decodeJson(text);
     }
 
-    private static async save(s3file: S3File, key: string, obj: any): Promise<void> {
+    private async save(key: string, obj: any): Promise<void> {
         const path = pathJson(key);
         const text = Base64.encodeJson(obj);
-        await s3file.write(path, text);
+        await this.s3file.write(path, text);
     }
 
-    static async loadNews(s3file: S3File, srcList: Im.List<Item> = Im.List<Item>()): Promise<Category> {
-        const v = (await Category.load(s3file, newsJson)) as Info.Category;
-        return new Category(v, srcList);
-    }
-
-    static async loadAll(s3file: S3File, srcList: Im.List<Item> = Im.List<Item>()): Promise<Im.Map<string, Category>> {
-        const json = (await Category.load(s3file, categoriesJson)) as Info.Categories;
-        const map = _.mapValues(json, (v) => new Category(v, srcList));
+    async byMap(json: Info.Categories): Promise<Im.Map<string, Category>> {
+        const srcList = await this.srcList;
+        const map = _.mapValues(json, (v) => new Category(this, v, srcList));
         return Im.Map(map);
     }
 
-    static async saveNews(s3file: S3File, obj: Info.Category): Promise<void> {
-        await Category.save(s3file, newsJson, obj);
+    async loadNews(): Promise<Category> {
+        const v = (await this.load(newsJson)) as Info.Category;
+        return new Category(this, v, await this.srcList);
     }
 
-    static async saveAll(s3file: S3File, obj: Info.Categories): Promise<void> {
-        await Category.save(s3file, categoriesJson, obj);
+    async loadAll(): Promise<Im.Map<string, Category>> {
+        const json = await this.load(categoriesJson);
+        return this.byMap(json as Info.Categories);
     }
 
-    constructor(private json: Info.Category, public readonly srcList: Im.List<Item> = Im.List<Item>()) {
+    async loadGenders(): Promise<Im.Map<string, Category>> {
+        const json = await this.load(gendersJson);
+        return this.byMap(json as Info.Categories);
+    }
+
+    async saveNews(obj: Info.Category): Promise<void> {
+        await this.save(newsJson, obj);
+    }
+
+    async saveAll(obj: Info.Categories): Promise<void> {
+        await this.save(categoriesJson, obj);
+    }
+
+    async saveGenders(obj: Info.Categories): Promise<void> {
+        await this.save(gendersJson, obj);
+    }
+}
+
+export class Category {
+    constructor(
+        private ctrl: CategoryController,
+        private json: Info.Category,
+        private _srcList?: Im.List<Item>
+    ) {
         this._flags = Im.Map(json.flags);
     }
 
@@ -73,24 +108,28 @@ export class Category {
         return this._flags;
     }
 
-    private cachedReslut: Im.List<Item>;
+    private _filtering: Promise<Im.List<Item>>;
+    private _items: Im.List<Item>;
 
-    filter(srcList?: Item[]): Item[] {
-        if (!srcList && this.cachedReslut) {
-            return this.cachedReslut.toArray();
-        }
-
-        var result = srcList || this.srcList.toArray();
-        this.flags.forEach((value, name) => {
-            result = _.filter(result, (item) => {
-                return _.isEqual(item.flags[name], value);
+    get items(): Im.List<Item> {
+        if (_.isNil(this._filtering)) {
+            this._filtering = this.filter();
+            this._filtering.then((v) => {
+                this._items = v;
             });
-        });
-        logger.debug(() => `Filtered items: ${_.size(srcList)} -> ${_.size(result)}`);
-
-        if (!srcList) {
-            this.cachedReslut = Im.List(result);
         }
+        return this._items;
+    }
+
+    private async filter(): Promise<Im.List<Item>> {
+        const srcList = this._srcList || await this.ctrl.srcList;
+        var result = srcList;
+        this.flags.forEach((value, name) => {
+            result = result.filter((item) => {
+                return _.isEqual(item.flags[name], value);
+            }).toList();
+        });
+        logger.debug(() => `Filtered items: ${srcList.size} -> ${result.size}`);
         return result;
     }
 }
