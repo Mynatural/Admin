@@ -21,7 +21,8 @@
         </ion-item>
         <fathens-category [category]="news"></fathens-category>
     </div>
-    <div *ngIf="categories" class="categories">
+
+    <div *ngIf="categories" class="categories list">
         <ion-item>
             Categories
             <button ion-button item-right clear icon-only (click)="categories.add()">
@@ -31,6 +32,21 @@
         <div *ngFor="let item of categories.list">
             <fathens-category [key]="item.key" (keyChange)="item.key = $event" [category]="item.value"></fathens-category>
             <button ion-button clear icon-only color="danger" (click)="categories.remove(item)">
+                <ion-icon name="remove"></ion-icon>
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="genders" class="genders list">
+        <ion-item>
+            Categories
+            <button ion-button item-right clear icon-only (click)="genders.add()">
+                <ion-icon name="add"></ion-icon>
+            </button>
+        </ion-item>
+        <div *ngFor="let item of genders.list">
+            <fathens-category [key]="item.key" (keyChange)="item.key = $event" [category]="item.value"></fathens-category>
+            <button ion-button clear icon-only color="danger" (click)="genders.remove(item)">
                 <ion-icon name="remove"></ion-icon>
             </button>
         </div>
