@@ -38,7 +38,7 @@ async function editableMap(prom: Promise<Im.Map<string, Category>>): Promise<Edi
 type TabParams<T> = {
     title: string,
     feature: Promise<T>,
-    save: (T) => void
+    save: (T) => Promise<void>
 };
 
 @Component({
