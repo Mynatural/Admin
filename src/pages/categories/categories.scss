@@ -1,23 +1,2 @@
 categories-page {
-    .news {
-        &>ion-item {
-            background: lightgray;
-        }
-    }
-
-    .list {
-        margin-top: 4rem;
-        &>ion-item {
-            background: lightgray;
-        }
-        &>div {
-            position: relative;
-
-            &>button {
-                position: absolute;
-                top: 0;
-                right: 0;
-            }
-        }
-    }
 }

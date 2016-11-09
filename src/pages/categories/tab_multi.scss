@@ -1,0 +1,17 @@
+categories-tab_multi {
+    .controller {
+        background: #f8f8f8;
+    }
+
+    .editor {
+        &>div {
+            position: relative;
+
+            &>button {
+                position: absolute;
+                top: 0;
+                right: 0;
+            }
+        }
+    }
+}

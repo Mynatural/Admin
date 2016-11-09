@@ -1,54 +1,5 @@
-<ion-header>
-    <ion-navbar>
-        <button ion-button menuToggle>
-            <ion-icon name="menu"></ion-icon>
-        </button>
-        <ion-title>
-            {{title}}
-        </ion-title>
-        <ion-buttons end>
-            <button ion-button (click)="write()">
-                <ion-icon name="cloud-upload"></ion-icon>
-            </button>
-        </ion-buttons>
-    </ion-navbar>
-</ion-header>
-
-<ion-content>
-    <div *ngIf="news" class="news">
-        <ion-item>
-            News
-        </ion-item>
-        <fathens-category [category]="news"></fathens-category>
-    </div>
-
-    <div *ngIf="categories" class="categories list">
-        <ion-item>
-            Categories
-            <button ion-button item-right clear icon-only (click)="categories.add()">
-                <ion-icon name="add"></ion-icon>
-            </button>
-        </ion-item>
-        <div *ngFor="let item of categories.list">
-            <fathens-category [key]="item.key" (keyChange)="item.key = $event" [category]="item.value"></fathens-category>
-            <button ion-button clear icon-only color="danger" (click)="categories.remove(item)">
-                <ion-icon name="remove"></ion-icon>
-            </button>
-        </div>
-    </div>
-
-    <div *ngIf="genders" class="genders list">
-        <ion-item>
-            Genders
-            <button ion-button item-right clear icon-only (click)="genders.add()">
-                <ion-icon name="add"></ion-icon>
-            </button>
-        </ion-item>
-        <div *ngFor="let item of genders.list">
-            <fathens-category [key]="item.key" (keyChange)="item.key = $event" [category]="item.value"></fathens-category>
-            <button ion-button clear icon-only color="danger" (click)="genders.remove(item)">
-                <ion-icon name="remove"></ion-icon>
-            </button>
-        </div>
-    </div>
-</ion-content>
+<ion-tabs>
+    <ion-tab [root]="tabSingle" [rootParams]="news" [tabTitle]="news.title"></ion-tab>
+    <ion-tab [root]="tabMulti" [rootParams]="generals" [tabTitle]="generals.title"></ion-tab>
+    <ion-tab [root]="tabMulti" [rootParams]="genders" [tabTitle]="genders.title"></ion-tab>
+</ion-tabs>

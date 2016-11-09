@@ -6,6 +6,8 @@ import { MyApp } from "./app.component";
 
 import { HomePage } from "../pages/home/home";
 import { CategoriesPage } from "../pages/categories/categories";
+import { CategoriesTabMulti } from "../pages/categories/tab_multi";
+import { CategoriesTabSingle } from "../pages/categories/tab_single";
 import { ItemGroupPage } from "../pages/lineup/item_group";
 import { ItemPage } from "../pages/lineup/item";
 import { SpecGroupPage } from "../pages/lineup/spec_group";
@@ -37,6 +39,8 @@ import { Prompt } from "../providers/util/prompt";
         ImageCardComponent,
         HomePage,
         CategoriesPage,
+        CategoriesTabMulti,
+        CategoriesTabSingle,
         ItemGroupPage,
         ItemPage,
         SpecGroupPage,
@@ -53,6 +57,8 @@ import { Prompt } from "../providers/util/prompt";
         MyApp,
         HomePage,
         CategoriesPage,
+        CategoriesTabMulti,
+        CategoriesTabSingle,
         ItemGroupPage,
         ItemPage,
         SpecGroupPage,
