@@ -1,12 +1,12 @@
 import _ from "lodash";
-import {Component} from "@angular/core";
-import {NavController, NavParams} from "ionic-angular";
+import { Component } from "@angular/core";
+import { NavController, NavParams } from "ionic-angular";
 
-import {SpecPage} from "./spec";
-import {Prompt} from "../../providers/util/prompt";
-import {SPEC_SIDES} from "../../providers/model/lineup/lineup";
-import {SpecGroup, Spec} from "../../providers/model/lineup/spec";
-import {Logger} from "../../providers/util/logging";
+import { SpecPage } from "./spec";
+import { Prompt } from "../../providers/util/prompt";
+import { SPEC_SIDES } from "../../providers/model/lineup/lineup";
+import { SpecGroup, Spec } from "../../providers/model/lineup/spec";
+import { Logger } from "../../providers/util/logging";
 
 const logger = new Logger("SpecGroupPage");
 

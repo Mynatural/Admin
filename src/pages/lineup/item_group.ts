@@ -1,11 +1,11 @@
 import _ from "lodash";
-import {Component} from "@angular/core";
-import {NavController} from "ionic-angular";
+import { Component } from "@angular/core";
+import { NavController } from "ionic-angular";
 
-import {ItemPage} from "./item";
-import {LineupController} from "../../providers/model/lineup/lineup";
-import {ItemGroup, Item} from "../../providers/model/lineup/item";
-import {Logger} from "../../providers/util/logging";
+import { ItemPage } from "./item";
+import { LineupController } from "../../providers/model/lineup/lineup";
+import { ItemGroup, Item } from "../../providers/model/lineup/item";
+import { Logger } from "../../providers/util/logging";
 
 const logger = new Logger("ItemGroupPage");
 

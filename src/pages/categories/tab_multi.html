@@ -1,0 +1,44 @@
+<ion-header>
+    <ion-navbar>
+        <button ion-button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+        <ion-buttons end>
+            <button ion-button clear icon-only *ngIf="categories" (click)="write()">
+                <ion-icon name="cloud-upload"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+</ion-header>
+
+<ion-content>
+    <div *ngIf="categories">
+        <ion-item class="controller">
+            <button ion-button item-left clear icon-only (click)="reordering= !reordering">
+                <ion-icon [name]="reordering ? 'arrow-dropright' : 'arrow-dropdown'"></ion-icon>
+            </button>
+            <p>LIST</p>
+            <button ion-button item-right clear icon-only (click)="categories.add()">
+                <ion-icon name="add"></ion-icon>
+            </button>
+        </ion-item>
+
+        <ion-list *ngIf="reordering" reorder="true" (ionItemReorder)="reorder($event)">
+            <ion-item *ngFor="let item of categories.list">
+                <p>{{ item.key }}: {{ item.value.title }}</p>
+            </ion-item>
+        </ion-list>
+
+        <div *ngIf="!reordering" class="editor">
+            <div *ngFor="let item of categories.list">
+                <fathens-category [key]="item.key" (keyChange)="item.key = $event" [category]="item.value"></fathens-category>
+                <button ion-button clear icon-only color="danger" (click)="categories.remove(item)">
+                    <ion-icon name="remove"></ion-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+</ion-content>

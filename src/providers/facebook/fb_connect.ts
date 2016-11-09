@@ -1,7 +1,7 @@
-import {Injectable} from "@angular/core";
+import { Injectable } from "@angular/core";
 
-import {FBConnectPlugin, FBConnectToken} from "./fb.d";
-import {FBJSSDK} from "./fb_jssdk";
+import { FBConnectPlugin, FBConnectToken } from "./fb.d";
+import { FBJSSDK } from "./fb_jssdk";
 
 @Injectable()
 export class FBConnect {

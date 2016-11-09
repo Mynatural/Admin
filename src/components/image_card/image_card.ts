@@ -1,7 +1,7 @@
 import _ from "lodash";
-import {Component, Input} from "@angular/core";
+import { Component, Input } from "@angular/core";
 
-import {CachedImage} from "../../providers/aws/s3file";
+import { CachedImage } from "../../providers/aws/s3file";
 
 @Component({
     selector: "fathens-image-card",

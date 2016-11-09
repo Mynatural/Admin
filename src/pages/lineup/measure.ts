@@ -1,10 +1,10 @@
 import _ from "lodash";
-import {Component} from "@angular/core";
-import {NavController, NavParams} from "ionic-angular";
+import { Component } from "@angular/core";
+import { NavController, NavParams } from "ionic-angular";
 
-import {Prompt} from "../../providers/util/prompt";
-import {Measure} from "../../providers/model/lineup/measure";
-import {Logger} from "../../providers/util/logging";
+import { Prompt } from "../../providers/util/prompt";
+import { Measure } from "../../providers/model/lineup/measure";
+import { Logger } from "../../providers/util/logging";
 
 const logger = new Logger("MeasurePage");
 

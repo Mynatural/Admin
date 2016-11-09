@@ -1,12 +1,12 @@
 import _ from "lodash";
-import {Component} from "@angular/core";
-import {NavController, NavParams} from "ionic-angular";
+import { Component } from "@angular/core";
+import { NavController, NavParams } from "ionic-angular";
 
-import {DerivGroupPage} from "./deriv_group";
-import {Prompt} from "../../providers/util/prompt";
-import {Spec} from "../../providers/model/lineup/spec";
-import {DerivGroup} from "../../providers/model/lineup/deriv";
-import {Logger} from "../../providers/util/logging";
+import { DerivGroupPage } from "./deriv_group";
+import { Prompt } from "../../providers/util/prompt";
+import { Spec } from "../../providers/model/lineup/spec";
+import { DerivGroup } from "../../providers/model/lineup/deriv";
+import { Logger } from "../../providers/util/logging";
 
 const logger = new Logger("SpecPage");
 

@@ -1,9 +1,9 @@
 import _ from "lodash";
-import {Injectable} from "@angular/core";
+import { Injectable } from "@angular/core";
 
-import {Cognito} from "../aws/cognito";
-import {FBConnect} from "../facebook/fb_connect";
-import {Logger} from "../util/logging";
+import { Cognito } from "../aws/cognito";
+import { FBConnect } from "../facebook/fb_connect";
+import { Logger } from "../util/logging";
 
 const logger = new Logger("Credentials");
 

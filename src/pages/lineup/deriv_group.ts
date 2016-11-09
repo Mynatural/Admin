@@ -1,11 +1,11 @@
 import _ from "lodash";
-import {Component} from "@angular/core";
-import {NavController, NavParams} from "ionic-angular";
+import { Component } from "@angular/core";
+import { NavController, NavParams } from "ionic-angular";
 
-import {DerivPage} from "./deriv";
-import {Prompt} from "../../providers/util/prompt";
-import {DerivGroup, Deriv} from "../../providers/model/lineup/deriv";
-import {Logger} from "../../providers/util/logging";
+import { DerivPage } from "./deriv";
+import { Prompt } from "../../providers/util/prompt";
+import { DerivGroup, Deriv } from "../../providers/model/lineup/deriv";
+import { Logger } from "../../providers/util/logging";
 
 const logger = new Logger("DerivGroupPage");
 

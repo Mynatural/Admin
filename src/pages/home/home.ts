@@ -1,8 +1,8 @@
-import {Component} from "@angular/core";
-import {NavController} from "ionic-angular";
+import { Component } from "@angular/core";
+import { NavController } from "ionic-angular";
 
-import {Credentials} from "../../providers/config/credentials";
-import {Logger} from "../../providers/util/logging";
+import { Credentials } from "../../providers/config/credentials";
+import { Logger } from "../../providers/util/logging";
 
 const logger = new Logger("HomePage");
 

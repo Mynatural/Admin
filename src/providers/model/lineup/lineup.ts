@@ -70,8 +70,8 @@ export class LineupController {
     }
 }
 
-const ROOT = "unauthorized";
-const LINEUP = "lineup";
+export const ROOT = "unauthorized";
+export const LINEUP = "lineup";
 const SPEC = "_spec";
 const SPEC_KEY_PREFIX = "spec#";
 const IMAGES = "images";
