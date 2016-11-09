@@ -1,40 +1,48 @@
 import _ from "lodash";
 
+import { reorderArray } from 'ionic-angular';
+
 import { Logger } from "./logging";
 
 const logger = new Logger("EditableMap");
 
 export class EditableMap<V> {
-    constructor(private _src: {[key: string]: V}, private newValue: () => V) {
-        this.list = _.map(_src, (v, k) => new EditableMapItem<V>(_src, k));
+    constructor(src: {[key: string]: V}, private newValue: () => V) {
+        this.list = _.map(src, (v, k) => new EditableMapItem<V>(this, k, v));
     }
 
     list: EditableMapItem<V>[];
 
-    get src(): {[key: string]: V} {
-        return this._src;
+    toObject(): {[key: string]: V} {
+        return _.fromPairs(_.map(this.list, (x) => [x.key, x.value]));
+    }
+
+    has(key: string): boolean {
+        return !_.isNil(_.find(this.list, (x) => _.isEqual(x.key, key)));
     }
 
     add() {
         const prefix = "new_key";
         var index = 0;
         const mkKey = () => index > 0 ? `${prefix}-${index}` : prefix;
-        while (_.has(this.src, mkKey())) {
+        while (this.has(mkKey())) {
             index++;
         }
-        const flag = new EditableMapItem<V>(this.src, mkKey());
-        flag.value = this.newValue();
+        const flag = new EditableMapItem<V>(this, mkKey(), this.newValue());
         this.list.push(flag);
     }
 
     remove(flag: EditableMapItem<V>) {
-        delete this.src[flag.key];
         _.remove(this.list, (a) => _.isEqual(a.key, flag.key));
+    }
+
+    reorder(indexes) {
+        this.list = reorderArray(this.list, indexes);
     }
 }
 
 export class EditableMapItem<V> {
-    constructor(private src: {[key: string]: V}, private _key: string) {
+    constructor(private parent: EditableMap<V>, private _key: string, private _value: V) {
     }
 
     get key(): string {
@@ -44,21 +52,18 @@ export class EditableMapItem<V> {
     set key(v: string) {
         if (_.isEmpty(v)) {
             logger.debug(() => `This key is empty.`);
-        } else if (_.has(this.src, v)) {
+        } else if (this.parent.has(v)) {
             logger.debug(() => `This key is duplicate: ${v}`);
         } else {
-            const value = this.value;
-            delete this.src[this._key];
             this._key = v;
-            this.value = value;
         }
     }
 
     get value(): V {
-        return this.src[this._key];
+        return this._value;
     }
 
     set value(v: V) {
-        this.src[this._key] = v;
+        this._value = v;
     }
 }
