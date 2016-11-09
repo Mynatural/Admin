@@ -13,7 +13,7 @@ import * as Base64 from "../../util/base64";
 const logger = new Logger("Lineup.Category");
 
 const newsJson = "news.json";
-const categoriesJson = "categories.json";
+const generalsJson = "generals.json";
 const gendersJson = "genders.json";
 
 function pathJson(key: string): string {
@@ -56,8 +56,8 @@ export class CategoryController {
         return new Category(this, v, await this.srcList);
     }
 
-    async loadAll(): Promise<Im.Map<string, Category>> {
-        const json = await this.load(categoriesJson);
+    async loadGenerals(): Promise<Im.Map<string, Category>> {
+        const json = await this.load(generalsJson);
         return this.byMap(json as Info.Categories);
     }
 
@@ -70,8 +70,8 @@ export class CategoryController {
         await this.save(newsJson, obj);
     }
 
-    async saveAll(obj: Info.Categories): Promise<void> {
-        await this.save(categoriesJson, obj);
+    async saveGenerals(obj: Info.Categories): Promise<void> {
+        await this.save(generalsJson, obj);
     }
 
     async saveGenders(obj: Info.Categories): Promise<void> {
