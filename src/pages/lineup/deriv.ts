@@ -9,7 +9,8 @@ import { Logger } from "../../providers/util/logging";
 const logger = new Logger("DerivPage");
 
 @Component({
-    templateUrl: 'deriv.html'
+    selector: "lineup-deriv-page",
+    templateUrl: "deriv.html"
 })
 export class DerivPage {
     deriv: Deriv;

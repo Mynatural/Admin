@@ -10,7 +10,8 @@ import { Logger } from "../../providers/util/logging";
 const logger = new Logger("DerivGroupPage");
 
 @Component({
-    templateUrl: 'deriv_group.html'
+    selector: "lineup-deriv_group-page",
+    templateUrl: "deriv_group.html"
 })
 export class DerivGroupPage {
     derivGroup: DerivGroup;

@@ -10,7 +10,8 @@ import { Logger } from "../../providers/util/logging";
 const logger = new Logger("ItemGroupPage");
 
 @Component({
-    templateUrl: 'item_group.html'
+    selector: "lineup-item_group-page",
+    templateUrl: "item_group.html"
 })
 export class ItemGroupPage {
     static title = "ラインナップ";
