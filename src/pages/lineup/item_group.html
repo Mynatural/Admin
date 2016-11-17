@@ -7,10 +7,10 @@
             {{title}}
         </ion-title>
         <ion-buttons end *ngIf="isReady">
-            <button ion-button (click)="addNew()">
+            <button ion-button clear icon-only (click)="addNew()">
                 <ion-icon name="add"></ion-icon>
             </button>
-            <button ion-button (click)="write()">
+            <button ion-button clear icon-only (click)="write()">
                 <ion-icon name="cloud-upload"></ion-icon>
             </button>
         </ion-buttons>
