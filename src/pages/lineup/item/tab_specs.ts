@@ -26,7 +26,7 @@ export class ItemTabSpecs {
         });
     }
 
-    async addNewSpec() {
+    async addNew() {
         this.openSpec(await this.item.createSpec());
     }
 
