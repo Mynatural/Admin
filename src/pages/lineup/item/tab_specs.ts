@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 import { Component } from "@angular/core";
 import { NavController, NavParams, reorderArray } from "ionic-angular";
 
