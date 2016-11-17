@@ -35,7 +35,7 @@ async function editableMap(prom: Promise<Im.Map<string, Category>>): Promise<Edi
     return new EditableMap<Info.Category>(src, emptyCategory);
 }
 
-type TabParams<T> = {
+export type TabParams<T> = {
     title: string,
     feature: Promise<T>,
     save: (T) => Promise<void>
