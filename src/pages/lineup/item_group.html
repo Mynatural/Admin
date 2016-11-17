@@ -17,7 +17,7 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content padding class="lineup-pages">
+<ion-content class="lineup-pages">
     <ion-spinner *ngIf="!isReady"></ion-spinner>
     <ion-row class="lineup-list" *ngIf="isReady">
         <fathens-image-card small *ngFor="let item of itemGroup.availables" [target]="item.titleImage" [title]="item.name" (click)="open(item)"></fathens-image-card>
