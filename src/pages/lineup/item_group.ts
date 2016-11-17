@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Component } from "@angular/core";
 import { NavController } from "ionic-angular";
 
-import { ItemPage } from "./item";
+import { ItemPage } from "./item/item";
 import { LineupController } from "../../providers/model/lineup/lineup";
 import { ItemGroup, Item } from "../../providers/model/lineup/item";
 import { Logger } from "../../providers/util/logging";

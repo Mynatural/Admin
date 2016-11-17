@@ -9,7 +9,11 @@ import { CategoriesPage } from "../pages/categories/categories";
 import { CategoriesTabMulti } from "../pages/categories/tab_multi";
 import { CategoriesTabSingle } from "../pages/categories/tab_single";
 import { ItemGroupPage } from "../pages/lineup/item_group";
-import { ItemPage } from "../pages/lineup/item";
+import { ItemPage } from "../pages/lineup/item/item";
+import { ItemTabAttributes } from "../pages/lineup/item/tab_attributes";
+import { ItemTabImages } from "../pages/lineup/item/tab_images";
+import { ItemTabMeasures } from "../pages/lineup/item/tab_measures";
+import { ItemTabSpecs } from "../pages/lineup/item/tab_specs";
 import { SpecGroupPage } from "../pages/lineup/spec_group";
 import { SpecPage } from "../pages/lineup/spec";
 import { DerivGroupPage } from "../pages/lineup/deriv_group";
@@ -43,6 +47,10 @@ import { Prompt } from "../providers/util/prompt";
         CategoriesTabSingle,
         ItemGroupPage,
         ItemPage,
+        ItemTabAttributes,
+        ItemTabImages,
+        ItemTabMeasures,
+        ItemTabSpecs,
         SpecGroupPage,
         SpecPage,
         DerivGroupPage,
@@ -61,6 +69,10 @@ import { Prompt } from "../providers/util/prompt";
         CategoriesTabSingle,
         ItemGroupPage,
         ItemPage,
+        ItemTabAttributes,
+        ItemTabImages,
+        ItemTabMeasures,
+        ItemTabSpecs,
         SpecGroupPage,
         SpecPage,
         DerivGroupPage,

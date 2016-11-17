@@ -1,0 +1,31 @@
+<ion-header>
+    <ion-navbar>
+        <button ion-button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+        <ion-buttons end>
+            <button ion-button clear icon-only (click)="write()">
+                <ion-icon name="cloud-upload"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+</ion-header>
+
+<ion-content class="lineup-pages">
+    <div>
+        <ion-item>
+            <button ion-button icon-left (click)="addNew()">
+                <ion-icon name="add"></ion-icon>
+                Add New
+            </button>
+        </ion-item>
+    </div>
+    <ion-list reorder="true" (ionItemReorder)="reorder($event)">
+        <ion-item *ngFor="let a of item.measurements">
+            <ion-label (click)="open(a)">{{a.name}} ({{a.key}})</ion-label>
+        </ion-item>
+    </ion-list>
+</ion-content>

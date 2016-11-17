@@ -1,6 +1,15 @@
 
 .lineup-pages {
 
+    .key {
+        .error {
+            position: absolute;
+            top: 2rem;
+            font-size: 1rem;
+            color: red;
+        }
+    }
+
     .path {
         font-size: 1rem;
         font-style: italic;
@@ -18,24 +27,6 @@
         }
     }
 
-    .key {
-        .error {
-            position: absolute;
-            top: 2rem;
-            font-size: 1rem;
-            color: red;
-        }
-    }
-
-    ion-row>ion-card:first-child {
-        margin-top: 0;
-    }
-
-    .titleImage {
-        margin-top: 2rem;
-        justify-content: center;
-    }
-
     .apply {
         margin: 2rem 0 2rem 0;
         align-items: flex-start;
@@ -51,16 +42,6 @@
             ion-list {
                 margin: 0;
             }
-        }
-    }
-
-    .flags {
-        margin-top: 1rem;
-        padding-bottom: 1rem;
-        border: 1px solid gray;
-
-        &>ion-item-divider {
-            background: #fafafa;
         }
     }
 

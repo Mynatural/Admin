@@ -1,0 +1,25 @@
+<ion-header>
+    <ion-navbar>
+        <button ion-button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+        <ion-buttons end>
+            <button ion-button clear icon-only (click)="write()">
+                <ion-icon name="cloud-upload"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+</ion-header>
+
+<ion-content class="lineup-pages">
+    <ion-row class="titleImage">
+        <fathens-image-card large (click)="uploadTitleImage()" [target]="item.titleImage" [showPath]="true"></fathens-image-card>
+    </ion-row>
+
+    <ion-row>
+        <fathens-image-card *ngFor="let side of sides" (click)="uploadImage(side)" [target]="item.getImage(side)" [title]="side" [showPath]="true"></fathens-image-card>
+    </ion-row>
+</ion-content>

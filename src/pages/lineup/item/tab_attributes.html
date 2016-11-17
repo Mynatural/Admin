@@ -1,0 +1,74 @@
+<ion-header>
+    <ion-navbar>
+        <button ion-button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+        <ion-buttons end>
+            <button ion-button clear icon-only (click)="write()">
+                <ion-icon name="cloud-upload"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+</ion-header>
+
+<ion-content class="lineup-pages">
+    <ion-row class="name_key">
+        <ion-item class="name">
+            <ion-label floating>Name</ion-label>
+            <ion-input [(ngModel)]="item.name"></ion-input>
+        </ion-item>
+        <ion-item class="key">
+            <ion-label floating>Key</ion-label>
+            <ion-input [(ngModel)]="key"></ion-input>
+            <div item-left class="error" *ngIf="keyError">{{ keyError }}</div>
+        </ion-item>
+    </ion-row>
+
+    <ion-row class="description">
+        <ion-item>
+            <ion-label floating>Description</ion-label>
+            <ion-input [(ngModel)]="item.description"></ion-input>
+        </ion-item>
+    </ion-row>
+
+    <ion-row class="price">
+        <ion-item>
+            <ion-label floating>Price</ion-label>
+            <ion-input [(ngModel)]="item.price" type="number"></ion-input>
+        </ion-item>
+    </ion-row>
+
+    <ion-list class="flags">
+        <ion-item-divider>
+            Flags
+            <button ion-button item-right icon-only clear (click)="flags.add()">
+                <ion-icon name="add-circle"></ion-icon>
+            </button>
+        </ion-item-divider>
+        <ion-row *ngFor="let flag of flags.list">
+            <ion-item>
+                <ion-label floating>Key</ion-label>
+                <ion-input [(ngModel)]="flag.key"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label floating>Value</ion-label>
+                <ion-input [(ngModel)]="flag.value"></ion-input>
+                <button ion-button item-right icon-only clear color="danger" (click)="flags.remove(flag)">
+                    <ion-icon name="remove-circle"></ion-icon>
+                </button>
+            </ion-item>
+        </ion-row>
+    </ion-list>
+
+    <ion-row>
+        <ion-item>
+            <button ion-button color="danger" icon-left (click)="delete()">
+                <ion-icon name="trash"></ion-icon>
+                Delete
+            </button>
+        </ion-item>
+    </ion-row>
+</ion-content>

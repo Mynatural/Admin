@@ -185,7 +185,7 @@ export class Item {
         return one;
     }
 
-    async getMeasure(key: string): Promise<Measure> {
+    getMeasure(key: string): Measure {
         return _.find(this.measurements, {key: key});
     }
 
