@@ -8,7 +8,8 @@ import { ItemTabSpecs } from "./tab_specs";
 import { Item } from "../../../providers/model/lineup/item";
 
 @Component({
-    templateUrl: 'item.html'
+    selector: "lineup-item-page",
+    templateUrl: "item.html"
 })
 export class ItemPage {
     readonly params: {
