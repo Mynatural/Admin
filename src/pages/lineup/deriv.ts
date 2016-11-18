@@ -52,7 +52,7 @@ export class DerivPage {
 
     async delete(): Promise<void> {
         if (_.size(this.deriv.derivGroup.availables) > 1) {
-            if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+            if (await this.prompt.confirm(`"${this.deriv.name}"を削除します`)) {
                 await this.deriv.derivGroup.remove(this.deriv);
                 this.nav.pop();
             }

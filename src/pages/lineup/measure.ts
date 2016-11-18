@@ -50,7 +50,7 @@ export class MeasurePage {
     }
 
     async delete(): Promise<void> {
-        if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+        if (await this.prompt.confirm(`"${this.measure.name}"を削除します`)) {
             await this.measure.item.removeMeasure(this.measure);
             this.nav.pop();
         }

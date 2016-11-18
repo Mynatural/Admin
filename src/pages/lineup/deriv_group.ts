@@ -51,7 +51,7 @@ export class DerivGroupPage {
     }
 
     async delete(): Promise<void> {
-        if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+        if (await this.prompt.confirm(`"${this.derivGroup.name}"を削除します`)) {
             await this.derivGroup.spec.removeDeriv(this.derivGroup);
             this.nav.pop();
         }

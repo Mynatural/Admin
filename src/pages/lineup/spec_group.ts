@@ -58,7 +58,7 @@ export class SpecGroupPage {
     }
 
     async delete(): Promise<void> {
-        if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+        if (await this.prompt.confirm(`"${this.specGroup.name}"を削除します`)) {
             await this.specGroup.item.removeSpec(this.specGroup);
             this.nav.pop();
         }

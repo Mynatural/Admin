@@ -53,7 +53,7 @@ export class SpecPage {
 
     async delete(): Promise<void> {
         if (_.size(this.spec.specGroup.availables) > 1) {
-            if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+            if (await this.prompt.confirm(`"${this.spec.name}"を削除します`)) {
                 await this.spec.specGroup.remove(this.spec);
                 this.nav.pop();
             }
