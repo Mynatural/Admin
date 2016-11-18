@@ -64,7 +64,7 @@
                 Add new
             </button>
         </ion-list-header>
-        <ion-item-group reorder="true">
+        <ion-item-group reorder="true" (ionItemReorder)="reorder($event)">
             <ion-item *ngFor="let a of specGroup.availables">
                 <ion-label (click)="open(a)">{{a.name}} ({{a.key}})</ion-label>
             </ion-item>

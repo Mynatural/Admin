@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Component } from "@angular/core";
-import { NavController, NavParams } from "ionic-angular";
+import { NavController, NavParams, reorderArray } from "ionic-angular";
 
 import { SpecPage } from "./spec";
 import { Prompt } from "../../providers/util/prompt";
@@ -68,5 +68,9 @@ export class SpecGroupPage {
 
     async addNew() {
         this.open(await this.specGroup.createNew());
+    }
+
+    reorder(indexes) {
+        this.specGroup.availables = reorderArray(this.specGroup.availables, indexes);
     }
 }
