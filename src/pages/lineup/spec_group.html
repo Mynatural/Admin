@@ -15,61 +15,60 @@
 </ion-header>
 
 <ion-content class="lineup-pages">
-    <ion-spinner *ngIf="!isReady"></ion-spinner>
-    <div class="main" *ngIf="isReady">
-        <div class="path">
-            <div *ngFor="let line of path">
-                <span>{{line}}</span>
-            </div>
+    <div class="path">
+        <div *ngFor="let line of path">
+            <span>{{line}}</span>
+        </div>
+    </div>
+
+    <ion-row class="name_key">
+        <ion-item class="name">
+            <ion-label floating>Name</ion-label>
+            <ion-input [(ngModel)]="specGroup.name"></ion-input>
+        </ion-item>
+        <ion-item class="key">
+            <ion-label floating>Key</ion-label>
+            <ion-input [(ngModel)]="key"></ion-input>
+            <div item-left class="error" *ngIf="keyError">{{ keyError }}</div>
+        </ion-item>
+    </ion-row>
+
+    <ion-row class="apply">
+        <div class="side">
+            <ion-label>Side</ion-label>
+            <ion-list radio-group [(ngModel)]="specGroup.side">
+                <ion-item *ngFor="let v of sides">
+                    <ion-label>{{v}}</ion-label>
+                    <ion-radio [value]="v" [checked]="specGroup.side === v"></ion-radio>
+                </ion-item>
+            </ion-list>
         </div>
 
-        <ion-row class="name_key">
-            <ion-item class="name">
-                <ion-label floating>Name</ion-label>
-                <ion-input [(ngModel)]="specGroup.name"></ion-input>
-            </ion-item>
-            <ion-item class="key">
-                <ion-label floating>Key</ion-label>
-                <ion-input [(ngModel)]="key"></ion-input>
-                <div item-left class="error" *ngIf="keyError">{{ keyError }}</div>
-            </ion-item>
-        </ion-row>
+        <ion-item class="canSame">
+            <ion-label>canSame</ion-label>
+            <ion-select [(ngModel)]="specGroup.canSame">
+                <ion-option [value]="null" [selected]="specGroup.canSame == null">
+                    None
+                </ion-option>
+                <ion-option *ngFor="let v of otherGroups" [value]="v" [selected]="v.key == specGroup.canSame">
+                    {{v.name}}
+                </ion-option>
+            </ion-select>
+        </ion-item>
+    </ion-row>
 
-        <ion-row class="apply">
-            <div class="side">
-                <ion-label>Side</ion-label>
-                <ion-list radio-group [(ngModel)]="specGroup.side">
-                    <ion-item *ngFor="let v of sides">
-                        <ion-label>{{v}}</ion-label>
-                        <ion-radio [value]="v" [checked]="specGroup.side === v"></ion-radio>
-                    </ion-item>
-                </ion-list>
-            </div>
-
-            <ion-item class="canSame">
-                <ion-label>canSame</ion-label>
-                <ion-select [(ngModel)]="specGroup.canSame">
-                    <ion-option [value]="null" [selected]="specGroup.canSame == null">
-                        None
-                    </ion-option>
-                    <ion-option *ngFor="let v of otherGroups" [value]="v" [selected]="v.key == specGroup.canSame">
-                        {{v.name}}
-                    </ion-option>
-                </ion-select>
-            </ion-item>
-        </ion-row>
-
-        <ion-card class="values">
-            <ion-item-divider>
-                <ion-label>Values</ion-label>
-                <button ion-button item-right (click)="addNew()">
-                    <ion-icon name="add"></ion-icon>
-                    Add new
-                </button>
-            </ion-item-divider>
+    <ion-list class="values">
+        <ion-list-header>
+            <ion-label>Values</ion-label>
+            <button ion-button item-right (click)="addNew()">
+                <ion-icon name="add"></ion-icon>
+                Add new
+            </button>
+        </ion-list-header>
+        <ion-item-group reorder="true">
             <ion-item *ngFor="let a of specGroup.availables">
                 <ion-label (click)="open(a)">{{a.name}} ({{a.key}})</ion-label>
             </ion-item>
-        </ion-card>
-    </div>
+        </ion-item-group>
+    </ion-list>
 </ion-content>

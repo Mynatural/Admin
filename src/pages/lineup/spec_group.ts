@@ -34,10 +34,6 @@ export class SpecGroupPage {
         ];
     }
 
-    get isReady(): boolean {
-        return !_.isNil(this.title);
-    }
-
     get key(): string {
         return this.specGroup.key;
     }
