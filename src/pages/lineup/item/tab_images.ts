@@ -42,7 +42,7 @@ export class ItemTabImages {
 
     async uploadImage(side: Info.SpecSide) {
         try {
-            const file = await this.prompt.file("Image", "PNG file");
+            const file = await this.prompt.file(`${side} Image`, "PNG file");
             if (!_.isNil(file)) {
                 await this.prompt.loading("Uploading...", async () => {
                     await this.item.changeImage(side, file);

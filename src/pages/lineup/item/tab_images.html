@@ -17,6 +17,7 @@
 <ion-content class="lineup-pages">
     <ion-slides [options]="{ 'pager': true }">
         <ion-slide (click)="uploadTitleImage()">
+            <h1>TITLE</h1>
             <fathens-image-card [target]="item.titleImage"></fathens-image-card>
         </ion-slide>
         <ion-slide *ngFor="let side of sides" (click)="uploadImage(side)">
