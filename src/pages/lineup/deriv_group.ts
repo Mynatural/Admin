@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { NavController, NavParams } from "ionic-angular";
+import { NavController, NavParams, reorderArray } from "ionic-angular";
 
 import { DerivPage } from "./deriv";
 import { Prompt } from "../../providers/util/prompt";
@@ -61,5 +61,9 @@ export class DerivGroupPage {
 
     async addNew() {
         this.open(await this.derivGroup.createNew());
+    }
+
+    reorder(indexes) {
+        this.derivGroup.availables = reorderArray(this.derivGroup.availables, indexes);
     }
 }

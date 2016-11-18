@@ -33,16 +33,20 @@
         </ion-item>
     </ion-row>
 
-    <ion-card class="values">
-        <ion-item-divider>
+    <ion-list class="values">
+        <ion-list-header>
             <ion-label>Values</ion-label>
             <button ion-button item-right (click)="addNew()">
                 <ion-icon name="add"></ion-icon>
                 Add new
             </button>
-        </ion-item-divider>
-        <ion-item *ngFor="let a of derivGroup.availables">
-            <ion-label (click)="open(a)">{{a.name}} ({{a.key}})</ion-label>
-        </ion-item>
-    </ion-card>
+        </ion-list-header>
+        <ion-scroll scrollY="true">
+            <ion-item-group reorder="true" (ionItemReorder)="reorder($event)">
+                <ion-item *ngFor="let a of derivGroup.availables">
+                    <ion-label (click)="open(a)">{{a.name}} ({{a.key}})</ion-label>
+                </ion-item>
+            </ion-item-group>
+        </ion-scroll>
+    </ion-list>
 </ion-content>
