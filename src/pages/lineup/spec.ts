@@ -47,6 +47,10 @@ export class SpecPage {
         }
     }
 
+    async write(): Promise<void> {
+        await this.spec.specGroup.item.writeInfo();
+    }
+
     async delete(): Promise<void> {
         if (_.size(this.spec.specGroup.availables) > 1) {
             if (await this.prompt.confirm(`"${this.title}"を削除します`)) {

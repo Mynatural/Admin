@@ -46,6 +46,10 @@ export class DerivPage {
         }
     }
 
+    async write(): Promise<void> {
+        await this.deriv.derivGroup.spec.specGroup.item.writeInfo();
+    }
+
     async delete(): Promise<void> {
         if (_.size(this.deriv.derivGroup.availables) > 1) {
             if (await this.prompt.confirm(`"${this.title}"を削除します`)) {

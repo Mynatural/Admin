@@ -53,6 +53,10 @@ export class SpecGroupPage {
             (sg) => !_.isEqual(sg.key, this.specGroup.key));
     }
 
+    async write(): Promise<void> {
+        await this.specGroup.item.writeInfo();
+    }
+
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
             await this.specGroup.item.removeSpec(this.specGroup);

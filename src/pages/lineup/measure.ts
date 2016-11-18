@@ -45,6 +45,10 @@ export class MeasurePage {
         }
     }
 
+    async write(): Promise<void> {
+        await this.measure.item.writeInfo();
+    }
+
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
             await this.measure.item.removeMeasure(this.measure);
