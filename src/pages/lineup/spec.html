@@ -54,6 +54,8 @@
         </ion-item>
     </ion-row>
 
+    <fathens-image-card (click)="uploadImage()" [target]="spec.image" [showPath]="true"></fathens-image-card>
+
     <ion-list class="children">
         <ion-list-header>
             <ion-label>Derives</ion-label>
@@ -62,17 +64,17 @@
                 Add new
             </button>
         </ion-list-header>
-        <ion-item-group reorder="true" (ionItemReorder)="reorder($event)">
-            <ion-item *ngFor="let dg of spec.derivGroups">
-                <ion-label (click)="open(dg)">{{dg.name}} ({{dg.key}})</ion-label>
-                <ion-select [(ngModel)]="dg.current" [selectedText]="dg.current.name">
-                    <ion-option *ngFor="let v of dg.availables" [value]="v" [selected]="v.key == dg.current.key">
-                        {{v.name}}
-                    </ion-option>
-                </ion-select>
-            </ion-item>
-        </ion-item-group>
+        <ion-scroll scrollY="true">
+            <ion-item-group reorder="true" (ionItemReorder)="reorder($event)">
+                <ion-item *ngFor="let dg of spec.derivGroups">
+                    <ion-label (click)="open(dg)">{{dg.name}} ({{dg.key}})</ion-label>
+                    <ion-select [(ngModel)]="dg.current" [selectedText]="dg.current.name">
+                        <ion-option *ngFor="let v of dg.availables" [value]="v" [selected]="v.key == dg.current.key">
+                            {{v.name}}
+                        </ion-option>
+                    </ion-select>
+                </ion-item>
+            </ion-item-group>
+        </ion-scroll>
     </ion-list>
-
-    <fathens-image-card (click)="uploadImage()" [target]="spec.image" [showPath]="true"></fathens-image-card>
 </ion-content>
