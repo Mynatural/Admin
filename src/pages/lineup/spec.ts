@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Component } from "@angular/core";
-import { NavController, NavParams } from "ionic-angular";
+import { NavController, NavParams, reorderArray } from "ionic-angular";
 
 import { DerivGroupPage } from "./deriv_group";
 import { Prompt } from "../../providers/util/prompt";
@@ -11,7 +11,8 @@ import { Logger } from "../../providers/util/logging";
 const logger = new Logger("SpecPage");
 
 @Component({
-    templateUrl: 'spec.html'
+    selector: "lineup-spec-page",
+    templateUrl: "spec.html"
 })
 export class SpecPage {
     spec: Spec;
@@ -22,18 +23,13 @@ export class SpecPage {
     }
 
     get title(): string {
-        return this.spec.name;
+        return this.spec.specGroup.item.name;
     }
 
     get path(): string[] {
         return [
-            `Item: ${this.spec.specGroup.item.name}`,
             `Spec: ${this.spec.specGroup.name} > ${this.spec.name}`
         ];
-    }
-
-    get isReady(): boolean {
-        return !_.isNil(this.title);
     }
 
     get key(): string {
@@ -50,9 +46,13 @@ export class SpecPage {
         }
     }
 
+    async write(): Promise<void> {
+        await this.spec.specGroup.item.writeInfo();
+    }
+
     async delete(): Promise<void> {
         if (_.size(this.spec.specGroup.availables) > 1) {
-            if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+            if (await this.prompt.confirm(`"${this.spec.name}"を削除します`)) {
                 await this.spec.specGroup.remove(this.spec);
                 this.nav.pop();
             }
@@ -82,5 +82,9 @@ export class SpecPage {
         } catch (ex) {
             logger.warn(() => `Failed to load image: ${ex}`);
         }
+    }
+
+    reorder(indexes) {
+        this.spec.derivGroups = reorderArray(this.spec.derivGroups, indexes);
     }
 }

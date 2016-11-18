@@ -1,8 +1,8 @@
 import _ from "lodash";
 import { Component } from "@angular/core";
-import { NavController } from "ionic-angular";
+import { NavController, LoadingController, reorderArray } from "ionic-angular";
 
-import { ItemPage } from "./item";
+import { ItemPage } from "./item/item";
 import { LineupController } from "../../providers/model/lineup/lineup";
 import { ItemGroup, Item } from "../../providers/model/lineup/item";
 import { Logger } from "../../providers/util/logging";
@@ -10,7 +10,8 @@ import { Logger } from "../../providers/util/logging";
 const logger = new Logger("ItemGroupPage");
 
 @Component({
-    templateUrl: 'item_group.html'
+    selector: "lineup-item_group-page",
+    templateUrl: "item_group.html"
 })
 export class ItemGroupPage {
     static title = "ラインナップ";
@@ -18,9 +19,15 @@ export class ItemGroupPage {
     title = ItemGroupPage.title;
     itemGroup: ItemGroup;
 
-    constructor(private nav: NavController, lineupCtrl: LineupController) {
+    constructor(private nav: NavController, loadingCtrl: LoadingController, lineupCtrl: LineupController) {
+        const loading = loadingCtrl.create({
+            content: "Loading..."
+        });
+        loading.present();
+
         ItemGroup.byAll(lineupCtrl).then((v) => {
             this.itemGroup = v;
+            loading.dismiss();
         });
     }
 
@@ -29,7 +36,7 @@ export class ItemGroupPage {
     }
 
     async write(): Promise<void> {
-        await Promise.all(this.itemGroup.availables.map((a) => a.writeInfo()));
+        await this.itemGroup.writeAll();
     }
 
     open(item: Item) {
@@ -41,5 +48,9 @@ export class ItemGroupPage {
 
     async addNew() {
         this.open(await this.itemGroup.createNew());
+    }
+
+    reorder(indexes) {
+        this.itemGroup.availables = reorderArray(this.itemGroup.availables, indexes);
     }
 }

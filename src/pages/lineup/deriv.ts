@@ -9,7 +9,8 @@ import { Logger } from "../../providers/util/logging";
 const logger = new Logger("DerivPage");
 
 @Component({
-    templateUrl: 'deriv.html'
+    selector: "lineup-deriv-page",
+    templateUrl: "deriv.html"
 })
 export class DerivPage {
     deriv: Deriv;
@@ -20,19 +21,14 @@ export class DerivPage {
     }
 
     get title(): string {
-        return this.deriv.name;
+        return this.deriv.derivGroup.spec.specGroup.item.name;
     }
 
     get path(): string[] {
         return [
-            `Item: ${this.deriv.derivGroup.spec.specGroup.item.name}`,
             `Spec: ${this.deriv.derivGroup.spec.specGroup.name} > ${this.deriv.derivGroup.spec.name}`,
             `Deriv: ${this.deriv.derivGroup.name} > ${this.deriv.name}`
         ];
-    }
-
-    get isReady(): boolean {
-        return !_.isNil(this.title);
     }
 
     get key(): string {
@@ -49,9 +45,13 @@ export class DerivPage {
         }
     }
 
+    async write(): Promise<void> {
+        await this.deriv.derivGroup.spec.specGroup.item.writeInfo();
+    }
+
     async delete(): Promise<void> {
         if (_.size(this.deriv.derivGroup.availables) > 1) {
-            if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+            if (await this.prompt.confirm(`"${this.deriv.name}"を削除します`)) {
                 await this.deriv.derivGroup.remove(this.deriv);
                 this.nav.pop();
             }

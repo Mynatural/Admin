@@ -9,7 +9,8 @@ import { Logger } from "../../providers/util/logging";
 const logger = new Logger("MeasurePage");
 
 @Component({
-    templateUrl: 'measure.html'
+    selector: "lineup-measure-page",
+    templateUrl: "measure.html"
 })
 export class MeasurePage {
     measure: Measure;
@@ -20,12 +21,11 @@ export class MeasurePage {
     }
 
     get title(): string {
-        return this.measure.name;
+        return this.measure.item.name;
     }
 
     get path(): string[] {
         return [
-            `Item: ${this.measure.item.name}`,
             `Measure: ${this.measure.name}`
         ];
     }
@@ -44,12 +44,12 @@ export class MeasurePage {
         }
     }
 
-    get isReady(): boolean {
-        return !_.isNil(this.title);
+    async write(): Promise<void> {
+        await this.measure.item.writeInfo();
     }
 
     async delete(): Promise<void> {
-        if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+        if (await this.prompt.confirm(`"${this.measure.name}"を削除します`)) {
             await this.measure.item.removeMeasure(this.measure);
             this.nav.pop();
         }

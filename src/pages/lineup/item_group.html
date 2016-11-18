@@ -7,19 +7,23 @@
             {{title}}
         </ion-title>
         <ion-buttons end *ngIf="isReady">
-            <button ion-button (click)="addNew()">
+            <button ion-button clear icon-only (click)="addNew()">
                 <ion-icon name="add"></ion-icon>
             </button>
-            <button ion-button (click)="write()">
+            <button ion-button clear icon-only (click)="write()">
                 <ion-icon name="cloud-upload"></ion-icon>
             </button>
         </ion-buttons>
     </ion-navbar>
 </ion-header>
 
-<ion-content padding class="lineup-pages" id="item_group-page">
-    <ion-spinner *ngIf="!isReady"></ion-spinner>
-    <ion-row class="lineup-list" *ngIf="isReady">
-        <fathens-image-card small *ngFor="let item of itemGroup.availables" [target]="item.titleImage" [title]="item.name" (click)="open(item)"></fathens-image-card>
-    </ion-row>
+<ion-content class="lineup-pages">
+    <ion-list class="lineup-list" *ngIf="isReady" reorder (ionItemReorder)="reorder($event)">
+        <ion-item *ngFor="let item of itemGroup.availables" (click)="open(item)">
+            <ion-thumbnail item-left>
+                <fathens-image-card small [target]="item.titleImage"></fathens-image-card>
+            </ion-thumbnail>
+            <h2>{{ item.name }}</h2>
+        </ion-item>
+    </ion-list>
 </ion-content>

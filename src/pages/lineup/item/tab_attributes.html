@@ -1,0 +1,68 @@
+<ion-header>
+    <ion-navbar>
+        <button ion-button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            {{title}}
+        </ion-title>
+        <ion-buttons end>
+            <button ion-button clear icon-only (click)="write()">
+                <ion-icon name="cloud-upload"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+</ion-header>
+
+<ion-content class="lineup-pages">
+    <ion-item>
+        <button ion-button color="danger" icon-left (click)="delete()">
+            <ion-icon name="trash"></ion-icon>
+            Delete
+        </button>
+    </ion-item>
+
+    <ion-row class="name_key">
+        <ion-item class="name">
+            <ion-label floating>Name</ion-label>
+            <ion-input [(ngModel)]="item.name"></ion-input>
+        </ion-item>
+        <ion-item class="key">
+            <ion-label floating>Key</ion-label>
+            <ion-input [(ngModel)]="key"></ion-input>
+            <div item-left class="error" *ngIf="keyError">{{ keyError }}</div>
+        </ion-item>
+    </ion-row>
+
+    <ion-item class="price">
+        <ion-label floating>Price</ion-label>
+        <ion-input [(ngModel)]="item.price" type="number"></ion-input>
+    </ion-item>
+
+    <ion-item class="description">
+        <ion-label floating>Description</ion-label>
+        <ion-textarea rows="3" [(ngModel)]="item.description"></ion-textarea>
+    </ion-item>
+
+    <ion-list>
+        <ion-list-header color="light" margin-top>
+            Flags
+            <button ion-button item-right icon-only clear (click)="flags.add()">
+                <ion-icon name="add-circle"></ion-icon>
+            </button>
+        </ion-list-header>
+        <ion-row *ngFor="let flag of flags.list">
+            <ion-item>
+                <ion-label floating>Key</ion-label>
+                <ion-input [(ngModel)]="flag.key"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label floating>Value</ion-label>
+                <ion-input [(ngModel)]="flag.value"></ion-input>
+                <button ion-button item-right icon-only clear color="danger" (click)="flags.remove(flag)">
+                    <ion-icon name="remove-circle"></ion-icon>
+                </button>
+            </ion-item>
+        </ion-row>
+    </ion-list>
+</ion-content>

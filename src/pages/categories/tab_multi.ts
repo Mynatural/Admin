@@ -34,7 +34,7 @@ export class CategoriesTabMulti {
         this.categories.reorder(indexes);
     }
 
-    write() {
-        this.save(this.categories);
+    async write() {
+        await this.save(this.categories);
     }
 }

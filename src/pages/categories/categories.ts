@@ -4,8 +4,8 @@ import Im from "immutable";
 import { Component } from "@angular/core";
 import { NavController } from "ionic-angular";
 
-import { CategoriesTabMulti } from "tab_multi";
-import { CategoriesTabSingle } from "tab_single";
+import { CategoriesTabMulti } from "./tab_multi";
+import { CategoriesTabSingle } from "./tab_single";
 import Info from "../../providers/model/lineup/_info.d";
 import { Category, CategoryController } from "../../providers/model/lineup/category";
 import { EditableMap } from "../../providers/util/editable_map";
@@ -35,10 +35,10 @@ async function editableMap(prom: Promise<Im.Map<string, Category>>): Promise<Edi
     return new EditableMap<Info.Category>(src, emptyCategory);
 }
 
-type TabParams<T> = {
+export type TabParams<T> = {
     title: string,
     feature: Promise<T>,
-    save: (T) => void
+    save: (T) => Promise<void>
 };
 
 @Component({

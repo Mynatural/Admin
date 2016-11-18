@@ -1,6 +1,15 @@
 
 .lineup-pages {
 
+    .key {
+        .error {
+            position: absolute;
+            top: 2rem;
+            font-size: 1rem;
+            color: red;
+        }
+    }
+
     .path {
         font-size: 1rem;
         font-style: italic;
@@ -18,68 +27,16 @@
         }
     }
 
-    .key {
-        .error {
-            position: absolute;
-            top: 2rem;
-            font-size: 1rem;
-            color: red;
-        }
-    }
-
-    ion-row>ion-card:first-child {
-        margin-top: 0;
-    }
-
-    .titleImage {
-        margin-top: 2rem;
-        justify-content: center;
-    }
-
-    .apply {
-        margin: 2rem 0 2rem 0;
-        align-items: flex-start;
-
-        .side {
-            border: 2px solid lightgray;
-
-            &>ion-label {
-                margin: 0;
-                padding: 1rem;
-                background-color: #f8f8f8;
-            }
-            ion-list {
-                margin: 0;
-            }
-        }
-    }
-
-    .flags {
-        margin-top: 1rem;
-        padding-bottom: 1rem;
-        border: 1px solid gray;
-
-        &>ion-item-divider {
-            background: #fafafa;
-        }
-    }
-
     .children, .values {
-        &>ion-item-divider {
-            background-color: #faffff;
+        margin-top: 2rem;
+        border-top: solid 1px lightgray;
+
+        ion-list-header {
+            background: lightcyan;
         }
 
-        &>ion-item {
-            ion-label {
-                color: #444;
-                background-color: lightcyan;
-                border-bottom: 1px solid lightgray;
-                padding: 0.5rem;
-                font-size: 1.5rem;
-            }
-            ion-select {
-                max-width: 80%;
-            }
+        ion-scroll {
+            height: 40vh;
         }
     }
 }

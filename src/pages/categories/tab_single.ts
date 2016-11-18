@@ -26,7 +26,7 @@ export class CategoriesTabSingle {
         });
     }
 
-    write() {
-        this.save(this.category);
+    async write() {
+        await this.save(this.category);
     }
 }

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Component } from "@angular/core";
-import { NavController, NavParams } from "ionic-angular";
+import { NavController, NavParams, reorderArray } from "ionic-angular";
 
 import { SpecPage } from "./spec";
 import { Prompt } from "../../providers/util/prompt";
@@ -11,7 +11,8 @@ import { Logger } from "../../providers/util/logging";
 const logger = new Logger("SpecGroupPage");
 
 @Component({
-    templateUrl: 'spec_group.html'
+    selector: "lineup-spec_group-page",
+    templateUrl: "spec_group.html"
 })
 export class SpecGroupPage {
     specGroup: SpecGroup;
@@ -23,18 +24,13 @@ export class SpecGroupPage {
     }
 
     get title(): string {
-        return this.specGroup.name;
+        return this.specGroup.item.name;
     }
 
     get path(): string[] {
         return [
-            `Item: ${this.specGroup.item.name}`,
             `Spec: ${this.specGroup.name}`
         ];
-    }
-
-    get isReady(): boolean {
-        return !_.isNil(this.title);
     }
 
     get key(): string {
@@ -56,8 +52,12 @@ export class SpecGroupPage {
             (sg) => !_.isEqual(sg.key, this.specGroup.key));
     }
 
+    async write(): Promise<void> {
+        await this.specGroup.item.writeInfo();
+    }
+
     async delete(): Promise<void> {
-        if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
+        if (await this.prompt.confirm(`"${this.specGroup.name}"を削除します`)) {
             await this.specGroup.item.removeSpec(this.specGroup);
             this.nav.pop();
         }
@@ -71,5 +71,9 @@ export class SpecGroupPage {
 
     async addNew() {
         this.open(await this.specGroup.createNew());
+    }
+
+    reorder(indexes) {
+        this.specGroup.availables = reorderArray(this.specGroup.availables, indexes);
     }
 }

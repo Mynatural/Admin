@@ -16,8 +16,7 @@ export class ItemGroup {
         if (_.isNil(ItemGroup.all)) {
             const itemGroup = new ItemGroup(ctrl, []);
 
-            const keys = await ctrl.findItems();
-            logger.debug(() => `Found items key: ${JSON.stringify(keys, null, 4)}`);
+            const keys = await ctrl.readItemsList();
             itemGroup.availables = _.filter(await Promise.all(_.map(keys, async (key) => {
                 try {
                     const json = await ctrl.loadItem(key);
@@ -50,6 +49,11 @@ export class ItemGroup {
         const one = new Item(this.ctrl, this, key, {}, "新しいラインナップ", "", 500, [], []);
         this.availables.unshift(one);
         return one;
+    }
+
+    async writeAll(): Promise<void> {
+        await this.ctrl.writeItemsList(_.map(this.availables, (a) => a.key));
+        await Promise.all(_.map(this.availables, (a) => a.writeInfo()));
     }
 }
 
@@ -185,7 +189,7 @@ export class Item {
         return one;
     }
 
-    async getMeasure(key: string): Promise<Measure> {
+    getMeasure(key: string): Measure {
         return _.find(this.measurements, {key: key});
     }
 

@@ -17,8 +17,21 @@ export class EditableMap<V> {
         return _.fromPairs(_.map(this.list, (x) => [x.key, x.value]));
     }
 
+    private getItem(key: string): EditableMapItem<V> | null {
+        return _.find(this.list, (x) => _.isEqual(x.key, key));
+    }
+
+    get(key: string): V | null {
+        const item = this.getItem(key);
+        if (item) {
+            return item.value;
+        } else {
+            return null;
+        }
+    }
+
     has(key: string): boolean {
-        return !_.isNil(_.find(this.list, (x) => _.isEqual(x.key, key)));
+        return !_.isNil(this.getItem(key));
     }
 
     add() {
