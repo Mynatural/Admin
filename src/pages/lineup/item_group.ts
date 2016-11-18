@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Component } from "@angular/core";
-import { NavController } from "ionic-angular";
+import { NavController, LoadingController } from "ionic-angular";
 
 import { ItemPage } from "./item/item";
 import { LineupController } from "../../providers/model/lineup/lineup";
@@ -19,9 +19,15 @@ export class ItemGroupPage {
     title = ItemGroupPage.title;
     itemGroup: ItemGroup;
 
-    constructor(private nav: NavController, lineupCtrl: LineupController) {
+    constructor(private nav: NavController, loadingCtrl: LoadingController, lineupCtrl: LineupController) {
+        const loading = loadingCtrl.create({
+            content: "Loading..."
+        });
+        loading.present();
+
         ItemGroup.byAll(lineupCtrl).then((v) => {
             this.itemGroup = v;
+            loading.dismiss();
         });
     }
 
