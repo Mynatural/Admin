@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Component } from "@angular/core";
-import { NavController, LoadingController } from "ionic-angular";
+import { NavController, LoadingController, reorderArray } from "ionic-angular";
 
 import { ItemPage } from "./item/item";
 import { LineupController } from "../../providers/model/lineup/lineup";
@@ -48,5 +48,9 @@ export class ItemGroupPage {
 
     async addNew() {
         this.open(await this.itemGroup.createNew());
+    }
+
+    reorder(indexes) {
+        this.itemGroup.availables = reorderArray(this.itemGroup.availables, indexes);
     }
 }
