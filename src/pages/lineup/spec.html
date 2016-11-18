@@ -47,19 +47,15 @@
         </ion-item>
     </ion-row>
 
-    <ion-row>
-        <ion-item class="description">
-            <ion-label floating>Description</ion-label>
-            <ion-textarea rows="3" [(ngModel)]="spec.description"></ion-textarea>
-        </ion-item>
-    </ion-row>
+    <ion-item class="description">
+        <ion-label floating>Description</ion-label>
+        <ion-textarea rows="3" [(ngModel)]="spec.description"></ion-textarea>
+    </ion-item>
 
-    <ion-row>
-        <ion-item class="price">
-            <ion-label floating>Price</ion-label>
-            <ion-input [(ngModel)]="spec.price" type="number"></ion-input>
-        </ion-item>
-    </ion-row>
+    <ion-item class="price">
+        <ion-label floating>Price</ion-label>
+        <ion-input [(ngModel)]="spec.price" type="number"></ion-input>
+    </ion-item>
 
     <fathens-image-card (click)="uploadImage()" [target]="spec.image" [showPath]="true"></fathens-image-card>
 

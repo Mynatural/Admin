@@ -34,19 +34,15 @@
         </ion-item>
     </ion-row>
 
-    <ion-row class="description">
-        <ion-item>
-            <ion-label floating>Description</ion-label>
-            <ion-textarea rows="3" [(ngModel)]="item.description"></ion-textarea>
-        </ion-item>
-    </ion-row>
+    <ion-item class="price">
+        <ion-label floating>Price</ion-label>
+        <ion-input [(ngModel)]="item.price" type="number"></ion-input>
+    </ion-item>
 
-    <ion-row class="price">
-        <ion-item>
-            <ion-label floating>Price</ion-label>
-            <ion-input [(ngModel)]="item.price" type="number"></ion-input>
-        </ion-item>
-    </ion-row>
+    <ion-item class="description">
+        <ion-label floating>Description</ion-label>
+        <ion-textarea rows="3" [(ngModel)]="item.description"></ion-textarea>
+    </ion-item>
 
     <ion-list class="flags">
         <ion-item-divider>

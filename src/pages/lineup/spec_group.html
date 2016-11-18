@@ -40,28 +40,26 @@
         </ion-item>
     </ion-row>
 
-    <div class="apply">
-        <ion-item class="side">
-            <ion-label>Side</ion-label>
-            <ion-select [(ngModel)]="specGroup.side">
-                <ion-option *ngFor="let v of sides" [value]="v" [selected]="specGroup.side === v">
-                    {{v}}
-                </ion-option>
-            </ion-select>
-        </ion-item>
+    <ion-item class="side">
+        <ion-label>Side</ion-label>
+        <ion-select [(ngModel)]="specGroup.side">
+            <ion-option *ngFor="let v of sides" [value]="v" [selected]="specGroup.side === v">
+                {{v}}
+            </ion-option>
+        </ion-select>
+    </ion-item>
 
-        <ion-item class="canSame">
-            <ion-label>canSame</ion-label>
-            <ion-select [(ngModel)]="specGroup.canSame">
-                <ion-option [value]="null" [selected]="specGroup.canSame == null">
-                    None
-                </ion-option>
-                <ion-option *ngFor="let v of otherGroups" [value]="v" [selected]="v.key == specGroup.canSame">
-                    {{v.name}}
-                </ion-option>
-            </ion-select>
-        </ion-item>
-    </div>
+    <ion-item class="canSame">
+        <ion-label>canSame</ion-label>
+        <ion-select [(ngModel)]="specGroup.canSame">
+            <ion-option [value]="null" [selected]="specGroup.canSame == null">
+                None
+            </ion-option>
+            <ion-option *ngFor="let v of otherGroups" [value]="v" [selected]="v.key == specGroup.canSame">
+                {{v.name}}
+            </ion-option>
+        </ion-select>
+    </ion-item>
 
     <ion-list class="values">
         <ion-list-header>

@@ -59,12 +59,10 @@
         </ion-item>
     </ion-row>
 
-    <ion-row class="description">
-        <ion-item>
-            <ion-label floating>Description</ion-label>
-            <ion-textarea rows="3" [(ngModel)]="measure.description"></ion-textarea>
-        </ion-item>
-    </ion-row>
+    <ion-item class="description">
+        <ion-label floating>Description</ion-label>
+        <ion-textarea rows="3" [(ngModel)]="measure.description"></ion-textarea>
+    </ion-item>
 
     <fathens-image-card (click)="uploadImage()" [target]="measure.image" [showPath]="true"></fathens-image-card>
 </ion-content>
