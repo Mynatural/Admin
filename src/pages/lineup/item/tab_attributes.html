@@ -15,6 +15,13 @@
 </ion-header>
 
 <ion-content class="lineup-pages">
+    <ion-item>
+        <button ion-button color="danger" icon-left (click)="delete()">
+            <ion-icon name="trash"></ion-icon>
+            Delete
+        </button>
+    </ion-item>
+
     <ion-row class="name_key">
         <ion-item class="name">
             <ion-label floating>Name</ion-label>
@@ -62,13 +69,4 @@
             </ion-item>
         </ion-row>
     </ion-list>
-
-    <ion-row>
-        <ion-item>
-            <button ion-button color="danger" icon-left (click)="delete()">
-                <ion-icon name="trash"></ion-icon>
-                Delete
-            </button>
-        </ion-item>
-    </ion-row>
 </ion-content>
