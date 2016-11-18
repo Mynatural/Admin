@@ -17,11 +17,11 @@
 <ion-content class="lineup-pages">
     <ion-slides [options]="{ 'pager': true }">
         <ion-slide (click)="uploadTitleImage()">
-            <fathens-image-card [target]="item.titleImage" [showPath]="true"></fathens-image-card>
+            <fathens-image-card [target]="item.titleImage"></fathens-image-card>
         </ion-slide>
         <ion-slide *ngFor="let side of sides" (click)="uploadImage(side)">
             <h1>{{ side }}</h1>
-            <fathens-image-card [target]="item.getImage(side)" [showPath]="true"></fathens-image-card>
+            <fathens-image-card [target]="item.getImage(side)"></fathens-image-card>
         </ion-slide>
     </ion-slides>
 </ion-content>

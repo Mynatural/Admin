@@ -1,47 +1,14 @@
-@mixin imageCard($width) {
+fathens-image-card {
     ion-card {
-        width: $width;
         display: flex;
         flex-direction: column;
         align-items: center;
 
-        &>ion-card-title {
-            font-size: $width / 10;
+        padding: 3%;
+
+        .no-image {
+            font-size: 2rem;
+            color: red;
         }
-
-        &>p {
-            margin: 0 1rem 0 1rem;
-            font-size: $width / 12;
-        }
-
-        div {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        &>div {
-            width: $width;
-            min-height: $width / 2;
-            max-height: $width;
-
-            .no-image {
-                font-size: $width / 10;
-                color: red;
-            }
-        }
-    }
-}
-
-fathens-image-card {
-    @include imageCard(40vw);
-
-    &[small] {
-        @include imageCard(26vw);
-    }
-
-    &[large] {
-        @include imageCard(80vw);
     }
 }
