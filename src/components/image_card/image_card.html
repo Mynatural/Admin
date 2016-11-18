@@ -1,4 +1,5 @@
 <ion-card>
+    <p hidden>{{ imagePath }}</p>
     <ion-spinner *ngIf="isLoading"></ion-spinner>
     <img *ngIf="!isLoading && target.url" [src]="target.url" [alt]="imagePath">
     <p class="no-image" *ngIf="!isLoading && !target.url">
