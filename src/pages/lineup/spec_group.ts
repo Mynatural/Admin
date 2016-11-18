@@ -24,7 +24,7 @@ export class SpecGroupPage {
     }
 
     get title(): string {
-        return this.specGroup.name;
+        return this.specGroup.item.name;
     }
 
     get path(): string[] {

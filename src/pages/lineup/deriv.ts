@@ -21,7 +21,7 @@ export class DerivPage {
     }
 
     get title(): string {
-        return this.deriv.name;
+        return this.deriv.derivGroup.spec.specGroup.item.name;
     }
 
     get path(): string[] {

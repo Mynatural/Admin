@@ -21,7 +21,7 @@ export class MeasurePage {
     }
 
     get title(): string {
-        return this.measure.name;
+        return this.measure.item.name;
     }
 
     get path(): string[] {

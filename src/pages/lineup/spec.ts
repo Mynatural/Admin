@@ -23,7 +23,7 @@ export class SpecPage {
     }
 
     get title(): string {
-        return this.spec.name;
+        return this.spec.specGroup.item.name;
     }
 
     get path(): string[] {

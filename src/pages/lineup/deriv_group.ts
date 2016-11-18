@@ -22,7 +22,7 @@ export class DerivGroupPage {
     }
 
     get title(): string {
-        return this.derivGroup.name;
+        return this.derivGroup.spec.specGroup.item.name;
     }
 
     get path(): string[] {
