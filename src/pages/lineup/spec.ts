@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Component } from "@angular/core";
-import { NavController, NavParams } from "ionic-angular";
+import { NavController, NavParams, reorderArray } from "ionic-angular";
 
 import { DerivGroupPage } from "./deriv_group";
 import { Prompt } from "../../providers/util/prompt";
@@ -31,10 +31,6 @@ export class SpecPage {
             `Item: ${this.spec.specGroup.item.name}`,
             `Spec: ${this.spec.specGroup.name} > ${this.spec.name}`
         ];
-    }
-
-    get isReady(): boolean {
-        return !_.isNil(this.title);
     }
 
     get key(): string {
@@ -83,5 +79,9 @@ export class SpecPage {
         } catch (ex) {
             logger.warn(() => `Failed to load image: ${ex}`);
         }
+    }
+
+    reorder(indexes) {
+        this.spec.derivGroups = reorderArray(this.spec.derivGroups, indexes);
     }
 }
