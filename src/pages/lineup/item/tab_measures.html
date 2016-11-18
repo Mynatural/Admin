@@ -15,17 +15,18 @@
 </ion-header>
 
 <ion-content class="lineup-pages">
-    <div>
-        <ion-item>
-            <button ion-button icon-left (click)="addNew()">
+    <ion-list>
+        <ion-list-header color="light">
+            <ion-label>Measurements</ion-label>
+            <button ion-button item-right icon-left (click)="addNew()">
                 <ion-icon name="add"></ion-icon>
-                Add New
+                Add new
             </button>
-        </ion-item>
-    </div>
-    <ion-list reorder="true" (ionItemReorder)="reorder($event)">
-        <ion-item *ngFor="let a of item.measurements">
-            <ion-label (click)="open(a)">{{a.name}} ({{a.key}})</ion-label>
-        </ion-item>
+        </ion-list-header>
+        <ion-item-group reorder="true" (ionItemReorder)="reorder($event)">
+            <ion-item *ngFor="let a of item.measurements">
+                <ion-label (click)="open(a)">{{a.name}} ({{a.key}})</ion-label>
+            </ion-item>
+        </ion-item-group>
     </ion-list>
 </ion-content>

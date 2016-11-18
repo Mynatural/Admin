@@ -15,22 +15,23 @@
 </ion-header>
 
 <ion-content class="lineup-pages">
-    <div>
-        <ion-item>
-            <button ion-button icon-left (click)="addNew()">
+    <ion-list>
+        <ion-list-header color="light">
+            <ion-label>Specs</ion-label>
+            <button ion-button item-right icon-left (click)="addNew()">
                 <ion-icon name="add"></ion-icon>
-                Add New
+                Add new
             </button>
-        </ion-item>
-    </div>
-    <ion-list reorder="true" (ionItemReorder)="reorder($event)">
-        <ion-item *ngFor="let sg of item.specGroups">
-            <ion-label (click)="openSpec(sg)">{{sg.name}} ({{sg.key}})</ion-label>
-            <ion-select [(ngModel)]="sg.current" [selectedText]="sg.current.name">
-                <ion-option *ngFor="let v of sg.availables" [value]="v" [selected]="v.key == sg.current.key">
-                    {{v.name}}
-                </ion-option>
-            </ion-select>
-        </ion-item>
+        </ion-list-header>
+        <ion-item-group reorder="true" (ionItemReorder)="reorder($event)">
+            <ion-item *ngFor="let sg of item.specGroups">
+                <ion-label (click)="openSpec(sg)">{{sg.name}} ({{sg.key}})</ion-label>
+                <ion-select [(ngModel)]="sg.current" [selectedText]="sg.current.name">
+                    <ion-option *ngFor="let v of sg.availables" [value]="v" [selected]="v.key == sg.current.key">
+                        {{v.name}}
+                    </ion-option>
+                </ion-select>
+            </ion-item>
+        </ion-item-group>
     </ion-list>
 </ion-content>
