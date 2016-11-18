@@ -41,17 +41,22 @@ export class LineupController {
         return key;
     }
 
-    async findItems(): Promise<string[]> {
-        const rootDir = Path.itemDir("");
-        const finds = await this.s3image.s3.list(rootDir);
-        logger.debug(() => `Finds: ${JSON.stringify(finds, null, 4)}`);
-        return _.filter(finds.map((path) => {
-            if (path.endsWith(`/${INFO_JSON}`)) {
-                const l = _.split(path, "/");
-                return l[l.length - 2];
-            }
-            return null;
-        }));
+    async readItemsList(): Promise<string[]> {
+        try {
+            const text = await this.s3image.s3.read(Path.itemDir(ITEMS_LIST));
+            const keys = Base64.decodeJson(text) as string[];
+            logger.debug(() => `Read item keys: ${JSON.stringify(keys, null, 4)}`);
+            return keys;
+        } catch (ex) {
+            logger.warn(() => ``);
+            return [];
+        }
+    }
+
+    async writeItemsList(keys: string[]): Promise<void> {
+        logger.debug(() => `Write item keys: ${JSON.stringify(keys, null, 4)}`);
+        const path = Path.itemDir(ITEMS_LIST);
+        await this.s3image.s3.write(path, Base64.encodeJson(keys));
     }
 
     async loadItem(key: string): Promise<Info.Item> {
@@ -76,6 +81,7 @@ const SPEC = "_spec";
 const SPEC_KEY_PREFIX = "spec#";
 const IMAGES = "images";
 const INFO_JSON = "info.json.encoded";
+const ITEMS_LIST = "items_list.jsoned";
 
 export const SPEC_SIDES = Im.List.of<Info.SpecSide>("FRONT", "BACK");
 

@@ -36,7 +36,7 @@ export class ItemGroupPage {
     }
 
     async write(): Promise<void> {
-        await Promise.all(this.itemGroup.availables.map((a) => a.writeInfo()));
+        await this.itemGroup.writeAll();
     }
 
     open(item: Item) {
