@@ -32,10 +32,6 @@ export class DerivPage {
         ];
     }
 
-    get isReady(): boolean {
-        return !_.isNil(this.title);
-    }
-
     get key(): string {
         return this.deriv.key;
     }

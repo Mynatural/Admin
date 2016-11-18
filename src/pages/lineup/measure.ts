@@ -45,10 +45,6 @@ export class MeasurePage {
         }
     }
 
-    get isReady(): boolean {
-        return !_.isNil(this.title);
-    }
-
     async delete(): Promise<void> {
         if (await this.prompt.confirm(`"${this.title}"を削除します`)) {
             await this.measure.item.removeMeasure(this.measure);

@@ -15,33 +15,30 @@
 </ion-header>
 
 <ion-content class="lineup-pages">
-    <ion-spinner *ngIf="!isReady"></ion-spinner>
-    <div class="main" *ngIf="isReady">
-        <div class="path">
-            <div *ngFor="let line of path">
-                <span>{{line}}</span>
-            </div>
+    <div class="path">
+        <div *ngFor="let line of path">
+            <span>{{line}}</span>
         </div>
-
-        <ion-row class="name_key">
-            <ion-item class="name">
-                <ion-label floating>Name</ion-label>
-                <ion-input [(ngModel)]="deriv.name"></ion-input>
-            </ion-item>
-            <ion-item class="key">
-                <ion-label floating>Key</ion-label>
-                <ion-input [(ngModel)]="key"></ion-input>
-                <div item-left class="error" *ngIf="keyError">{{ keyError }}</div>
-            </ion-item>
-        </ion-row>
-
-        <ion-row class="description">
-            <ion-item>
-                <ion-label floating>Description</ion-label>
-                <ion-input [(ngModel)]="deriv.description"></ion-input>
-            </ion-item>
-        </ion-row>
-
-        <fathens-image-card (click)="uploadImage()" [target]="deriv.image" [showPath]="true"></fathens-image-card>
     </div>
+
+    <ion-row class="name_key">
+        <ion-item class="name">
+            <ion-label floating>Name</ion-label>
+            <ion-input [(ngModel)]="deriv.name"></ion-input>
+        </ion-item>
+        <ion-item class="key">
+            <ion-label floating>Key</ion-label>
+            <ion-input [(ngModel)]="key"></ion-input>
+            <div item-left class="error" *ngIf="keyError">{{ keyError }}</div>
+        </ion-item>
+    </ion-row>
+
+    <ion-row class="description">
+        <ion-item>
+            <ion-label floating>Description</ion-label>
+            <ion-input [(ngModel)]="deriv.description"></ion-input>
+        </ion-item>
+    </ion-row>
+
+    <fathens-image-card (click)="uploadImage()" [target]="deriv.image" [showPath]="true"></fathens-image-card>
 </ion-content>

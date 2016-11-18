@@ -33,10 +33,6 @@ export class DerivGroupPage {
         ];
     }
 
-    get isReady(): boolean {
-        return !_.isNil(this.title);
-    }
-
     get key(): string {
         return this.derivGroup.key;
     }
