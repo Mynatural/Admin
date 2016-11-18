@@ -45,12 +45,12 @@
     </ion-item>
 
     <ion-list class="flags">
-        <ion-item-divider>
+        <ion-list-header color="light">
             Flags
             <button ion-button item-right icon-only clear (click)="flags.add()">
                 <ion-icon name="add-circle"></ion-icon>
             </button>
-        </ion-item-divider>
+        </ion-list-header>
         <ion-row *ngFor="let flag of flags.list">
             <ion-item>
                 <ion-label floating>Key</ion-label>
