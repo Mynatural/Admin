@@ -80,8 +80,8 @@ export const LINEUP = "lineup";
 const SPEC = "_spec";
 const SPEC_KEY_PREFIX = "spec#";
 const IMAGES = "images";
-const INFO_JSON = "info.json.encoded";
 const ITEMS_LIST = "items_list.jsoned";
+const INFO_JSON = "info.jsoned";
 
 export const SPEC_SIDES = Im.List.of<Info.SpecSide>("FRONT", "BACK");
 

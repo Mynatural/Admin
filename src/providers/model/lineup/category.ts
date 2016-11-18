@@ -12,9 +12,9 @@ import * as Base64 from "../../util/base64";
 
 const logger = new Logger("Lineup.Category");
 
-const newsJson = "news.json";
-const generalsJson = "generals.json";
-const gendersJson = "genders.json";
+const newsJson = "category-news.jsoned";
+const generalsJson = "category-generals.jsoned";
+const gendersJson = "category-genders.jsoned";
 
 function pathJson(key: string): string {
     return _.join([ROOT, LINEUP, key], "/");
