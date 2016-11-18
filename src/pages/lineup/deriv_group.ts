@@ -26,7 +26,6 @@ export class DerivGroupPage {
 
     get path(): string[] {
         return [
-            `Item: ${this.derivGroup.spec.specGroup.item.name}`,
             `Spec: ${this.derivGroup.spec.specGroup.name} > ${this.derivGroup.spec.name}`,
             `Deriv: ${this.derivGroup.name}`
         ];

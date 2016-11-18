@@ -29,7 +29,6 @@ export class SpecGroupPage {
 
     get path(): string[] {
         return [
-            `Item: ${this.specGroup.item.name}`,
             `Spec: ${this.specGroup.name}`
         ];
     }

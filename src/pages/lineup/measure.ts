@@ -26,7 +26,6 @@ export class MeasurePage {
 
     get path(): string[] {
         return [
-            `Item: ${this.measure.item.name}`,
             `Measure: ${this.measure.name}`
         ];
     }

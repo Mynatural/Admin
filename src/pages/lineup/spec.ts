@@ -28,7 +28,6 @@ export class SpecPage {
 
     get path(): string[] {
         return [
-            `Item: ${this.spec.specGroup.item.name}`,
             `Spec: ${this.spec.specGroup.name} > ${this.spec.name}`
         ];
     }
