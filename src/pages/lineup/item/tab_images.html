@@ -15,14 +15,11 @@
 </ion-header>
 
 <ion-content class="lineup-pages">
-    <ion-slides [options]="{ 'pager': true }">
-        <ion-slide (click)="uploadTitleImage()">
-            <h1>TITLE</h1>
-            <fathens-image-card [target]="item.titleImage"></fathens-image-card>
-        </ion-slide>
-        <ion-slide *ngFor="let side of sides" (click)="uploadImage(side)">
-            <h1>{{ side }}</h1>
-            <fathens-image-card [target]="item.getImage(side)"></fathens-image-card>
-        </ion-slide>
-    </ion-slides>
+    <ion-segment [(ngModel)]="imageKey">
+        <ion-segment-button *ngFor="let key of imageKeys" [value]="key">
+            {{ key }}
+        </ion-segment-button>
+    </ion-segment>
+
+    <fathens-image-card [target]="getImage(imageKey)"></fathens-image-card>
 </ion-content>

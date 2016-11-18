@@ -11,13 +11,19 @@ import { Logger } from "../../../providers/util/logging";
 
 const logger = new Logger("ItemTabImages");
 
+const SIDES = SPEC_SIDES.toArray() as string[];
+function isSide(key: string): boolean {
+    return 0 <= SIDES.indexOf(key);
+}
+
 @Component({
     selector: "item-tab_images",
     templateUrl: 'tab_images.html'
 })
 export class ItemTabImages {
     readonly item: Item;
-    sides = SPEC_SIDES.toArray();
+    imageKey = "TITLE";
+    imageKeys = [this.imageKey].concat(SIDES);
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.item = params.get("item");
@@ -27,7 +33,23 @@ export class ItemTabImages {
         return this.item.name;
     }
 
-    async uploadTitleImage() {
+    getImage(key: string) {
+        if (isSide(key)) {
+            return this.item.getImage(key as Info.SpecSide);
+        } else {
+            return this.item.titleImage;
+        }
+    }
+
+    uploadImage(key: string) {
+        if (isSide(key)) {
+            this.uploadSideImage(key as Info.SpecSide);
+        } else {
+            this.uploadTitleImage();
+        }
+    }
+
+    private async uploadTitleImage() {
         try {
             const file = await this.prompt.file("Title Image", "PNG file");
             if (!_.isNil(file)) {
@@ -40,7 +62,7 @@ export class ItemTabImages {
         }
     }
 
-    async uploadImage(side: Info.SpecSide) {
+    private async uploadSideImage(side: Info.SpecSide) {
         try {
             const file = await this.prompt.file(`${side} Image`, "PNG file");
             if (!_.isNil(file)) {
