@@ -33,16 +33,15 @@
         </ion-item>
     </ion-row>
 
-    <ion-row class="apply">
-        <div class="side">
+    <div class="apply">
+        <ion-item class="side">
             <ion-label>Side</ion-label>
-            <ion-list radio-group [(ngModel)]="specGroup.side">
-                <ion-item *ngFor="let v of sides">
-                    <ion-label>{{v}}</ion-label>
-                    <ion-radio [value]="v" [checked]="specGroup.side === v"></ion-radio>
-                </ion-item>
-            </ion-list>
-        </div>
+            <ion-select [(ngModel)]="specGroup.side">
+                <ion-option *ngFor="let v of sides" [value]="v" [selected]="specGroup.side === v">
+                    {{v}}
+                </ion-option>
+            </ion-select>
+        </ion-item>
 
         <ion-item class="canSame">
             <ion-label>canSame</ion-label>
@@ -55,7 +54,7 @@
                 </ion-option>
             </ion-select>
         </ion-item>
-    </ion-row>
+    </div>
 
     <ion-list class="values">
         <ion-list-header>

@@ -27,40 +27,12 @@
         }
     }
 
-    .apply {
-        margin: 2rem 0 2rem 0;
-        align-items: flex-start;
-
-        .side {
-            border: 2px solid lightgray;
-
-            &>ion-label {
-                margin: 0;
-                padding: 1rem;
-                background-color: #f8f8f8;
-            }
-            ion-list {
-                margin: 0;
-            }
-        }
-    }
-
     .children, .values {
-        &>ion-item-divider {
-            background-color: #faffff;
-        }
+        margin-top: 2rem;
+        border-top: solid 1px lightgray;
 
-        &>ion-item {
-            ion-label {
-                color: #444;
-                background-color: lightcyan;
-                border-bottom: 1px solid lightgray;
-                padding: 0.5rem;
-                font-size: 1.5rem;
-            }
-            ion-select {
-                max-width: 80%;
-            }
+        ion-list-header {
+            background: lightcyan;
         }
     }
 }
