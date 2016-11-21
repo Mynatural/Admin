@@ -1,14 +1,7 @@
 fathens-category {
-    ion-item.key {
-        background: linear-gradient(lightblue, white);
-    }
-    .flags {
-        margin: 1rem;
-        padding-bottom: 1rem;
-        border: 1px solid gray;
-
-        &>ion-item-divider {
-            background: #fafafa;
+    ion-item-divider {
+        .item-inner {
+            border: none !important;
         }
     }
 }

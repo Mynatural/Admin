@@ -2,7 +2,7 @@ import _ from "lodash";
 import Im from "immutable";
 
 import { Component } from "@angular/core";
-import { NavController } from "ionic-angular";
+import { NavController, LoadingController } from "ionic-angular";
 
 import { CategoriesTabMulti } from "./tab_multi";
 import { CategoriesTabSingle } from "./tab_single";
@@ -21,17 +21,16 @@ const emptyCategory = () => {
     };
 };
 
-async function editableMap(prom: Promise<Im.Map<string, Category>>): Promise<EditableMap<Info.Category>> {
-    async function load() {
+function editableMap(map: Im.Map<string, Category>): EditableMap<Info.Category> {
+    function load() {
         try {
-            const map = await prom;
             return _.mapValues(map.toObject(), (x) => x.asJSON());
         } catch (ex) {
             logger.info(() => `No Categories found. Using empty list...`);
             return {};
         }
     }
-    const src = await load();
+    const src = load();
     return new EditableMap<Info.Category>(src, emptyCategory);
 }
 
@@ -57,15 +56,20 @@ export class CategoriesPage {
     readonly generals: TabParams<EditableMap<Info.Category>>;
     readonly genders: TabParams<EditableMap<Info.Category>>;
 
-    constructor(private nav: NavController, private ctgCtrl: CategoryController) {
+    constructor(private nav: NavController, loadingCtrl: LoadingController, private ctgCtrl: CategoryController) {
+        const loading = loadingCtrl.create({
+            content: "Loading..."
+        });
+        loading.present();
+
         this.generals = {
             title: "Generals",
-            feature: editableMap(this.ctgCtrl.loadGenerals()),
+            feature: this.ctgCtrl.loadGenerals().then((x) => editableMap(x)),
             save: (x) => this.ctgCtrl.saveGenerals(x.toObject())
         };
         this.genders = {
             title: "Genders",
-            feature: editableMap(this.ctgCtrl.loadGenders()),
+            feature: this.ctgCtrl.loadGenders().then((x) => editableMap(x)),
             save: (x) => this.ctgCtrl.saveGenders(x.toObject())
         };
         this.news = {
@@ -73,6 +77,14 @@ export class CategoriesPage {
             feature: this.loadNews(),
             save: (x) => this.ctgCtrl.saveNews(x)
         };
+
+        Promise.all([
+            this.generals.feature,
+            this.genders.feature,
+            this.news.feature
+        ]).then(() => {
+            loading.dismiss();
+        });
     }
 
     private async loadNews(): Promise<Info.Category> {

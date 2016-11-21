@@ -1,20 +1,22 @@
-<ion-item *ngIf="key" class="key">
-    <ion-label floating>Key</ion-label>
-    <ion-input [ngModel]="key" (ngModelChange)="keyChange.emit($event)"></ion-input>
-</ion-item>
+<ion-list>
+    <ion-row>
+        <ion-item *ngIf="key" class="key">
+            <ion-label floating>Key</ion-label>
+            <ion-input [ngModel]="key" (ngModelChange)="keyChange.emit($event)"></ion-input>
+        </ion-item>
 
-<ion-item class="title">
-    <ion-label floating>Title</ion-label>
-    <ion-input [(ngModel)]="category.title"></ion-input>
-</ion-item>
+        <ion-item class="title">
+            <ion-label floating>Title</ion-label>
+            <ion-input [(ngModel)]="category.title"></ion-input>
+        </ion-item>
+    </ion-row>
 
-<ion-item class="message">
-    <ion-label floating>Message</ion-label>
-    <ion-input [(ngModel)]="category.message"></ion-input>
-</ion-item>
+    <ion-item class="message">
+        <ion-label floating>Message</ion-label>
+        <ion-textarea rows="3" [(ngModel)]="category.message"></ion-textarea>
+    </ion-item>
 
-<ion-list class="flags">
-    <ion-item-divider>
+    <ion-item-divider color="light" margin-top>
         Flags
         <button ion-button item-right icon-only clear (click)="flags.add()">
             <ion-icon name="add-circle"></ion-icon>

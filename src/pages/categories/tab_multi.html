@@ -16,29 +16,30 @@
 
 <ion-content>
     <div *ngIf="categories">
-        <ion-item class="controller">
-            <button ion-button item-left clear icon-only (click)="reordering= !reordering">
-                <ion-icon [name]="reordering ? 'arrow-dropright' : 'arrow-dropdown'"></ion-icon>
-            </button>
-            <p>LIST</p>
-            <button ion-button item-right clear icon-only (click)="categories.add()">
-                <ion-icon name="add"></ion-icon>
-            </button>
-        </ion-item>
-
-        <ion-list *ngIf="reordering" reorder="true" (ionItemReorder)="reorder($event)">
-            <ion-item *ngFor="let item of categories.list">
-                <p>{{ item.key }}: {{ item.value.title }}</p>
-            </ion-item>
-        </ion-list>
-
-        <div *ngIf="!reordering" class="editor">
-            <div *ngFor="let item of categories.list">
-                <fathens-category [key]="item.key" (keyChange)="item.key = $event" [category]="item.value"></fathens-category>
-                <button ion-button clear icon-only color="danger" (click)="categories.remove(item)">
-                    <ion-icon name="remove"></ion-icon>
+        <ion-list>
+            <ion-list-header color="light">
+                <ion-label>LIST</ion-label>
+                <button ion-button item-right clear icon-only (click)="categories.add()">
+                    <ion-icon name="add"></ion-icon>
                 </button>
-            </div>
-        </div>
+            </ion-list-header>
+
+            <ion-item-group [reorder]="!editing" (ionItemReorder)="reorder($event)">
+                <ion-item align-top *ngFor="let item of categories.list">
+                    <button ion-button clear icon-only color="dark" item-left (click)="choose(item.key)">
+                        <ion-icon [name]="editing !== item.key ? 'arrow-dropright' : 'arrow-dropdown'"></ion-icon>
+                    </button>
+                    <div *ngIf="editing !== item.key" (click)="choose(item.key)">
+                        <p>{{ item.key }}: {{ item.value.title }}</p>
+                    </div>
+                    <div *ngIf="editing === item.key" class="editor">
+                        <fathens-category [key]="item.key" (keyChange)="item.key = $event" [category]="item.value"></fathens-category>
+                    </div>
+                    <button ion-button clear icon-only color="danger" item-right (click)="delete(item)">
+                        <ion-icon name="remove"></ion-icon>
+                    </button>
+                </ion-item>
+            </ion-item-group>
+        </ion-list>
     </div>
 </ion-content>
