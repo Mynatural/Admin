@@ -35,7 +35,7 @@
                     <div *ngIf="editing === item.key" class="editor">
                         <fathens-category [key]="item.key" (keyChange)="item.key = $event" [category]="item.value"></fathens-category>
                     </div>
-                    <button ion-button clear icon-only color="danger" item-right (click)="categories.remove(item)">
+                    <button ion-button clear icon-only color="danger" item-right (click)="delete(item)">
                         <ion-icon name="remove"></ion-icon>
                     </button>
                 </ion-item>

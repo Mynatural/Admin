@@ -5,7 +5,8 @@ import { NavParams } from "ionic-angular";
 
 import Info from "../../providers/model/lineup/_info.d";
 import { Category } from "../../providers/model/lineup/category";
-import { EditableMap } from "../../providers/util/editable_map";
+import { Prompt } from "../../providers/util/prompt";
+import { EditableMap, EditableMapItem } from "../../providers/util/editable_map";
 import { Logger } from "../../providers/util/logging";
 
 const logger = new Logger("CategoriesTabMulti");
@@ -21,7 +22,7 @@ export class CategoriesTabMulti {
 
     editing: string;
 
-    constructor(params: NavParams) {
+    constructor(params: NavParams, private prompt: Prompt) {
         logger.debug(() => `Creating tab by data: ${params.data}`);
 
         this.title = params.get("title");
@@ -45,6 +46,12 @@ export class CategoriesTabMulti {
             this.editing = null;
         } else {
             this.editing = itemKey;
+        }
+    }
+
+    async delete(item: EditableMapItem<Info.Category>) {
+        if (await this.prompt.confirm(`"${item.key}"を削除します`)) {
+            this.categories.remove(item);
         }
     }
 }
