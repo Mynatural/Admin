@@ -1,6 +1,12 @@
 import _ from "lodash"
 
-import { Component } from "@angular/core";
+import { Component,
+        trigger,
+        state,
+        style,
+        transition,
+        keyframes,
+        animate } from "@angular/core";
 import { NavParams } from "ionic-angular";
 
 import Info from "../../providers/model/lineup/_info.d";
@@ -13,7 +19,41 @@ const logger = new Logger("CategoriesTabMulti");
 
 @Component({
     selector: "categories-tab_multi",
-    templateUrl: 'tab_multi.html'
+    templateUrl: 'tab_multi.html',
+    animations: [
+        trigger("collapseHead", [
+            state("close", style({display: "block"})),
+            state("open", style({display: "none"})),
+            transition("close => open", [
+                animate("0.5s 0.5s ease", keyframes([
+                    style({maxHeight: "3rem"}),
+                    style({maxHeight: "0"})
+                ]))
+            ]),
+            transition("open => close", [
+                animate("0.5s 0s ease", keyframes([
+                    style({maxHeight: "0"}),
+                    style({maxHeight: "3rem"})
+                ]))
+            ])
+        ]),
+        trigger("collapseBody", [
+            state("close", style({display: "none"})),
+            state("open", style({display: "block"})),
+            transition("close => open", [
+                animate("0.5s 0s ease", keyframes([
+                    style({maxHeight: "0"}),
+                    style({maxHeight: "100vh"})
+                ]))
+            ]),
+            transition("open => close", [
+                animate("0.5s 0s ease", keyframes([
+                    style({maxHeight: "100vh"}),
+                    style({maxHeight: "0"})
+                ]))
+            ])
+        ])
+    ]
 })
 export class CategoriesTabMulti {
     readonly title: string;
@@ -31,6 +71,14 @@ export class CategoriesTabMulti {
         params.get("feature").then(async (v) => {
             this.categories = v;
         });
+    }
+
+    isEditing(itemKey: string): boolean {
+        return _.isEqual(this.editing, itemKey);
+    }
+
+    collapseState(itemKey: string): string {
+        return this.isEditing(itemKey) ? "open" : "close";
     }
 
     reorder(indexes) {
