@@ -33,7 +33,7 @@ export class ItemTabImages {
         return this.item.name;
     }
 
-    getImage(key: string) {
+    get(key: string) {
         if (isSide(key)) {
             return this.item.getImage(key as Info.SpecSide);
         } else {
@@ -41,7 +41,7 @@ export class ItemTabImages {
         }
     }
 
-    uploadImage(key: string) {
+    upload(key: string) {
         if (isSide(key)) {
             this.uploadSideImage(key as Info.SpecSide);
         } else {
