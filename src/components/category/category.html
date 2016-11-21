@@ -1,25 +1,27 @@
-<ion-item *ngIf="key" class="key">
-    <ion-label floating>Key</ion-label>
-    <ion-input [ngModel]="key" (ngModelChange)="keyChange.emit($event)"></ion-input>
-</ion-item>
+<ion-list>
+    <ion-item *ngIf="key" class="key">
+        <ion-label floating>Key</ion-label>
+        <ion-input [ngModel]="key" (ngModelChange)="keyChange.emit($event)"></ion-input>
+    </ion-item>
 
-<ion-item class="title">
-    <ion-label floating>Title</ion-label>
-    <ion-input [(ngModel)]="category.title"></ion-input>
-</ion-item>
+    <ion-item class="title">
+        <ion-label floating>Title</ion-label>
+        <ion-input [(ngModel)]="category.title"></ion-input>
+    </ion-item>
 
-<ion-item class="message">
-    <ion-label floating>Message</ion-label>
-    <ion-input [(ngModel)]="category.message"></ion-input>
-</ion-item>
+    <ion-item class="message">
+        <ion-label floating>Message</ion-label>
+        <ion-input [(ngModel)]="category.message"></ion-input>
+    </ion-item>
+</ion-list>
 
-<ion-list class="flags">
-    <ion-item-divider>
+<ion-list>
+    <ion-list-header color="light">
         Flags
         <button ion-button item-right icon-only clear (click)="flags.add()">
             <ion-icon name="add-circle"></ion-icon>
         </button>
-    </ion-item-divider>
+    </ion-list-header>
     <ion-row *ngFor="let flag of flags.list">
         <ion-item>
             <ion-label floating>Key</ion-label>
