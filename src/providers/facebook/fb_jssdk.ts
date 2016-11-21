@@ -9,7 +9,7 @@ import { Logger } from "../util/logging";
 const logger = new Logger("FBJSSDK");
 
 const invokeInterval = 1000; // 1 second;
-var lastInvoked: Promise<void>;
+let lastInvoked: Promise<void>;
 
 @Injectable()
 export class FBJSSDK implements FBConnectPlugin {

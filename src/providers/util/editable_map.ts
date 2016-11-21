@@ -42,7 +42,7 @@ export class EditableMap<V> {
 
     add() {
         const prefix = "new_key";
-        var index = 0;
+        let index = 0;
         const mkKey = () => index > 0 ? `${prefix}-${index}` : prefix;
         while (this.has(mkKey())) {
             index++;

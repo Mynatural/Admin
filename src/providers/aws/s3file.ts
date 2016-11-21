@@ -205,7 +205,7 @@ export class S3Image {
 
     private async checkUrl(url: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            var http = new XMLHttpRequest();
+            let http = new XMLHttpRequest();
             http.onload = () => {
                 resolve(_.floor(http.status / 100) == 2);
             };
@@ -250,8 +250,8 @@ export class CachedImage {
 
     private async refresh(limit: number) {
         try {
-            var url;
-            var i = 0;
+            let url;
+            let i = 0;
             while (_.isNil(url) && i < this._pathList.length) {
                 url = await this.load(this._pathList[i++]);
             }

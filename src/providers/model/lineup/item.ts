@@ -160,7 +160,7 @@ export class Item {
     }
 
     get totalPrice(): number {
-        var result = this.price;
+        let result = this.price;
         _.forEach(this.specGroups, (spec, key) => {
             const v = spec.current;
             if (v) {
