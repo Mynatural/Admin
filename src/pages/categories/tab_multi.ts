@@ -22,19 +22,13 @@ const logger = new Logger("CategoriesTabMulti");
     templateUrl: 'tab_multi.html',
     animations: [
         trigger("collapseHead", [
-            state("close", style({display: "block"})),
-            state("open", style({display: "none"})),
+            state("close", style({maxHeight: "3rem"})),
+            state("open", style({maxHeight: "0"})),
             transition("close => open", [
-                animate("0.5s 0.5s ease", keyframes([
-                    style({maxHeight: "3rem"}),
-                    style({maxHeight: "0"})
-                ]))
+                animate("0.5s 0.7s ease")
             ]),
             transition("open => close", [
-                animate("0.5s 0s ease", keyframes([
-                    style({maxHeight: "0"}),
-                    style({maxHeight: "3rem"})
-                ]))
+                animate("0.5s 0s ease")
             ])
         ]),
         trigger("collapseBody", [
