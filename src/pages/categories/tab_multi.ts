@@ -1,3 +1,5 @@
+import _ from "lodash"
+
 import { Component } from "@angular/core";
 import { NavParams } from "ionic-angular";
 
@@ -17,7 +19,7 @@ export class CategoriesTabMulti {
     readonly save: any;
     categories: EditableMap<Info.Category>;
 
-    reordering = true;
+    editing: string;
 
     constructor(params: NavParams) {
         logger.debug(() => `Creating tab by data: ${params.data}`);
@@ -36,5 +38,13 @@ export class CategoriesTabMulti {
 
     async write() {
         await this.save(this.categories);
+    }
+
+    choose(itemKey: string) {
+        if (this.editing && _.isEqual(this.editing, itemKey)) {
+            this.editing = null;
+        } else {
+            this.editing = itemKey;
+        }
     }
 }
