@@ -13,15 +13,13 @@
         <ion-label floating>Message</ion-label>
         <ion-input [(ngModel)]="category.message"></ion-input>
     </ion-item>
-</ion-list>
 
-<ion-list>
-    <ion-list-header color="light">
+    <ion-item-divider color="light" margin-top>
         Flags
         <button ion-button item-right icon-only clear (click)="flags.add()">
             <ion-icon name="add-circle"></ion-icon>
         </button>
-    </ion-list-header>
+    </ion-item-divider>
     <ion-row *ngFor="let flag of flags.list">
         <ion-item>
             <ion-label floating>Key</ion-label>
