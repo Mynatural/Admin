@@ -2,7 +2,7 @@ import _ from "lodash";
 import Im from "immutable";
 
 import { Component } from "@angular/core";
-import { NavController } from "ionic-angular";
+import { NavController, LoadingController } from "ionic-angular";
 
 import { CategoriesTabMulti } from "./tab_multi";
 import { CategoriesTabSingle } from "./tab_single";
@@ -56,7 +56,12 @@ export class CategoriesPage {
     readonly generals: TabParams<EditableMap<Info.Category>>;
     readonly genders: TabParams<EditableMap<Info.Category>>;
 
-    constructor(private nav: NavController, private ctgCtrl: CategoryController) {
+    constructor(private nav: NavController, loadingCtrl: LoadingController, private ctgCtrl: CategoryController) {
+        const loading = loadingCtrl.create({
+            content: "Loading..."
+        });
+        loading.present();
+
         this.generals = {
             title: "Generals",
             feature: this.ctgCtrl.loadGenerals().then((x) => editableMap(x)),
@@ -72,6 +77,14 @@ export class CategoriesPage {
             feature: this.loadNews(),
             save: (x) => this.ctgCtrl.saveNews(x)
         };
+
+        Promise.all([
+            this.generals.feature,
+            this.genders.feature,
+            this.news.feature
+        ]).then(() => {
+            loading.dismiss();
+        });
     }
 
     private async loadNews(): Promise<Info.Category> {
