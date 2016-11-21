@@ -20,7 +20,9 @@ export class CategoryComponent {
     private _flags: EditableMap<string>;
     get flags(): EditableMap<string> {
         if (_.isNil(this._flags)) {
-            this._flags = new EditableMap<string>(this.category.flags, () => "new_value");
+            this._flags = new EditableMap<string>(this.category.flags, () => "new_value", (em) => {
+                this.category.flags = em.toObject();
+            });
             logger.debug(() => `flags are decoded.`);
         }
         return this._flags;

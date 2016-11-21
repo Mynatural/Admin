@@ -123,7 +123,7 @@ export class Category {
 
     private async filter(): Promise<Im.List<Item>> {
         const srcList = this._srcList || await this.ctrl.srcList;
-        var result = srcList;
+        let result = srcList;
         this.flags.forEach((value, name) => {
             result = result.filter((item) => {
                 return _.isEqual(item.flags[name], value);
