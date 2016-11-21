@@ -56,6 +56,7 @@ export class ItemTabAttributes {
     }
 
     async write(): Promise<void> {
+        this.item.flags = this.flags.toObject();
         await this.item.writeInfo();
     }
 
