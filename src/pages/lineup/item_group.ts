@@ -47,7 +47,9 @@ export class ItemGroupPage {
     }
 
     async addNew() {
-        this.open(await this.itemGroup.createNew());
+        const item = await this.itemGroup.createNew();
+        await this.itemGroup.writeNames();
+        this.open(item);
     }
 
     reorder(indexes) {
