@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 import { Component } from "@angular/core";
 import { NavParams } from "ionic-angular";
 
@@ -13,7 +15,8 @@ import { Item } from "../../../providers/model/lineup/item";
 })
 export class ItemPage {
     readonly params: {
-        item: Item
+        item: Item,
+        write: () => Promise<void>
     };
 
     readonly tabAttributes = ItemTabAttributes;
@@ -22,8 +25,17 @@ export class ItemPage {
     readonly tabSpecs = ItemTabSpecs;
 
     constructor(params: NavParams) {
+        const item = params.get("item");
+        const initialKey = item.key;
         this.params = {
-            item: params.get("item")
+            item: item,
+            write: async () => {
+                const savings = [item.writeInfo()];
+                if (!_.isEqual(initialKey, item.key)) {
+                    savings.push(item.itemGroup.writeNames());
+                }
+                await Promise.all(savings);
+            }
         };
     }
 }
