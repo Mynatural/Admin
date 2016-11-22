@@ -51,9 +51,14 @@ export class ItemGroup {
         return one;
     }
 
-    async writeAll(): Promise<void> {
+    async writeNames(): Promise<void> {
         await this.ctrl.writeItemsList(_.map(this.availables, (a) => a.key));
-        await Promise.all(_.map(this.availables, (a) => a.writeInfo()));
+    }
+
+    async writeAll(): Promise<void> {
+        const waits = _.map(this.availables, (a) => a.writeInfo());
+        waits.push(this.writeNames());
+        await Promise.all(waits);
     }
 }
 
