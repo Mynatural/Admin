@@ -16,9 +16,11 @@ const logger = new Logger("ItemTabAttributes");
 })
 export class ItemTabAttributes {
     readonly item: Item;
+    private _write: () => Promise<void>;
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.item = params.get("item");
+        this._write = params.get("write");
     }
 
     get title(): string {
@@ -57,7 +59,7 @@ export class ItemTabAttributes {
 
     async write(): Promise<void> {
         this.item.flags = this.flags.toObject();
-        await this.item.writeInfo();
+        await this._write();
     }
 
     async delete(): Promise<void> {

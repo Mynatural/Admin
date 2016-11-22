@@ -11,9 +11,11 @@ import { Measure } from "../../../providers/model/lineup/measure";
 })
 export class ItemTabMeasures {
     readonly item: Item;
+    readonly write: () => Promise<void>;
 
     constructor(private nav: NavController, params: NavParams) {
         this.item = params.get("item");
+        this.write = params.get("write");
     }
 
     get title(): string {
@@ -32,9 +34,5 @@ export class ItemTabMeasures {
 
     reorder(indexes) {
         this.item.measurements = reorderArray(this.item.measurements, indexes);
-    }
-
-    async write(): Promise<void> {
-        await this.item.writeInfo();
     }
 }

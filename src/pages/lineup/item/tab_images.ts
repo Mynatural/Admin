@@ -22,11 +22,14 @@ function isSide(key: string): boolean {
 })
 export class ItemTabImages {
     readonly item: Item;
+    readonly write: () => Promise<void>;
+
     imageKey = "TITLE";
     imageKeys = [this.imageKey].concat(SIDES);
 
     constructor(private nav: NavController, private prompt: Prompt, params: NavParams) {
         this.item = params.get("item");
+        this.write = params.get("write");
     }
 
     get title(): string {
@@ -73,9 +76,5 @@ export class ItemTabImages {
         } catch (ex) {
             logger.warn(() => `Failed to load image: ${ex}`);
         }
-    }
-
-    async write(): Promise<void> {
-        await this.item.writeInfo();
     }
 }

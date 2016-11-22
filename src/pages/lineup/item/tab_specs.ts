@@ -11,9 +11,11 @@ import { SpecGroup } from "../../../providers/model/lineup/spec";
 })
 export class ItemTabSpecs {
     readonly item: Item;
+    readonly write: () => Promise<void>;
 
     constructor(private nav: NavController, params: NavParams) {
         this.item = params.get("item");
+        this.write = params.get("write");
     }
 
     get title(): string {
@@ -32,9 +34,5 @@ export class ItemTabSpecs {
 
     reorder(indexes) {
         this.item.specGroups = reorderArray(this.item.specGroups, indexes);
-    }
-
-    async write(): Promise<void> {
-        await this.item.writeInfo();
     }
 }
