@@ -6,6 +6,7 @@ import { NavController, NavParams } from "ionic-angular";
 import Info from "../../../providers/model/lineup/_info";
 import { SPEC_SIDES } from "../../../providers/model/lineup/lineup";
 import { Item } from "../../../providers/model/lineup/item";
+import { CachedImage } from "../../../providers/aws/s3file";
 import { Prompt } from "../../../providers/util/prompt";
 import { Logger } from "../../../providers/util/logging";
 
@@ -36,7 +37,7 @@ export class ItemTabImages {
         return this.item.name;
     }
 
-    get(key: string) {
+    get(key: string): CachedImage {
         if (isSide(key)) {
             return this.item.getImage(key as Info.SpecSide);
         } else {
