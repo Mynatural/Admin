@@ -15,7 +15,7 @@ export class HomePage {
     title = HomePage.title;
 
     topMessages = [
-        "Mynatural",
+        "Chacorte",
         "管理アプリ"
     ];
 

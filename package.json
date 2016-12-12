@@ -1,7 +1,7 @@
 {
-  "name": "mynatural",
+  "name": "chacorte",
   "version": "0.2.4",
-  "description": "Mynatural: An Ionic project",
+  "description": "Admin of Chacorte",
   "engines": {
     "node": "6.7.0"
   },
